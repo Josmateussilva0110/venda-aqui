@@ -1,0 +1,5 @@
+process.env.NODE_ENV = "test"
+process.env.SUPABASE_URL ??= "http://localhost:54321"
+process.env.SUPABASE_SECRET_KEY ??= "test-secret-key"
+process.env.JWT_SECRET ??= "test-jwt-secret-with-at-least-32-characters"
+process.env.WHATSAPP_PROVIDER ??= "console"
