@@ -5,8 +5,8 @@ Node 20+, TypeScript, Express 5, zod e Supabase (Postgres + Storage).
 
 ## Rodando
 
-1. Crie um projeto no Supabase e aplique a migration `supabase/migrations/20261025000000_auth_and_products.sql`
-   (pelo SQL Editor ou com `supabase db push`). Ela cria as tabelas, as funções e o bucket `product-photos`.
+1. Crie um projeto no Supabase e aplique as migrations de `supabase/migrations/` em ordem
+   (pelo SQL Editor ou com `supabase db push`). Elas criam as tabelas, as funções e o bucket `product-photos`.
 2. Na raiz do repositório (não em `backend/`), `cp .env.example .env` e preencha `SUPABASE_URL`, `SUPABASE_SECRET_KEY` e `JWT_SECRET`.
 3. `npm install` e depois `npm run dev`. A API sobe em `http://localhost:3333/api`.
 
@@ -73,14 +73,21 @@ Regras de negócio:
 
 | Método | Rota | Corpo / query | Resposta (`data`) |
 |---|---|---|---|
-| GET | `/` | `?search=&limit=50&offset=0` | `{ items, total, limit, offset }`, ordenado por nome |
+| GET | `/` | `?search=&stockLevel=all&limit=50&offset=0` | `{ items, total, limit, offset, stockCounts, lowStockThreshold }`, ordenado por nome |
 | POST | `/` | `{ name, salePriceCents, costPriceCents, quantity, soldByWeight }` | `{ id }` (201) |
 | GET | `/:id` | | produto |
 | PUT | `/:id` | mesmo corpo do POST | `{ id }` |
+| POST | `/:id/restock` | `{ quantity }` (quanto chegou, > 0) | `{ id }`; a soma é feita no banco |
 | POST | `/:id/photo/upload-url` | `{ contentType }` (`image/jpeg`, `image/png` ou `image/webp`) | `{ path, signedUrl, token }` |
 | PUT | `/:id/photo` | `{ path }` | `{ id }` |
 
-Produto = `{ id, name, photoUrl, salePriceCents, costPriceCents, quantity, soldByWeight, createdAt, updatedAt }`.
+Produto = `{ id, name, photoUrl, salePriceCents, costPriceCents, quantity, soldByWeight, stockLevel, createdAt, updatedAt }`.
+
+- `stockLevel` do produto: `ok`, `low` (até `lowStockThreshold`, hoje 5 unidades/kg) ou `out` (zerado). O limite é
+  regra do servidor (`src/constants/products.ts`); o app só exibe.
+- Filtro `stockLevel` da lista: `all`, `low`, `out` ou `attention` (baixo + esgotado, do menor estoque para o maior,
+  usado nos alertas do início). `stockCounts = { all, low, out }` ignora busca e filtro (números das abas).
+- Reposição em produto vendido por unidade com quantidade fracionada responde `422 RESTOCK_QUANTITY_NOT_INTEGER`.
 O nome é único por comerciante, sem diferenciar maiúsculas de minúsculas (`409 PRODUCT_NAME_TAKEN`).
 
 Para enviar a foto: (1) peça a URL em `/photo/upload-url`; (2) envie o arquivo direto ao Supabase com
