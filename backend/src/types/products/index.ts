@@ -1,5 +1,7 @@
 export * from "./errors"
 
+export type StockLevel = "ok" | "low" | "out"
+
 export interface Product {
   id: string
   name: string
@@ -8,8 +10,15 @@ export interface Product {
   costPriceCents: number
   quantity: number
   soldByWeight: boolean
+  stockLevel: StockLevel
   createdAt: string
   updatedAt: string
+}
+
+export interface StockCounts {
+  all: number
+  low: number
+  out: number
 }
 
 export interface ProductList {
@@ -17,6 +26,8 @@ export interface ProductList {
   total: number
   limit: number
   offset: number
+  stockCounts: StockCounts
+  lowStockThreshold: number
 }
 
 export interface PhotoUploadTarget {

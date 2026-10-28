@@ -8,3 +8,7 @@ export function isUniqueViolation(error: unknown): boolean {
 export function escapeLikePattern(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`)
 }
+
+export function isCheckViolation(error: unknown): boolean {
+  return (error as PostgrestError | null)?.code === "23514"
+}

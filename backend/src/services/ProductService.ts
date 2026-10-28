@@ -1,12 +1,20 @@
 import { randomUUID } from "node:crypto"
 import { supabase } from "../config/supabase"
 import { PRODUCT_COLUMNS } from "../constants/columns"
+import { LOW_STOCK_THRESHOLD } from "../constants/products"
 import { PHOTO_EXTENSIONS, PRODUCT_PHOTOS_BUCKET, type PhotoContentType } from "../constants/storage"
 import type { ListProductsDTO } from "../schemas/products/listProducts"
 import type { ProductDTO } from "../schemas/products/product"
-import { ProductErrorCode, type PhotoUploadTarget, type Product, type ProductList } from "../types/products"
+import {
+  ProductErrorCode,
+  type PhotoUploadTarget,
+  type Product,
+  type ProductList,
+  type StockCounts,
+  type StockLevel,
+} from "../types/products"
 import type { ServiceResult } from "../types/serviceResult"
-import { escapeLikePattern, isUniqueViolation } from "../utils/database"
+import { escapeLikePattern, isCheckViolation, isUniqueViolation } from "../utils/database"
 
 type ProductResult<T> = Promise<ServiceResult<T, ProductErrorCode>>
 
@@ -34,23 +42,41 @@ class ProductService {
         .from("products")
         .select(PRODUCT_COLUMNS, { count: "exact" })
         .eq("merchant_id", merchantId)
-        .order("name", { ascending: true })
-        .range(filters.offset, filters.offset + filters.limit - 1)
 
       if (filters.search) {
         query = query.ilike("name", `%${escapeLikePattern(filters.search)}%`)
       }
+      if (filters.stockLevel === "low") {
+        query = query.gt("quantity", 0).lte("quantity", LOW_STOCK_THRESHOLD)
+      } else if (filters.stockLevel === "out") {
+        query = query.lte("quantity", 0)
+      } else if (filters.stockLevel === "attention") {
+        query = query.lte("quantity", LOW_STOCK_THRESHOLD).order("quantity", { ascending: true })
+      }
 
-      const { data, error, count } = await query.returns<ProductRow[]>()
+      const [page, stockCounts] = await Promise.all([
+        query
+          .order("name", { ascending: true })
+          .range(filters.offset, filters.offset + filters.limit - 1)
+          .returns<ProductRow[]>(),
+        this.countByStockLevel(merchantId),
+      ])
 
-      if (error) {
-        console.error("[ProductService.list]", error)
+      if (page.error) {
+        console.error("[ProductService.list]", page.error)
         return { status: false, error: { code: ProductErrorCode.PRODUCT_LIST_FAILED, message: "Erro ao carregar os produtos." } }
       }
 
       return {
         status: true,
-        data: { items: data.map((row) => this.toProduct(row)), total: count ?? 0, limit: filters.limit, offset: filters.offset },
+        data: {
+          items: page.data.map((row) => this.toProduct(row)),
+          total: page.count ?? 0,
+          limit: filters.limit,
+          offset: filters.offset,
+          stockCounts,
+          lowStockThreshold: LOW_STOCK_THRESHOLD,
+        },
       }
     } catch (error) {
       console.error("[ProductService.list] error:", error)
@@ -125,6 +151,31 @@ class ProductService {
     }
   }
 
+  async restock(merchantId: string, productId: string, quantity: number): ProductResult<{ id: string }> {
+    try {
+      const { data, error } = await supabase
+        .rpc("restock_product", { p_merchant_id: merchantId, p_product_id: productId, p_quantity: quantity })
+        .maybeSingle<{ id: string }>()
+
+      if (isCheckViolation(error)) {
+        return {
+          status: false,
+          error: { code: ProductErrorCode.RESTOCK_QUANTITY_NOT_INTEGER, message: "Este produto é vendido por unidade: use um número inteiro." },
+        }
+      }
+      if (error) {
+        console.error("[ProductService.restock]", error)
+        return { status: false, error: { code: ProductErrorCode.PRODUCT_RESTOCK_FAILED, message: "Erro ao repor o estoque." } }
+      }
+      if (!data) return { status: false, error: NOT_FOUND_ERROR }
+
+      return { status: true, data: { id: data.id } }
+    } catch (error) {
+      console.error("[ProductService.restock] error:", error)
+      return { status: false, error: { code: ProductErrorCode.PRODUCT_RESTOCK_FAILED, message: "Erro ao repor o estoque." } }
+    }
+  }
+
   // O app envia a imagem direto ao Storage por URL assinada, sem passar pela API
   // (que só aceita JSON pequeno), e depois confirma com updatePhoto
   async createPhotoUploadUrl(merchantId: string, productId: string, contentType: PhotoContentType): ProductResult<PhotoUploadTarget> {
@@ -191,6 +242,25 @@ class ProductService {
     return (count ?? 0) > 0
   }
 
+  // Contagens das abas do estoque; ignoram a busca para os números não mudarem enquanto o usuário digita
+  private async countByStockLevel(merchantId: string): Promise<StockCounts> {
+    const base = () => supabase.from("products").select("id", { count: "exact", head: true }).eq("merchant_id", merchantId)
+    const [all, low, out] = await Promise.all([
+      base(),
+      base().gt("quantity", 0).lte("quantity", LOW_STOCK_THRESHOLD),
+      base().lte("quantity", 0),
+    ])
+    const failed = all.error ?? low.error ?? out.error
+    if (failed) throw failed
+    return { all: all.count ?? 0, low: low.count ?? 0, out: out.count ?? 0 }
+  }
+
+  private stockLevelOf(quantity: number): StockLevel {
+    if (quantity <= 0) return "out"
+    if (quantity <= LOW_STOCK_THRESHOLD) return "low"
+    return "ok"
+  }
+
   private photoFolder(merchantId: string, productId: string): string {
     return `${merchantId}/${productId}`
   }
@@ -221,15 +291,17 @@ class ProductService {
   }
 
   private toProduct(row: ProductRow): Product {
+    // numeric pode chegar como string dependendo da configuração do PostgREST
+    const quantity = Number(row.quantity)
     return {
       id: row.id,
       name: row.name,
       photoUrl: row.photo_path ? supabase.storage.from(PRODUCT_PHOTOS_BUCKET).getPublicUrl(row.photo_path).data.publicUrl : null,
       salePriceCents: row.sale_price_cents,
       costPriceCents: row.cost_price_cents,
-      // numeric pode chegar como string dependendo da configuração do PostgREST
-      quantity: Number(row.quantity),
+      quantity,
       soldByWeight: row.sold_by_weight,
+      stockLevel: this.stockLevelOf(quantity),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }

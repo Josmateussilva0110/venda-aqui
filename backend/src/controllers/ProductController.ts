@@ -5,6 +5,7 @@ import type { PhotoDTO } from "../schemas/products/photo"
 import type { PhotoUploadUrlDTO } from "../schemas/products/photoUploadUrl"
 import type { ProductDTO } from "../schemas/products/product"
 import type { ProductParamsDTO } from "../schemas/products/productParams"
+import type { RestockDTO } from "../schemas/products/restock"
 import ProductService from "../services/ProductService"
 import { sendFailure } from "../utils/sendFailure"
 import { sendSuccess } from "../utils/sendSuccess"
@@ -32,6 +33,12 @@ class ProductController {
     const result = await ProductService.update(request.merchantId!, request.params.id, request.body)
     if (!result.status) return sendFailure(response, result.error, productErrorHttpStatusMap)
     return sendSuccess(response, "Produto atualizado com sucesso.", result.data)
+  }
+
+  async restock(request: Request<ProductParamsDTO, unknown, RestockDTO>, response: Response): Promise<Response> {
+    const result = await ProductService.restock(request.merchantId!, request.params.id, request.body.quantity)
+    if (!result.status) return sendFailure(response, result.error, productErrorHttpStatusMap)
+    return sendSuccess(response, "Estoque atualizado.", result.data)
   }
 
   async createPhotoUploadUrl(request: Request<ProductParamsDTO, unknown, PhotoUploadUrlDTO>, response: Response): Promise<Response> {

@@ -7,6 +7,7 @@ import { PhotoSchema } from "../schemas/products/photo"
 import { PhotoUploadUrlSchema } from "../schemas/products/photoUploadUrl"
 import { ProductSchema } from "../schemas/products/product"
 import { ProductParamsSchema } from "../schemas/products/productParams"
+import { RestockSchema } from "../schemas/products/restock"
 
 const router = Router()
 
@@ -16,6 +17,7 @@ router.get("/", validate(ListProductsSchema, "query"), ProductController.list)
 router.post("/", validate(ProductSchema), ProductController.create)
 router.get("/:id", validate(ProductParamsSchema, "params"), ProductController.get)
 router.put("/:id", validate(ProductParamsSchema, "params"), validate(ProductSchema), ProductController.update)
+router.post("/:id/restock", validate(ProductParamsSchema, "params"), validate(RestockSchema), ProductController.restock)
 router.post("/:id/photo/upload-url", validate(ProductParamsSchema, "params"), validate(PhotoUploadUrlSchema), ProductController.createPhotoUploadUrl)
 router.put("/:id/photo", validate(ProductParamsSchema, "params"), validate(PhotoSchema), ProductController.updatePhoto)
 
