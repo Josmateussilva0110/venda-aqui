@@ -6,6 +6,12 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Libera HTTP só para a rede local (API rodando na máquina de desenvolvimento) -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Para tirar a foto dos seus produtos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

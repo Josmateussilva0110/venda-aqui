@@ -4,6 +4,16 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// O endereço da API mora só em frontend/config/api.json. Daqui o Android lê se ele é HTTP (servidor
+// local) para liberar tráfego sem TLS; com uma URL HTTPS (produção) o HTTP fica bloqueado.
+val apiConfigFile = rootProject.file("../config/api.json")
+val apiBaseUrl: String = if (apiConfigFile.exists()) {
+    Regex("\"API_BASE_URL\"\\s*:\\s*\"([^\"]+)\"").find(apiConfigFile.readText())?.groupValues?.get(1) ?: ""
+} else {
+    ""
+}
+val allowsCleartext = apiBaseUrl.trim().startsWith("http://")
+
 android {
     namespace = "br.com.vendaqui.vendaqui"
     compileSdk = flutter.compileSdkVersion
@@ -27,6 +37,7 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["usesCleartextTraffic"] = allowsCleartext.toString()
     }
 
     buildTypes {
