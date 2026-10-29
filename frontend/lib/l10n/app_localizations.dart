@@ -151,12 +151,6 @@ abstract class AppLocalizations {
   /// **'Continuar'**
   String get continueAction;
 
-  /// No description provided for @backspace.
-  ///
-  /// In pt, this message translates to:
-  /// **'Apagar'**
-  String get backspace;
-
   /// No description provided for @decimalSeparatorKey.
   ///
   /// In pt, this message translates to:
@@ -202,7 +196,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeImageLabel.
   ///
   /// In pt, this message translates to:
-  /// **'Comerciante sorrindo na sua banca'**
+  /// **'Ilustração de uma feirante sorrindo na sua banca de frutas e verduras'**
   String get welcomeImageLabel;
 
   /// No description provided for @loginTitle.
@@ -336,12 +330,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Este telefone já está cadastrado.'**
   String get registerPhoneTaken;
-
-  /// No description provided for @registerSignInWithPhone.
-  ///
-  /// In pt, this message translates to:
-  /// **'Entrar com este telefone →'**
-  String get registerSignInWithPhone;
 
   /// No description provided for @registerCreatePinTitle.
   ///
@@ -487,17 +475,65 @@ abstract class AppLocalizations {
   /// **'Estoque'**
   String get navStock;
 
-  /// No description provided for @dashboardLogout.
+  /// No description provided for @dashboardSettings.
   ///
   /// In pt, this message translates to:
-  /// **'Sair'**
-  String get dashboardLogout;
+  /// **'Configurações'**
+  String get dashboardSettings;
 
-  /// No description provided for @dashboardLoggedOut.
+  /// No description provided for @settingsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Configurações'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aparência'**
+  String get settingsAppearance;
+
+  /// No description provided for @settingsAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta'**
+  String get settingsAccount;
+
+  /// No description provided for @settingsLogout.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair da conta'**
+  String get settingsLogout;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Igual ao celular'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In pt, this message translates to:
+  /// **'Claro'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escuro'**
+  String get themeDark;
+
+  /// No description provided for @themeHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'A escolha fica salva neste aparelho.'**
+  String get themeHint;
+
+  /// No description provided for @settingsLoggedOut.
   ///
   /// In pt, this message translates to:
   /// **'Você saiu. Entre com seu PIN.'**
-  String get dashboardLoggedOut;
+  String get settingsLoggedOut;
 
   /// No description provided for @greetingMorning.
   ///
@@ -522,6 +558,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{greeting},'**
   String greetingLine(String greeting);
+
+  /// No description provided for @greetingLineWithName.
+  ///
+  /// In pt, this message translates to:
+  /// **'{greeting}, {name},'**
+  String greetingLineWithName(String greeting, String name);
 
   /// No description provided for @greetingCallToAction.
   ///
@@ -913,11 +955,17 @@ abstract class AppLocalizations {
   /// **'Quantidade a adicionar'**
   String get restockAmountLabel;
 
-  /// No description provided for @restockAmount.
+  /// No description provided for @restockAmountSign.
   ///
   /// In pt, this message translates to:
-  /// **'+{amount}'**
-  String restockAmount(String amount);
+  /// **'+'**
+  String get restockAmountSign;
+
+  /// No description provided for @restockAmountHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'0'**
+  String get restockAmountHint;
 
   /// No description provided for @restockNewTotal.
   ///

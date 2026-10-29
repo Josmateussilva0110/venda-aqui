@@ -67,7 +67,7 @@ class _LeafPainter extends CustomPainter {
 
 enum BrandTone { onLight, onPrimary }
 
-/// Folha + "Vendaqui" em DM Serif Display.
+/// Folha + "Vendaqui" em Manrope ExtraBold.
 class BrandLogo extends StatelessWidget {
   const BrandLogo({super.key, required this.markSize, required this.fontSize, this.tone = BrandTone.onLight});
 
@@ -82,7 +82,7 @@ class BrandLogo extends StatelessWidget {
     final onPrimary = tone == BrandTone.onPrimary;
     final baseColor = onPrimary ? colors.onPrimary : colors.ink;
     final accent = onPrimary ? colors.primaryTint : colors.primary;
-    final style = AppTypography.wordmark(fontSize: fontSize, color: baseColor, useGoogleFonts: context.useGoogleFonts);
+    final style = AppTypography.wordmark(fontSize: fontSize, color: baseColor);
 
     return Semantics(
       label: l10n.appTitle,

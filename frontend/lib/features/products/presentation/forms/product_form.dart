@@ -8,7 +8,6 @@ import '../../../../core/utils/money_format.dart';
 import '../../../../core/utils/quantity_format.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_feedback.dart';
-import '../../../../core/widgets/inline_message.dart';
 import '../../../../core/widgets/labeled_field.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/photo_picker.dart';
@@ -75,11 +74,11 @@ class _ProductFormState extends State<ProductForm> {
     super.dispose();
   }
 
-  String? _errorFor(_Field field, String serverKey) {
-    final local = _localErrors[field];
-    if (local != null) return local;
+  /// Campo com problema fica com a borda vermelha; a mensagem em si vai para o toast.
+  bool _hasError(_Field field, String serverKey) {
+    if (_localErrors.containsKey(field)) return true;
     final failure = widget.serverFailure;
-    return failure is ValidationFailure ? failure[serverKey] : null;
+    return failure is ValidationFailure && failure[serverKey] != null;
   }
 
   void _clearError(_Field field) {
@@ -118,9 +117,9 @@ class _ProductFormState extends State<ProductForm> {
       case PhotoPicked(:final photo):
         setState(() => _photo = photo);
       case PhotoTooLarge():
-        showAppToast(context, l10n.productPhotoTooLarge);
+        showAppToast(context, l10n.productPhotoTooLarge, tone: ToastTone.error);
       case PhotoUnsupported():
-        showAppToast(context, l10n.productPhotoUnsupported);
+        showAppToast(context, l10n.productPhotoUnsupported, tone: ToastTone.error);
       case PhotoCancelled():
         break;
     }
@@ -145,7 +144,11 @@ class _ProductFormState extends State<ProductForm> {
           if (!quantityValid) _Field.quantity: l10n.productQuantityInvalid,
         });
     });
-    if (_localErrors.isNotEmpty) return;
+    if (_localErrors.isNotEmpty) {
+      // Um toast por vez: mostra o primeiro problema, na ordem dos campos
+      showAppToast(context, _localErrors.values.first, tone: ToastTone.error);
+      return;
+    }
 
     widget.onSubmit(
       ProductInput(name: name, salePriceCents: salePrice!, costPriceCents: costPrice!, quantity: quantity!, soldByWeight: _soldByWeight),
@@ -160,8 +163,6 @@ class _ProductFormState extends State<ProductForm> {
     final unit = _soldByWeight ? l10n.unitKg : l10n.unitPiece;
     final salePrice = MoneyFormat.parseCents(_salePrice.text) ?? 0;
     final costPrice = MoneyFormat.parseCents(_costPrice.text) ?? 0;
-    final failure = widget.serverFailure;
-    final generalError = failure == null || failure is ValidationFailure ? null : failureMessage(l10n, failure);
 
     return Column(
       children: [
@@ -197,7 +198,7 @@ class _ProductFormState extends State<ProductForm> {
                           hintText: l10n.productNameHint,
                           counterText: '',
                           fillColor: context.colors.surface,
-                          errorText: _errorFor(_Field.name, 'name'),
+                          error: _hasError(_Field.name, 'name') ? const SizedBox.shrink() : null,
                         ),
                       ),
                     ),
@@ -205,8 +206,8 @@ class _ProductFormState extends State<ProductForm> {
                     _PriceFields(
                       salePrice: _salePrice,
                       costPrice: _costPrice,
-                      saleError: _errorFor(_Field.salePrice, 'salePriceCents'),
-                      costError: _errorFor(_Field.costPrice, 'costPriceCents'),
+                      saleError: _hasError(_Field.salePrice, 'salePriceCents'),
+                      costError: _hasError(_Field.costPrice, 'costPriceCents'),
                       onChanged: (field) => setState(() => _localErrors.remove(field)),
                     ),
                     if (salePrice > 0 && costPrice > 0) ...[
@@ -219,7 +220,7 @@ class _ProductFormState extends State<ProductForm> {
                       controller: _quantity,
                       hint: l10n.quantityHint,
                       suffix: unit,
-                      errorText: _errorFor(_Field.quantity, 'quantity'),
+                      hasError: _hasError(_Field.quantity, 'quantity'),
                       onChanged: (_) => _clearError(_Field.quantity),
                     ),
                     SizedBox(height: spacing.md + 2),
@@ -230,7 +231,6 @@ class _ProductFormState extends State<ProductForm> {
                         _localErrors.remove(_Field.quantity);
                       }),
                     ),
-                    if (generalError != null) ...[SizedBox(height: spacing.md + 2), InlineError(generalError)],
                   ],
                 ),
               ),
@@ -254,8 +254,8 @@ class _PriceFields extends StatelessWidget {
 
   final TextEditingController salePrice;
   final TextEditingController costPrice;
-  final String? saleError;
-  final String? costError;
+  final bool saleError;
+  final bool costError;
   final ValueChanged<_Field> onChanged;
 
   @override
@@ -266,7 +266,7 @@ class _PriceFields extends StatelessWidget {
       controller: salePrice,
       hint: l10n.moneyHint,
       prefix: currencyPrefix(context),
-      errorText: saleError,
+      hasError: saleError,
       onChanged: (_) => onChanged(_Field.salePrice),
     );
     final cost = NumberField(
@@ -274,7 +274,7 @@ class _PriceFields extends StatelessWidget {
       controller: costPrice,
       hint: l10n.moneyHint,
       prefix: currencyPrefix(context),
-      errorText: costError,
+      hasError: costError,
       onChanged: (_) => onChanged(_Field.costPrice),
     );
 

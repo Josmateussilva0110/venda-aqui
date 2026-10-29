@@ -102,7 +102,8 @@ class _WelcomeIntro extends StatelessWidget {
   }
 }
 
-/// Foto do comerciante. Se o arquivo não estiver em assets, mostra a folha da marca no lugar.
+/// Ilustração da feirante (fonte editável em `design/welcome_merchant.svg`).
+/// Se o arquivo não estiver em assets, mostra a folha da marca no lugar.
 class _WelcomeImage extends StatelessWidget {
   const _WelcomeImage();
 

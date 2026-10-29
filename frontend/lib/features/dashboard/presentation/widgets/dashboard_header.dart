@@ -5,12 +5,13 @@ import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/brand_logo.dart';
 import '../../../../l10n/app_localizations.dart';
 
-/// Topo do início: marca, data, sair e saudação.
+/// Topo do início: marca, data, configurações e saudação.
 class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({super.key, required this.now, required this.onLogout});
+  const DashboardHeader({super.key, required this.now, required this.merchantName, required this.onSettings});
 
   final DateTime now;
-  final VoidCallback onLogout;
+  final String? merchantName;
+  final VoidCallback onSettings;
 
   static const _afternoonStartsAt = 12;
   static const _eveningStartsAt = 18;
@@ -19,6 +20,12 @@ class DashboardHeader extends StatelessWidget {
     if (now.hour < _afternoonStartsAt) return l10n.greetingMorning;
     if (now.hour < _eveningStartsAt) return l10n.greetingAfternoon;
     return l10n.greetingEvening;
+  }
+
+  String _greetingLine(AppLocalizations l10n) {
+    final name = merchantName?.trim();
+    final greeting = _greeting(l10n);
+    return name == null || name.isEmpty ? l10n.greetingLine(greeting) : l10n.greetingLineWithName(greeting, name);
   }
 
   @override
@@ -52,19 +59,7 @@ class DashboardHeader extends StatelessWidget {
                 style: context.text.labelSmall?.copyWith(color: colors.subtle, fontWeight: FontWeight.w500),
               ),
             ),
-            IconButton(
-              onPressed: onLogout,
-              tooltip: l10n.dashboardLogout,
-              icon: Icon(Icons.logout_rounded, color: colors.ink, size: context.sizes.icon),
-              style: IconButton.styleFrom(
-                backgroundColor: colors.surface,
-                minimumSize: Size.square(context.sizes.minTouchTarget),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.radius.sm),
-                  side: BorderSide(color: colors.keypadBackground),
-                ),
-              ),
-            ),
+            _HeaderButton(icon: Icons.settings_outlined, tooltip: l10n.dashboardSettings, onPressed: onSettings),
           ],
         ),
         SizedBox(height: spacing.lg + 2),
@@ -72,7 +67,7 @@ class DashboardHeader extends StatelessWidget {
           header: true,
           child: Text.rich(
             TextSpan(
-              text: '${l10n.greetingLine(_greeting(l10n))}\n',
+              text: '${_greetingLine(l10n)}\n',
               children: [
                 TextSpan(
                   text: l10n.greetingCallToAction,
@@ -84,6 +79,32 @@ class DashboardHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _HeaderButton extends StatelessWidget {
+  const _HeaderButton({required this.icon, required this.tooltip, required this.onPressed});
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return IconButton(
+      onPressed: onPressed,
+      tooltip: tooltip,
+      icon: Icon(icon, color: colors.ink, size: context.sizes.icon),
+      style: IconButton.styleFrom(
+        backgroundColor: colors.surface,
+        minimumSize: Size.square(context.sizes.minTouchTarget),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(context.radius.sm),
+          side: BorderSide(color: colors.keypadBackground),
+        ),
+      ),
     );
   }
 }

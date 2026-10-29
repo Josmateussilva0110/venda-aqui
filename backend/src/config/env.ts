@@ -13,10 +13,6 @@ const EnvSchema = z
     SUPABASE_URL: z.url(),
     SUPABASE_SECRET_KEY: z.string().min(1),
     JWT_SECRET: z.string().min(32, "JWT_SECRET precisa de pelo menos 32 caracteres."),
-    CORS_ORIGINS: z
-      .string()
-      .default("")
-      .transform((value) => value.split(",").map((origin) => origin.trim()).filter(Boolean)),
     WHATSAPP_PROVIDER: z.enum(["console", "meta"]).default("console"),
     WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
     WHATSAPP_ACCESS_TOKEN: z.string().optional(),

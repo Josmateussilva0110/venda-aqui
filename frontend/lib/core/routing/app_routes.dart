@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const recoverPin = '/recover-pin';
 
   static const home = '/home';
+  static const settings = '/settings';
   static const stock = '/stock';
 
   /// Filtro do estoque na URL (`all`, `low` ou `out`): é por ela que o início abre o estoque já filtrado.

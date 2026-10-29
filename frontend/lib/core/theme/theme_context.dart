@@ -4,7 +4,6 @@ import 'app_colors.dart';
 import 'app_radius.dart';
 import 'app_sizes.dart';
 import 'app_spacing.dart';
-import 'app_typography.dart';
 
 /// Atalhos para ler os tokens do tema pelo contexto.
 extension ThemeContext on BuildContext {
@@ -13,7 +12,6 @@ extension ThemeContext on BuildContext {
   AppRadius get radius => Theme.of(this).extension<AppRadius>()!;
   AppSizes get sizes => Theme.of(this).extension<AppSizes>()!;
   TextTheme get text => Theme.of(this).textTheme;
-  bool get useGoogleFonts => Theme.of(this).extension<AppFonts>()?.useGoogleFonts ?? false;
 
   /// Sombra leve dos cartões brancos do protótipo.
   List<BoxShadow> get cardShadow => [

@@ -29,6 +29,7 @@ void main() {
     AppRoutes.productNew,
     AppRoutes.productEdit('p1'),
     AppRoutes.productRestock('p2'),
+    AppRoutes.settings,
   ];
 
   Future<void> pumpApp(WidgetTester tester, {required bool signedIn}) async {
@@ -40,8 +41,9 @@ void main() {
       photoPicker: FakePhotoPicker(),
       sessionController: SessionController(auth),
       stockChanges: StockChanges(),
+      themeController: lightThemeController(),
     );
-    await tester.pumpWidget(VendaquiApp(key: UniqueKey(), dependencies: dependencies, useGoogleFonts: false, themeMode: ThemeMode.light));
+    await tester.pumpWidget(VendaquiApp(key: UniqueKey(), dependencies: dependencies));
     await tester.pumpAndSettle();
   }
 

@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/network/app_failure.dart';
 import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/utils/dispose_aware_notifier.dart';
-import '../../../../core/utils/keypad_input.dart';
 import '../../../../core/utils/quantity_format.dart';
 import '../../domain/product.dart';
 import '../../domain/products_repository.dart';
@@ -15,8 +14,6 @@ class RestockController extends ChangeNotifier with DisposeAwareNotifier {
   final StockChanges _changes;
   final String productId;
 
-  static const _maxUnitDigits = 4;
-
   Product? _product;
   String _amount = '';
   bool _isLoading = true;
@@ -25,7 +22,6 @@ class RestockController extends ChangeNotifier with DisposeAwareNotifier {
   AppFailure? _saveFailure;
 
   Product? get product => _product;
-  String get amountText => _amount;
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
   AppFailure? get loadFailure => _loadFailure;
@@ -48,13 +44,10 @@ class RestockController extends ChangeNotifier with DisposeAwareNotifier {
     }
   }
 
-  void onKey(KeypadKey key) {
-    final product = _product;
-    if (product == null) return;
+  /// Texto já filtrado pelo campo (inteiro, ou kg com vírgula quando o produto é vendido por peso).
+  void setAmount(String text) {
     _saveFailure = null;
-    _amount = product.soldByWeight
-        ? KeypadInput.applyDecimal(_amount, key)
-        : KeypadInput.applyDigits(_amount, key, maxLength: _maxUnitDigits);
+    _amount = text;
     notifyListeners();
   }
 

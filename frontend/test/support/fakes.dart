@@ -1,5 +1,7 @@
 import 'package:vendaqui/core/network/cancel_signal.dart';
+import 'package:flutter/material.dart';
 import 'package:vendaqui/core/stock/stock_level.dart';
+import 'package:vendaqui/core/theme/theme_controller.dart';
 import 'package:vendaqui/features/auth/domain/auth_repository.dart';
 import 'package:vendaqui/features/auth/domain/merchant.dart';
 import 'package:vendaqui/features/dashboard/domain/stock_overview.dart';
@@ -129,3 +131,16 @@ class FakePhotoPicker implements PhotoPicker {
   @override
   Future<PhotoPickResult> pick(PhotoOrigin origin) async => const PhotoCancelled();
 }
+
+class _MemoryThemeStore implements ThemePreferenceStore {
+  ThemeMode? saved;
+
+  @override
+  Future<ThemeMode?> read() async => saved;
+
+  @override
+  Future<void> write(ThemeMode mode) async => saved = mode;
+}
+
+/// Tema fixo em claro nos testes, sem tocar no armazenamento do aparelho.
+ThemeController lightThemeController() => ThemeController(_MemoryThemeStore(), initial: ThemeMode.light);

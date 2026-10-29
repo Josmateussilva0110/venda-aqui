@@ -79,8 +79,9 @@ void main() {
       photoPicker: FakePhotoPicker(),
       sessionController: SessionController(auth),
       stockChanges: StockChanges(),
+      themeController: lightThemeController(),
     );
-    await tester.pumpWidget(VendaquiApp(dependencies: dependencies, useGoogleFonts: false, themeMode: ThemeMode.light));
+    await tester.pumpWidget(VendaquiApp(dependencies: dependencies));
     await tester.pumpAndSettle();
   }
 
@@ -111,6 +112,19 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(products.filters, [StockFilter.all, StockFilter.out]);
+  });
+
+  testWidgets('sair da conta pelas configurações volta para as boas-vindas', (tester) async {
+    await pumpApp(tester, _CountingProducts(), _CountingDashboard());
+
+    await tester.tap(find.byTooltip('Configurações'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sair da conta'));
+    await tester.pumpAndSettle();
+
+    final router = GoRouter.of(tester.element(find.byType(Navigator).first));
+    expect(router.routerDelegate.currentConfiguration.uri.path, AppRoutes.welcome);
+    expect(find.text('Você saiu. Entre com seu PIN.'), findsOneWidget);
   });
 
   testWidgets('depois de falhar ao carregar mais, rolar não tenta de novo', (tester) async {

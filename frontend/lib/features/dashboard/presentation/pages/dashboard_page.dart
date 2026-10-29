@@ -17,34 +17,26 @@ import '../widgets/shortcut_tile.dart';
 import '../widgets/stock_alerts_card.dart';
 import '../widgets/stock_summary_card.dart';
 
-/// Início. Sair é decidido pelo app (sessão), por isso chega como callback.
+/// Início. O nome do comerciante vem do app (sessão), sem depender da feature de login.
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key, required this.onLogout});
+  const DashboardPage({super.key, required this.merchantName});
 
-  final Future<void> Function() onLogout;
+  /// Nome do comércio ou vendedor da sessão; vem do app para o início não depender da feature de login.
+  final String? merchantName;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => DashboardController(context.read<DashboardRepository>(), context.read<StockChanges>())..load(),
-      child: _DashboardView(onLogout: onLogout),
+      child: _DashboardView(merchantName: merchantName),
     );
   }
 }
 
 class _DashboardView extends StatelessWidget {
-  const _DashboardView({required this.onLogout});
+  const _DashboardView({required this.merchantName});
 
-  final Future<void> Function() onLogout;
-
-  Future<void> _logout(BuildContext context) async {
-    final message = AppLocalizations.of(context).dashboardLoggedOut;
-    final messenger = ScaffoldMessenger.of(context);
-    await onLogout();
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message, textAlign: TextAlign.center)));
-  }
+  final String? merchantName;
 
   // O resumo se atualiza sozinho pelo aviso de mudança no estoque (DashboardController)
   void _push(BuildContext context, String location) => context.push(location);
@@ -76,7 +68,7 @@ class _DashboardView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    DashboardHeader(now: DateTime.now(), onLogout: () => _logout(context)),
+                    DashboardHeader(now: DateTime.now(), merchantName: merchantName, onSettings: () => context.push(AppRoutes.settings)),
                     SizedBox(height: spacing.xl),
                     if (overview != null)
                       StockSummaryCard(overview: overview, onTap: () => _openStock(context))

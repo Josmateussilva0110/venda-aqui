@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/app_failure.dart';
-import '../../../../core/utils/keypad_input.dart';
 import '../../../../core/utils/phone_format.dart';
 import '../../domain/auth_repository.dart';
 import '../../domain/auth_rules.dart';
@@ -39,11 +38,13 @@ class RegisterController extends ChangeNotifier {
   void setName(String value) {
     _name = value;
     _clearIssues();
+    notifyListeners();
   }
 
   void setPhone(String formatted) {
     _phone = PhoneFormat.digitsOnly(formatted);
     _clearIssues();
+    notifyListeners();
   }
 
   Future<void> submitBusiness() async {
@@ -65,20 +66,22 @@ class RegisterController extends ChangeNotifier {
     _step = RegisterStep.repeatPin;
     _pinRepeat = '';
     _clearIssues();
+    notifyListeners();
+  }
+
+  void setPin(String digits) {
+    _pin = digits;
+    _clearIssues();
+    notifyListeners();
   }
 
   /// Ao completar a repetição, confere e cria a conta. Devolve o comerciante quando dá certo.
-  Future<Merchant?> onPinKey(KeypadKey key) async {
+  Future<Merchant?> setPinRepeat(String digits) async {
+    if (_isBusy) return null;
+    _pinRepeat = digits;
     _clearIssues();
-    if (_step == RegisterStep.createPin) {
-      _pin = KeypadInput.applyDigits(_pin, key, maxLength: AuthRules.pinMaxLength);
-      notifyListeners();
-      return null;
-    }
-
-    _pinRepeat = KeypadInput.applyDigits(_pinRepeat, key, maxLength: _pin.length);
     notifyListeners();
-    if (_pinRepeat.length < _pin.length || key is! DigitKey) return null;
+    if (_pinRepeat.length < _pin.length) return null;
     if (_pinRepeat != _pin) {
       _pinRepeat = '';
       _report(RegisterIssue.pinMismatch);
@@ -95,6 +98,7 @@ class RegisterController extends ChangeNotifier {
     _pinRepeat = '';
     if (_step == RegisterStep.business) _pin = '';
     _clearIssues();
+    notifyListeners();
   }
 
   Future<Merchant?> _createAccount() async {
@@ -139,9 +143,7 @@ class RegisterController extends ChangeNotifier {
   }
 
   void _clearIssues() {
-    if (_issue == null && _failure == null) return;
     _issue = null;
     _failure = null;
-    notifyListeners();
   }
 }

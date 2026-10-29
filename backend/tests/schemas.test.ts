@@ -12,6 +12,9 @@ describe("phoneField", () => {
     ["+55 86 99999-0000", "+5586999990000"],
     ["5586999990000", "+5586999990000"],
     ["86 3222-1100", "+558632221100"],
+    // Celular sem o 9 vira o mesmo número com o 9: não dá para cadastrar a mesma linha duas vezes
+    ["(86) 9999-0000", "+5586999990000"],
+    ["+55 86 8888-1234", "+5586988881234"],
   ])("normaliza %s", (input, expected) => {
     expect(phoneField.parse(input)).toBe(expected)
   })

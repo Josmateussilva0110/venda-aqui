@@ -40,9 +40,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get continueAction => 'Continuar';
 
   @override
-  String get backspace => 'Apagar';
-
-  @override
   String get decimalSeparatorKey => 'Vírgula';
 
   @override
@@ -64,7 +61,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get welcomeSignIn => 'Entrar';
 
   @override
-  String get welcomeImageLabel => 'Comerciante sorrindo na sua banca';
+  String get welcomeImageLabel => 'Ilustração de uma feirante sorrindo na sua banca de frutas e verduras';
 
   @override
   String get loginTitle => 'Entrar';
@@ -131,9 +128,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get registerPhoneTaken => 'Este telefone já está cadastrado.';
-
-  @override
-  String get registerSignInWithPhone => 'Entrar com este telefone →';
 
   @override
   String get registerCreatePinTitle => 'Crie seu PIN';
@@ -212,10 +206,34 @@ class AppLocalizationsPt extends AppLocalizations {
   String get navStock => 'Estoque';
 
   @override
-  String get dashboardLogout => 'Sair';
+  String get dashboardSettings => 'Configurações';
 
   @override
-  String get dashboardLoggedOut => 'Você saiu. Entre com seu PIN.';
+  String get settingsTitle => 'Configurações';
+
+  @override
+  String get settingsAppearance => 'Aparência';
+
+  @override
+  String get settingsAccount => 'Conta';
+
+  @override
+  String get settingsLogout => 'Sair da conta';
+
+  @override
+  String get themeSystem => 'Igual ao celular';
+
+  @override
+  String get themeLight => 'Claro';
+
+  @override
+  String get themeDark => 'Escuro';
+
+  @override
+  String get themeHint => 'A escolha fica salva neste aparelho.';
+
+  @override
+  String get settingsLoggedOut => 'Você saiu. Entre com seu PIN.';
 
   @override
   String get greetingMorning => 'Bom dia';
@@ -229,6 +247,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String greetingLine(String greeting) {
     return '$greeting,';
+  }
+
+  @override
+  String greetingLineWithName(String greeting, String name) {
+    return '$greeting, $name,';
   }
 
   @override
@@ -457,9 +480,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get restockAmountLabel => 'Quantidade a adicionar';
 
   @override
-  String restockAmount(String amount) {
-    return '+$amount';
-  }
+  String get restockAmountSign => '+';
+
+  @override
+  String get restockAmountHint => '0';
 
   @override
   String restockNewTotal(String quantity) {

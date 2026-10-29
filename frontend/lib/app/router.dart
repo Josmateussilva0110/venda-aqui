@@ -14,6 +14,7 @@ import '../features/products/presentation/pages/product_create_page.dart';
 import '../features/products/presentation/pages/product_edit_page.dart';
 import '../features/products/presentation/pages/restock_page.dart';
 import '../features/products/presentation/pages/stock_page.dart';
+import '../features/settings/presentation/pages/settings_page.dart';
 import 'home_shell.dart';
 
 /// Rotas do app. A sessão decide para onde ir: sem login, só as telas de autenticação.
@@ -42,7 +43,8 @@ GoRouter buildRouter(SessionController session) {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (_, _) => DashboardPage(onLogout: session.logout),
+                // A rota só abre com sessão ativa, então o comerciante já está carregado aqui
+                builder: (_, _) => DashboardPage(merchantName: session.merchant?.name),
               ),
             ],
           ),
@@ -58,6 +60,11 @@ GoRouter buildRouter(SessionController session) {
       ),
       // Fora do shell: telas de tarefa ocupam a tela toda, como no protótipo
       GoRoute(path: AppRoutes.productNew, builder: (_, _) => const ProductCreatePage()),
+      // Sair é decidido pela sessão (app), por isso chega como callback
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (_, _) => SettingsPage(onLogout: session.logout),
+      ),
       GoRoute(
         path: '/stock/:id/edit',
         builder: (_, state) => ProductEditPage(productId: state.pathParameters['id']!),

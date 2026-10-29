@@ -3,12 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/stock/stock_changes.dart';
+import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/utils/quantity_format.dart';
+import '../../../../core/utils/quantity_input_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_feedback.dart';
-import '../../../../core/widgets/inline_message.dart';
-import '../../../../core/widgets/numeric_keypad.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/stock_level_pill.dart';
@@ -37,8 +37,14 @@ class _RestockView extends StatelessWidget {
 
   Future<void> _save(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
-    final saved = await context.read<RestockController>().save();
-    if (!saved || !context.mounted) return;
+    final controller = context.read<RestockController>();
+    final saved = await controller.save();
+    if (!context.mounted) return;
+    final failure = controller.saveFailure;
+    if (!saved) {
+      if (failure != null) showAppToast(context, failureMessage(l10n, failure), tone: ToastTone.error);
+      return;
+    }
     showAppToast(context, l10n.restockDone);
     context.pop();
   }
@@ -51,9 +57,13 @@ class _RestockView extends StatelessWidget {
 
     final Widget body;
     if (product != null) {
-      body = KeypadLayout(
-        keypad: NumericKeypad(onKey: controller.onKey, allowDecimal: product.soldByWeight),
-        content: _RestockContent(product: product, controller: controller, onSave: () => _save(context)),
+      body = SingleChildScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: AppBreakpoints.formMaxWidth),
+            child: _RestockContent(product: product, controller: controller, onSave: () => _save(context)),
+          ),
+        ),
       );
     } else if (controller.loadFailure != null) {
       body = ErrorView(message: l10n.productLoadFailed, onRetry: controller.load);
@@ -96,7 +106,6 @@ class _RestockContent extends StatelessWidget {
       QuantityFormat.format(product.quantity + amount, soldByWeight: product.soldByWeight),
       soldByWeight: product.soldByWeight,
     );
-    final failure = controller.saveFailure;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(spacing.xl, spacing.md + 2, spacing.xl, spacing.md),
@@ -110,27 +119,12 @@ class _RestockContent extends StatelessWidget {
             textAlign: TextAlign.center,
             style: context.text.bodySmall?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
           ),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  l10n.restockAmount(controller.amountText.isEmpty ? '0' : controller.amountText),
-                  style: context.text.headlineLarge?.copyWith(color: controller.amountText.isEmpty ? colors.placeholder : colors.ink),
-                ),
-                SizedBox(width: spacing.sm),
-                Text(unit, style: context.text.titleLarge?.copyWith(color: colors.muted)),
-              ],
-            ),
-          ),
+          _AmountField(soldByWeight: product.soldByWeight, unit: unit, onChanged: controller.setAmount, onSubmitted: onSave),
           Text(
             amount > 0 ? l10n.restockNewTotal(preview) : '',
             textAlign: TextAlign.center,
             style: context.text.titleSmall?.copyWith(color: colors.successStrong),
           ),
-          if (failure != null) ...[SizedBox(height: spacing.sm), InlineError(failureMessage(l10n, failure), textAlign: TextAlign.center)],
           SizedBox(height: spacing.lg),
           AppButton(
             label: l10n.restockConfirm,
@@ -140,6 +134,73 @@ class _RestockContent extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Quantidade grande e centralizada ("+ 12 un"), digitada no teclado numérico do sistema.
+class _AmountField extends StatefulWidget {
+  const _AmountField({required this.soldByWeight, required this.unit, required this.onChanged, required this.onSubmitted});
+
+  final bool soldByWeight;
+  final String unit;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onSubmitted;
+
+  @override
+  State<_AmountField> createState() => _AmountFieldState();
+}
+
+class _AmountFieldState extends State<_AmountField> {
+  final _controller = TextEditingController();
+  late final _formatter = QuantityInputFormatter(decimal: widget.soldByWeight);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.colors;
+    final style = context.text.headlineLarge?.copyWith(color: colors.ink);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(l10n.restockAmountSign, style: style),
+        Flexible(
+          child: IntrinsicWidth(
+            child: TextField(
+              controller: _controller,
+              autofocus: true,
+              onChanged: widget.onChanged,
+              keyboardType: TextInputType.numberWithOptions(decimal: widget.soldByWeight),
+              inputFormatters: [_formatter],
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => widget.onSubmitted(),
+              textAlign: TextAlign.center,
+              style: style,
+              decoration: InputDecoration(
+                hintText: l10n.restockAmountHint,
+                hintStyle: style?.copyWith(color: colors.placeholder),
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: context.spacing.sm),
+        Text(widget.unit, style: context.text.titleLarge?.copyWith(color: colors.muted)),
+      ],
     );
   }
 }

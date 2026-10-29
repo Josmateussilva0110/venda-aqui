@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/theme_context.dart';
 
@@ -84,34 +85,91 @@ class _Box extends StatelessWidget {
   }
 }
 
-/// Bolinhas do PIN no login.
-class PinDots extends StatelessWidget {
-  const PinDots({super.key, required this.filled, required this.length, required this.requiredLength});
+/// [CodeBoxes] preenchidas pelo teclado numérico do sistema: um campo invisível por cima das caixas
+/// recebe a digitação, e tocar nas caixas abre o teclado.
+class CodeField extends StatefulWidget {
+  const CodeField({
+    super.key,
+    required this.value,
+    required this.length,
+    required this.semanticLabel,
+    required this.onChanged,
+    this.onSubmitted,
+    this.obscure = false,
+    this.requiredLength,
+    this.autofillHints,
+  });
 
-  final int filled;
+  /// Valor vindo do controller; quando ele limpa ou troca o valor, o campo acompanha.
+  final String value;
   final int length;
-  final int requiredLength;
+  final String semanticLabel;
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onSubmitted;
+  final bool obscure;
+  final int? requiredLength;
+  final Iterable<String>? autofillHints;
+
+  @override
+  State<CodeField> createState() => _CodeFieldState();
+}
+
+class _CodeFieldState extends State<CodeField> {
+  late final TextEditingController _text = TextEditingController(text: widget.value);
+  final _focus = FocusNode();
+
+  @override
+  void didUpdateWidget(CodeField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != _text.text) {
+      _text.value = TextEditingValue(
+        text: widget.value,
+        selection: TextSelection.collapsed(offset: widget.value.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _text.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final size = context.sizes.pinDot;
-    return Wrap(
-      spacing: context.spacing.md,
+    return Stack(
       children: [
-        for (var index = 0; index < length; index++)
-          Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: index < filled ? colors.primary : Colors.transparent,
-              border: Border.all(
-                width: 2,
-                color: index < filled ? colors.primary : (index < requiredLength ? colors.placeholder : colors.border),
-              ),
+        CodeBoxes(
+          value: widget.value,
+          length: widget.length,
+          semanticLabel: widget.semanticLabel,
+          obscure: widget.obscure,
+          requiredLength: widget.requiredLength,
+        ),
+        Positioned.fill(
+          // Invisível, mas recebe o toque e o foco: é ele que abre o teclado do sistema
+          child: Opacity(
+            opacity: 0,
+            child: TextField(
+              controller: _text,
+              focusNode: _focus,
+              autofocus: true,
+              onChanged: widget.onChanged,
+              onSubmitted: (_) => widget.onSubmitted?.call(),
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(widget.length)],
+              autofillHints: widget.autofillHints,
+              obscureText: widget.obscure,
+              enableSuggestions: false,
+              autocorrect: false,
+              showCursor: false,
+              enableInteractiveSelection: false,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration.collapsed(hintText: null),
             ),
           ),
+        ),
       ],
     );
   }

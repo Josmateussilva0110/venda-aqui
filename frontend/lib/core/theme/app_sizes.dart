@@ -8,7 +8,6 @@ class AppSizes extends ThemeExtension<AppSizes> {
     this.buttonHeightCompact = 48,
     this.fieldHeight = 52,
     this.searchHeight = 46,
-    this.keyHeight = 50,
     this.iconButton = 40,
     this.minTouchTarget = 48,
     this.productTile = 56,
@@ -17,7 +16,6 @@ class AppSizes extends ThemeExtension<AppSizes> {
     this.shortcutIcon = 44,
     this.pinBoxWidth = 42,
     this.pinBoxHeight = 52,
-    this.pinDot = 14,
     this.logoSmall = 26,
     this.logoMedium = 32,
     this.photoBoxHeight = 132,
@@ -35,7 +33,6 @@ class AppSizes extends ThemeExtension<AppSizes> {
   final double buttonHeightCompact;
   final double fieldHeight;
   final double searchHeight;
-  final double keyHeight;
   final double iconButton;
   final double minTouchTarget;
   final double productTile;
@@ -44,7 +41,6 @@ class AppSizes extends ThemeExtension<AppSizes> {
   final double shortcutIcon;
   final double pinBoxWidth;
   final double pinBoxHeight;
-  final double pinDot;
   final double logoSmall;
   final double logoMedium;
   final double photoBoxHeight;

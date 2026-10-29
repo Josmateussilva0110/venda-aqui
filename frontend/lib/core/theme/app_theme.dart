@@ -8,15 +8,15 @@ import 'app_typography.dart';
 
 /// Ponto único de montagem do [ThemeData] a partir dos tokens.
 abstract final class AppTheme {
-  static ThemeData light({bool useGoogleFonts = true}) => _build(AppColors.light, Brightness.light, useGoogleFonts);
+  static ThemeData light() => _build(AppColors.light, Brightness.light);
 
-  static ThemeData dark({bool useGoogleFonts = true}) => _build(AppColors.dark, Brightness.dark, useGoogleFonts);
+  static ThemeData dark() => _build(AppColors.dark, Brightness.dark);
 
-  static ThemeData _build(AppColors colors, Brightness brightness, bool useGoogleFonts) {
+  static ThemeData _build(AppColors colors, Brightness brightness) {
     const radius = AppRadius();
     const sizes = AppSizes();
     const spacing = AppSpacing();
-    final textTheme = AppTypography.textTheme(colors, useGoogleFonts: useGoogleFonts);
+    final textTheme = AppTypography.textTheme(colors);
     final scheme = ColorScheme.fromSeed(
       seedColor: colors.primary,
       brightness: brightness,
@@ -30,24 +30,16 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      // Vale também para textos fora do TextTheme (campos, menus, diálogos)
+      fontFamily: AppTypography.fontFamily,
       colorScheme: scheme,
       scaffoldBackgroundColor: colors.background,
       textTheme: textTheme,
-      extensions: [
-        colors,
-        spacing,
-        radius,
-        sizes,
-        AppFonts(useGoogleFonts: useGoogleFonts),
-      ],
+      extensions: [colors, spacing, radius, sizes],
       splashFactory: InkSparkle.splashFactory,
       dividerTheme: DividerThemeData(color: colors.divider, thickness: 1, space: 1),
-      snackBarTheme: SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: colors.chipActive,
-        contentTextStyle: textTheme.titleSmall?.copyWith(color: colors.onChipActive, fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius.lg)),
-      ),
+      // O visual do toast (pílula) fica em core/widgets/app_feedback.dart
+      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.background,

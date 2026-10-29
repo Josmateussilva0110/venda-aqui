@@ -34,9 +34,18 @@ class _ProductEditView extends StatelessWidget {
 
   Future<void> _update(BuildContext context, ProductInput input, ProductPhoto? photo) async {
     final l10n = AppLocalizations.of(context);
-    final outcome = await context.read<ProductEditorController>().update(productId, input, photo);
-    if (!context.mounted || outcome == SaveOutcome.failed) return;
-    showAppToast(context, outcome == SaveOutcome.saved ? l10n.productUpdated : l10n.productPhotoUploadFailed);
+    final controller = context.read<ProductEditorController>();
+    final outcome = await controller.update(productId, input, photo);
+    if (!context.mounted) return;
+    final failure = controller.saveFailure;
+    if (outcome == SaveOutcome.failed) {
+      // Erro por campo (ex.: nome repetido) também marca o campo no formulário; a mensagem vem aqui
+      if (failure != null) showAppToast(context, failureMessage(l10n, failure), tone: ToastTone.error);
+      return;
+    }
+    outcome == SaveOutcome.saved
+        ? showAppToast(context, l10n.productUpdated)
+        : showAppToast(context, l10n.productPhotoUploadFailed, tone: ToastTone.error);
     context.pop();
   }
 

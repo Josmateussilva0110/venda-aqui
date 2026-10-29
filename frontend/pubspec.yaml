@@ -1,5 +1,5 @@
 name: vendaqui
-description: "A new Flutter project."
+description: "Vendaqui: vendas, estoque e fiado para o pequeno comerciante."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -39,13 +39,13 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   go_router: ^18.1.1
   provider: ^6.1.5+1
-  google_fonts: ^9.0.0
   intl: ^0.20.3
   uuid: ^4.6.0
   image_picker: ^1.2.4
   cached_network_image: ^4.0.5
   flutter_image_compress: ^2.5.1
   flutter_cache_manager: ^3.4.6
+  shared_preferences: ^2.5.6
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +57,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -67,6 +68,22 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/fonts/Manrope-OFL.txt
+
+  # Fonte embutida no app (não baixa da internet): aparece igual mesmo offline
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Manrope-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Manrope-ExtraBold.ttf
+          weight: 800
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -103,3 +120,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Ícone do app gerado a partir de design/icon/ (rode `dart run flutter_launcher_icons` ao trocar a arte)
+flutter_launcher_icons:
+  image_path: design/icon/icon.png
+  android: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#3E7350"
+  adaptive_icon_foreground: design/icon/icon_foreground.png
+  adaptive_icon_monochrome: design/icon/icon_foreground.png
+  # O app é só para Android
+  ios: false

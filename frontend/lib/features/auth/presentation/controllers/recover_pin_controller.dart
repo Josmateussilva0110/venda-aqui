@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/api_codes.dart';
 import '../../../../core/network/app_failure.dart';
-import '../../../../core/utils/keypad_input.dart';
 import '../../../../core/utils/phone_format.dart';
 import '../../domain/auth_repository.dart';
 import '../../domain/auth_rules.dart';
@@ -39,22 +38,30 @@ class RecoverPinController extends ChangeNotifier {
     RecoverPhase.newPin => _pin.length >= AuthRules.pinMinLength,
   };
 
-  void onKey(KeypadKey key) {
+  /// Recebe o texto com máscara; guarda só os dígitos.
+  void setPhone(String text) {
+    _phone = PhoneFormat.digitsOnly(text);
+    _clearIssues();
+  }
+
+  void setCode(String digits) {
+    _code = digits;
+    // O código só é conferido junto com o novo PIN, numa chamada só
+    if (_code.length == AuthRules.recoveryCodeLength) {
+      _phase = RecoverPhase.newPin;
+      _pin = '';
+    }
+    _clearIssues();
+  }
+
+  void setPin(String digits) {
+    _pin = digits;
+    _clearIssues();
+  }
+
+  void _clearIssues() {
     _issue = null;
     _failure = null;
-    switch (_phase) {
-      case RecoverPhase.phone:
-        _phone = KeypadInput.applyDigits(_phone, key, maxLength: PhoneFormat.maxDigits);
-      case RecoverPhase.code:
-        _code = KeypadInput.applyDigits(_code, key, maxLength: AuthRules.recoveryCodeLength);
-        // O código só é conferido junto com o novo PIN, numa chamada só
-        if (_code.length == AuthRules.recoveryCodeLength) {
-          _phase = RecoverPhase.newPin;
-          _pin = '';
-        }
-      case RecoverPhase.newPin:
-        _pin = KeypadInput.applyDigits(_pin, key, maxLength: AuthRules.pinMaxLength);
-    }
     notifyListeners();
   }
 

@@ -1,4 +1,3 @@
-import cors from "cors"
 import express from "express"
 import helmet from "helmet"
 import { env } from "./config/env"
@@ -14,14 +13,8 @@ export function createApp() {
   if (env.NODE_ENV === "production") app.set("trust proxy", 1)
 
   app.use(helmet())
-  app.use(
-    cors({
-      origin(origin, callback) {
-        // Apps nativos não mandam Origin; navegadores só passam se estiverem na lista
-        callback(null, !origin || env.CORS_ORIGINS.includes(origin))
-      },
-    }),
-  )
+  // Sem CORS: o único cliente é o app Android, que não passa pela política de origem dos navegadores.
+  // Sem os cabeçalhos, nenhum site consegue ler as respostas da API a partir do navegador de alguém
   app.use(express.json({ limit: "10kb" }))
 
   app.use("/api", routes)

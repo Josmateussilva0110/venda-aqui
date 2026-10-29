@@ -14,7 +14,7 @@ class NumberField extends StatelessWidget {
     required this.hint,
     this.prefix,
     this.suffix,
-    this.errorText,
+    this.hasError = false,
     this.onChanged,
   });
 
@@ -23,7 +23,9 @@ class NumberField extends StatelessWidget {
   final String hint;
   final String? prefix;
   final String? suffix;
-  final String? errorText;
+
+  /// Borda vermelha; a mensagem do erro aparece no toast, não embaixo do campo.
+  final bool hasError;
   final ValueChanged<String>? onChanged;
 
   static const _maxLength = 12;
@@ -43,7 +45,7 @@ class NumberField extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hint,
           fillColor: context.colors.surface,
-          errorText: errorText,
+          error: hasError ? const SizedBox.shrink() : null,
           prefixIcon: prefix == null ? null : _Affix(text: prefix!, style: affixStyle),
           suffixIcon: suffix == null ? null : _Affix(text: suffix!, style: affixStyle),
           prefixIconConstraints: const BoxConstraints(),
