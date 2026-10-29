@@ -1,15 +1,18 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/app_failure.dart';
+import '../../../../core/stock/stock_changes.dart';
+import '../../../../core/utils/dispose_aware_notifier.dart';
 import '../../../../core/utils/keypad_input.dart';
 import '../../../../core/utils/quantity_format.dart';
 import '../../domain/product.dart';
 import '../../domain/products_repository.dart';
 
-class RestockController extends ChangeNotifier {
-  RestockController(this._repository, this.productId);
+class RestockController extends ChangeNotifier with DisposeAwareNotifier {
+  RestockController(this._repository, this._changes, this.productId);
 
   final ProductsRepository _repository;
+  final StockChanges _changes;
   final String productId;
 
   static const _maxUnitDigits = 4;
@@ -63,6 +66,7 @@ class RestockController extends ChangeNotifier {
     notifyListeners();
     try {
       await _repository.restock(productId, amount);
+      _changes.notify(ProductUpdated(productId));
       return true;
     } on AppFailure catch (failure) {
       _saveFailure = failure;

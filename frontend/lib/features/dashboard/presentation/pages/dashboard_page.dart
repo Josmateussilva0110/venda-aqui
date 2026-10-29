@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_feedback.dart';
@@ -25,7 +26,7 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DashboardController(context.read<DashboardRepository>())..load(),
+      create: (context) => DashboardController(context.read<DashboardRepository>(), context.read<StockChanges>())..load(),
       child: _DashboardView(onLogout: onLogout),
     );
   }
@@ -36,8 +37,6 @@ class _DashboardView extends StatelessWidget {
 
   final Future<void> Function() onLogout;
 
-  static const _stockFilterParam = 'filter';
-
   Future<void> _logout(BuildContext context) async {
     final message = AppLocalizations.of(context).dashboardLoggedOut;
     final messenger = ScaffoldMessenger.of(context);
@@ -47,14 +46,11 @@ class _DashboardView extends StatelessWidget {
       ..showSnackBar(SnackBar(content: Text(message, textAlign: TextAlign.center)));
   }
 
-  Future<void> _pushAndReload(BuildContext context, String location) async {
-    final controller = context.read<DashboardController>();
-    final changed = await context.push<bool>(location);
-    if (changed == true) await controller.load();
-  }
+  // O resumo se atualiza sozinho pelo aviso de mudança no estoque (DashboardController)
+  void _push(BuildContext context, String location) => context.push(location);
 
   void _openStock(BuildContext context, {String? filter}) {
-    context.go(Uri(path: AppRoutes.stock, queryParameters: filter == null ? null : {_stockFilterParam: filter}).toString());
+    context.go(AppRoutes.stockFiltered(filter));
   }
 
   @override
@@ -111,7 +107,7 @@ class _DashboardView extends StatelessWidget {
                               icon: Icons.add_box_rounded,
                               tint: colors.primarySoft,
                               ink: colors.primary,
-                              onTap: () => _pushAndReload(context, AppRoutes.productNew),
+                              onTap: () => _push(context, AppRoutes.productNew),
                             ),
                           ),
                           SizedBox(width: spacing.sm + 2),
@@ -153,7 +149,7 @@ class _DashboardView extends StatelessWidget {
         onAction: () => _openStock(context, filter: overview.outCount > 0 && overview.lowCount == 0 ? 'out' : 'low'),
       ),
       SizedBox(height: spacing.md),
-      StockAlertsCard(alerts: overview.alerts, onRestock: (alert) => _pushAndReload(context, AppRoutes.productRestock(alert.productId))),
+      StockAlertsCard(alerts: overview.alerts, onRestock: (alert) => _push(context, AppRoutes.productRestock(alert.productId))),
     ];
   }
 }

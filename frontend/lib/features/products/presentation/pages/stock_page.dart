@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -16,23 +17,25 @@ import '../widgets/stock_header.dart';
 import '../widgets/stock_product_card.dart';
 
 class StockPage extends StatelessWidget {
-  const StockPage({super.key, this.initialFilter = StockFilter.all});
+  const StockPage({super.key, this.filter = StockFilter.all});
 
-  final StockFilter initialFilter;
+  /// Vem da URL; trocar o filtro na tela também passa pela URL, para o início conseguir abrir já filtrado.
+  final StockFilter filter;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      // A chave recria o controller quando outra tela abre o estoque já filtrado
-      key: ValueKey(initialFilter),
-      create: (context) => StockController(context.read<ProductsRepository>(), initialFilter: initialFilter)..loadFirstPage(),
-      child: const _StockView(),
+      create: (context) =>
+          StockController(context.read<ProductsRepository>(), context.read<StockChanges>(), initialFilter: filter)..loadFirstPage(),
+      child: _StockView(filter: filter),
     );
   }
 }
 
 class _StockView extends StatefulWidget {
-  const _StockView();
+  const _StockView({required this.filter});
+
+  final StockFilter filter;
 
   @override
   State<_StockView> createState() => _StockViewState();
@@ -52,6 +55,17 @@ class _StockViewState extends State<_StockView> {
   }
 
   @override
+  void didUpdateWidget(_StockView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A aba fica viva entre trocas: um novo filtro na URL só troca o filtro da lista já carregada.
+    // Depois do frame, porque trocar o filtro notifica e aqui ainda estamos no meio do build
+    if (widget.filter == oldWidget.filter) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<StockController>().selectFilter(widget.filter);
+    });
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
@@ -59,41 +73,36 @@ class _StockViewState extends State<_StockView> {
   }
 
   void _onScroll() {
-    final position = _scrollController.position;
-    if (position.extentAfter < _loadMoreExtent) context.read<StockController>().loadMore();
+    final controller = context.read<StockController>();
+    // Depois de uma falha, só tenta de novo pelo botão do rodapé, não a cada arrasto
+    if (controller.loadMoreFailure != null) return;
+    if (_scrollController.position.extentAfter < _loadMoreExtent) controller.loadMore();
   }
 
-  Future<void> _openAndReload(String location) async {
-    final controller = context.read<StockController>();
-    final changed = await context.push<bool>(location);
-    if (changed == true) await controller.loadFirstPage();
+  void _selectFilter(StockFilter filter) {
+    context.go(AppRoutes.stockFiltered(filter == StockFilter.all ? null : filter.name));
   }
+
+  // A lista se atualiza sozinha pelo aviso de mudança no estoque (StockController)
+  void _open(String location) => context.push(location);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final controller = context.watch<StockController>();
+    final controller = context.read<StockController>();
     final spacing = context.spacing;
 
     return Scaffold(
       body: Column(
         children: [
-          StockHeader(
-            searchController: _searchController,
-            onSearch: controller.search,
-            filter: controller.filter,
-            counts: controller.counts,
-            lowStockThreshold: controller.lowStockThreshold,
-            onFilter: controller.selectFilter,
-          ),
+          _StockHeaderSection(searchController: _searchController, onSearch: controller.search, onFilter: _selectFilter),
           Expanded(
             child: RefreshIndicator(
               onRefresh: controller.loadFirstPage,
               child: _StockList(
-                controller: controller,
                 scrollController: _scrollController,
-                onOpen: (product) => _openAndReload(AppRoutes.productEdit(product.id)),
-                onRestock: (product) => _openAndReload(AppRoutes.productRestock(product.id)),
+                onOpen: (product) => _open(AppRoutes.productEdit(product.id)),
+                onRestock: (product) => _open(AppRoutes.productRestock(product.id)),
               ),
             ),
           ),
@@ -110,7 +119,7 @@ class _StockViewState extends State<_StockView> {
                     label: l10n.stockAddProduct,
                     icon: Icons.add_rounded,
                     shape: AppButtonShape.rounded,
-                    onPressed: () => _openAndReload(AppRoutes.productNew),
+                    onPressed: () => _open(AppRoutes.productNew),
                   ),
                 ),
               ),
@@ -122,10 +131,33 @@ class _StockViewState extends State<_StockView> {
   }
 }
 
-class _StockList extends StatelessWidget {
-  const _StockList({required this.controller, required this.scrollController, required this.onOpen, required this.onRestock});
+/// Cabeçalho que só reconstrói quando filtro, contagens ou limite mudam (não a cada página carregada).
+class _StockHeaderSection extends StatelessWidget {
+  const _StockHeaderSection({required this.searchController, required this.onSearch, required this.onFilter});
 
-  final StockController controller;
+  final TextEditingController searchController;
+  final ValueChanged<String> onSearch;
+  final ValueChanged<StockFilter> onFilter;
+
+  @override
+  Widget build(BuildContext context) {
+    final (filter, counts, lowStockThreshold) = context.select<StockController, (StockFilter, StockCounts, int)>(
+      (controller) => (controller.filter, controller.counts, controller.lowStockThreshold),
+    );
+    return StockHeader(
+      searchController: searchController,
+      onSearch: onSearch,
+      filter: filter,
+      counts: counts,
+      lowStockThreshold: lowStockThreshold,
+      onFilter: onFilter,
+    );
+  }
+}
+
+class _StockList extends StatelessWidget {
+  const _StockList({required this.scrollController, required this.onOpen, required this.onRestock});
+
   final ScrollController scrollController;
   final ValueChanged<Product> onOpen;
   final ValueChanged<Product> onRestock;
@@ -134,6 +166,7 @@ class _StockList extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final spacing = context.spacing;
+    final controller = context.watch<StockController>();
     final items = controller.items;
 
     final Widget? placeholder = switch (controller.status) {

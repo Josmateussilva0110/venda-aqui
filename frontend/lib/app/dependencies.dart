@@ -9,6 +9,7 @@ import '../core/network/auth_interceptor.dart';
 import '../core/network/http_client_factory.dart';
 import '../core/security/session_refresher.dart';
 import '../core/security/token_store.dart';
+import '../core/stock/stock_changes.dart';
 import '../features/auth/data/auth_remote_data_source.dart';
 import '../features/auth/data/auth_repository_impl.dart';
 import '../features/auth/domain/auth_repository.dart';
@@ -30,6 +31,7 @@ class AppDependencies {
     required this.dashboardRepository,
     required this.photoPicker,
     required this.sessionController,
+    required this.stockChanges,
   });
 
   final AuthRepository authRepository;
@@ -37,6 +39,7 @@ class AppDependencies {
   final DashboardRepository dashboardRepository;
   final PhotoPicker photoPicker;
   final SessionController sessionController;
+  final StockChanges stockChanges;
 
   factory AppDependencies.create(AppConfig config) {
     final tokenStore = TokenStore(const FlutterSecureStorage());
@@ -68,6 +71,7 @@ class AppDependencies {
       dashboardRepository: const DashboardRepositoryImpl(),
       photoPicker: ImagePickerPhotoPicker(),
       sessionController: session,
+      stockChanges: StockChanges(),
     );
   }
 
@@ -76,6 +80,7 @@ class AppDependencies {
     Provider<ProductsRepository>.value(value: productsRepository),
     Provider<DashboardRepository>.value(value: dashboardRepository),
     Provider<PhotoPicker>.value(value: photoPicker),
+    Provider<StockChanges>.value(value: stockChanges),
     ChangeNotifierProvider<SessionController>.value(value: sessionController),
   ];
 }

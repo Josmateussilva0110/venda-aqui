@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/routing/app_routes.dart';
 import '../core/theme/app_breakpoints.dart';
 import '../core/theme/theme_context.dart';
 import '../l10n/app_localizations.dart';
 
 /// Navegação principal: barra inferior no celular, trilho lateral em telas largas.
 class HomeShell extends StatelessWidget {
-  const HomeShell({super.key, required this.location, required this.child});
+  const HomeShell({super.key, required this.navigationShell});
 
-  final String location;
-  final Widget child;
+  /// Abas na ordem dos ramos do roteador: início e estoque.
+  final StatefulNavigationShell navigationShell;
 
-  static const _tabs = [AppRoutes.home, AppRoutes.stock];
+  int get _selectedIndex => navigationShell.currentIndex;
 
-  int get _selectedIndex {
-    final index = _tabs.indexWhere(location.startsWith);
-    return index < 0 ? 0 : index;
-  }
-
-  void _select(BuildContext context, int index) => context.go(_tabs[index]);
+  // Tocar na aba já aberta volta ao começo dela; trocar de aba mantém o estado de cada uma
+  void _select(int index) => navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +33,7 @@ class HomeShell extends StatelessWidget {
               right: false,
               child: NavigationRail(
                 selectedIndex: _selectedIndex,
-                onDestinationSelected: (index) => _select(context, index),
+                onDestinationSelected: _select,
                 labelType: NavigationRailLabelType.all,
                 groupAlignment: -0.8,
                 destinations: [
@@ -48,14 +43,14 @@ class HomeShell extends StatelessWidget {
               ),
             ),
             VerticalDivider(width: 1, color: context.colors.divider),
-            Expanded(child: child),
+            Expanded(child: navigationShell),
           ],
         ),
       );
     }
 
     return Scaffold(
-      body: child,
+      body: navigationShell,
       bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
           color: context.colors.surface,
@@ -64,7 +59,7 @@ class HomeShell extends StatelessWidget {
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,
-          onDestinationSelected: (index) => _select(context, index),
+          onDestinationSelected: _select,
           backgroundColor: Colors.transparent,
           destinations: [
             for (final item in destinations)

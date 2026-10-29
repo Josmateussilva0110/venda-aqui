@@ -1,9 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/theme_context.dart';
 import '../utils/initials.dart';
+import '../utils/photo_cache.dart';
 
 /// Foto do produto ou, sem foto, quadrado colorido com as iniciais.
+/// Passe a miniatura sempre que houver: a foto inteira pesa dezenas de vezes mais.
 class ProductAvatar extends StatelessWidget {
   const ProductAvatar({super.key, required this.name, required this.colorSeed, required this.size, this.photoUrl});
 
@@ -29,12 +32,13 @@ class ProductAvatar extends StatelessWidget {
             color: tile.background,
             child: photoUrl == null
                 ? fallback
-                : Image.network(
-                    photoUrl!,
+                : CachedNetworkImage(
+                    imageUrl: photoUrl!,
+                    cacheManager: PhotoCache.thumbs,
                     fit: BoxFit.cover,
                     // Decodifica no tamanho exibido, não na resolução original da foto
-                    cacheWidth: (size * pixelRatio).round(),
-                    errorBuilder: (_, _, _) => fallback,
+                    memCacheWidth: (size * pixelRatio).round(),
+                    errorWidget: (_, _, _) => fallback,
                   ),
           ),
         ),

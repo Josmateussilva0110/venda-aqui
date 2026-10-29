@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/screen_header.dart';
@@ -17,7 +18,7 @@ class ProductCreatePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => ProductEditorController(context.read<ProductsRepository>()),
+      create: (context) => ProductEditorController(context.read<ProductsRepository>(), context.read<StockChanges>()),
       child: const _ProductCreateView(),
     );
   }
@@ -31,7 +32,7 @@ class _ProductCreateView extends StatelessWidget {
     final outcome = await context.read<ProductEditorController>().create(input, photo);
     if (!context.mounted || outcome == SaveOutcome.failed) return;
     showAppToast(context, outcome == SaveOutcome.saved ? l10n.productCreated : l10n.productPhotoUploadFailed);
-    context.pop(true);
+    context.pop();
   }
 
   @override

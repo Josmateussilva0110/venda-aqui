@@ -28,7 +28,7 @@ class ProductSummaryTile extends StatelessWidget {
       decoration: BoxDecoration(color: context.colors.background, borderRadius: BorderRadius.circular(context.radius.xl)),
       child: Row(
         children: [
-          ProductAvatar(name: product.name, colorSeed: product.id, photoUrl: product.photoUrl, size: context.sizes.productTileLarge),
+          ProductAvatar(name: product.name, colorSeed: product.id, photoUrl: product.listPhotoUrl, size: context.sizes.productTileLarge),
           SizedBox(width: spacing.md),
           Expanded(
             child: Column(

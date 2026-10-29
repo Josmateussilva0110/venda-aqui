@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/theme_context.dart';
@@ -30,11 +31,11 @@ class PhotoPickerBox extends StatelessWidget {
     if (pickedBytes != null) {
       image = Image.memory(pickedBytes!, fit: BoxFit.cover, cacheHeight: (height * pixelRatio).round());
     } else if (currentUrl != null) {
-      image = Image.network(
-        currentUrl!,
+      image = CachedNetworkImage(
+        imageUrl: currentUrl!,
         fit: BoxFit.cover,
-        cacheHeight: (height * pixelRatio).round(),
-        errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        memCacheHeight: (height * pixelRatio).round(),
+        errorWidget: (_, _, _) => const SizedBox.shrink(),
       );
     }
 

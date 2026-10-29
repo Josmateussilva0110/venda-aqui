@@ -34,16 +34,25 @@ GoRouter buildRouter(SessionController session) {
         path: AppRoutes.recoverPin,
         builder: (_, state) => RecoverPinPage(initialPhone: _stringExtra(state)),
       ),
-      ShellRoute(
-        builder: (_, state, child) => HomeShell(location: state.matchedLocation, child: child),
-        routes: [
-          GoRoute(
-            path: AppRoutes.home,
-            builder: (_, _) => DashboardPage(onLogout: session.logout),
+      // Cada aba fica viva ao trocar de aba: sem recarregar a lista nem perder a rolagem
+      StatefulShellRoute.indexedStack(
+        builder: (_, _, navigationShell) => HomeShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (_, _) => DashboardPage(onLogout: session.logout),
+              ),
+            ],
           ),
-          GoRoute(
-            path: AppRoutes.stock,
-            builder: (_, state) => StockPage(initialFilter: _stockFilter(state.uri.queryParameters['filter'])),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.stock,
+                builder: (_, state) => StockPage(filter: _stockFilter(state.uri.queryParameters[AppRoutes.stockFilterParam])),
+              ),
+            ],
           ),
         ],
       ),

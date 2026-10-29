@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/network/api_codes.dart';
@@ -59,30 +61,46 @@ class ProductsRemoteDataSource {
   }
 
   Future<void> uploadPhoto(String id, ProductPhoto photo) async {
-    final target = await requestData<({String signedUrl, String path})>(
+    final target = await requestData<({String photoUrl, String path, String thumbUrl})>(
       endpoint: ApiPaths.productPhotoUploadUrl(id),
       method: 'POST',
       data: {'contentType': photo.contentType},
       parse: (json) {
         final data = jsonMap(json);
-        return (signedUrl: data.requireString('signedUrl'), path: data.requireString('path'));
+        return (
+          photoUrl: data.requireString('signedUrl'),
+          path: data.requireString('path'),
+          thumbUrl: data.requireMap('thumb').requireString('signedUrl'),
+        );
       },
     );
-    final (:signedUrl, :path) = target.requireData();
-    if (Uri.tryParse(signedUrl)?.scheme != 'https') throw const ServerFailure();
+    final (:photoUrl, :path, :thumbUrl) = target.requireData();
+    if (!_isHttps(photoUrl) || !_isHttps(thumbUrl)) throw const ServerFailure();
 
-    await _sendToStorage(signedUrl, photo);
+    final thumbBytes = photo.thumbBytes;
+    await Future.wait([_sendToStorage(photoUrl, photo.bytes, photo.contentType), if (thumbBytes != null) _sendThumb(thumbUrl, thumbBytes)]);
 
     final confirmation = await requestData<void>(endpoint: ApiPaths.productPhoto(id), method: 'PUT', data: {'path': path});
     confirmation.ensureSuccess();
   }
 
-  Future<void> _sendToStorage(String signedUrl, ProductPhoto photo) async {
+  bool _isHttps(String url) => Uri.tryParse(url)?.scheme == 'https';
+
+  // A miniatura é só economia de dados: se falhar, o servidor salva a foto sem ela
+  Future<void> _sendThumb(String signedUrl, Uint8List bytes) async {
+    try {
+      await _sendToStorage(signedUrl, bytes, ProductPhoto.thumbContentType);
+    } on AppFailure {
+      return;
+    }
+  }
+
+  Future<void> _sendToStorage(String signedUrl, Uint8List bytes, String contentType) async {
     try {
       await _storageClient.put<Object?>(
         signedUrl,
-        data: Stream.fromIterable([photo.bytes]),
-        options: Options(headers: {Headers.contentTypeHeader: photo.contentType, Headers.contentLengthHeader: photo.bytes.length}),
+        data: Stream.fromIterable([bytes]),
+        options: Options(headers: {Headers.contentTypeHeader: contentType, Headers.contentLengthHeader: bytes.length}),
       );
     } on DioException catch (error) {
       throw error.response == null ? const NetworkFailure() : const ServerFailure();

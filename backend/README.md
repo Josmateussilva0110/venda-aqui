@@ -73,26 +73,29 @@ Regras de negócio:
 
 | Método | Rota | Corpo / query | Resposta (`data`) |
 |---|---|---|---|
-| GET | `/` | `?search=&stockLevel=all&limit=50&offset=0` | `{ items, total, limit, offset, stockCounts, lowStockThreshold }`, ordenado por nome |
+| GET | `/` | `?search=&stockLevel=all&limit=50&offset=0` | `{ items, total, limit, offset, stockCounts?, lowStockThreshold }`, ordenado por nome |
 | POST | `/` | `{ name, salePriceCents, costPriceCents, quantity, soldByWeight }` | `{ id }` (201) |
 | GET | `/:id` | | produto |
 | PUT | `/:id` | mesmo corpo do POST | `{ id }` |
 | POST | `/:id/restock` | `{ quantity }` (quanto chegou, > 0) | `{ id }`; a soma é feita no banco |
-| POST | `/:id/photo/upload-url` | `{ contentType }` (`image/jpeg`, `image/png` ou `image/webp`) | `{ path, signedUrl, token }` |
+| POST | `/:id/photo/upload-url` | `{ contentType }` (`image/jpeg`, `image/png` ou `image/webp`) | `{ path, signedUrl, token, thumb: { path, signedUrl, token } }` |
 | PUT | `/:id/photo` | `{ path }` | `{ id }` |
 
-Produto = `{ id, name, photoUrl, salePriceCents, costPriceCents, quantity, soldByWeight, stockLevel, createdAt, updatedAt }`.
+Produto = `{ id, name, photoUrl, thumbUrl, salePriceCents, costPriceCents, quantity, soldByWeight, stockLevel, createdAt, updatedAt }`.
 
 - `stockLevel` do produto: `ok`, `low` (até `lowStockThreshold`, hoje 5 unidades/kg) ou `out` (zerado). O limite é
   regra do servidor (`src/constants/products.ts`); o app só exibe.
 - Filtro `stockLevel` da lista: `all`, `low`, `out` ou `attention` (baixo + esgotado, do menor estoque para o maior,
-  usado nos alertas do início). `stockCounts = { all, low, out }` ignora busca e filtro (números das abas).
+  usado nos alertas do início). `stockCounts = { all, low, out }` ignora busca e filtro (números das abas) e só vem com `offset=0`; nas
+  páginas seguintes o app reaproveita as que já tem.
 - Reposição em produto vendido por unidade com quantidade fracionada responde `422 RESTOCK_QUANTITY_NOT_INTEGER`.
 O nome é único por comerciante, sem diferenciar maiúsculas de minúsculas (`409 PRODUCT_NAME_TAKEN`).
 
 Para enviar a foto: (1) peça a URL em `/photo/upload-url`; (2) envie o arquivo direto ao Supabase com
 `supabase.storage.from("product-photos").uploadToSignedUrl(path, token, file)` ou com um `PUT` em `signedUrl`;
 (3) confirme com `PUT /:id/photo`. A foto anterior é apagada do bucket. O limite é de 5 MB.
+A miniatura (JPEG de ~256 px, usada nas listas como `thumbUrl`) vai do mesmo jeito para `thumb.signedUrl`, antes da
+confirmação; se ela não tiver sido enviada, `thumbUrl` fica `null` e as listas usam a foto inteira.
 
 ## Decisões
 

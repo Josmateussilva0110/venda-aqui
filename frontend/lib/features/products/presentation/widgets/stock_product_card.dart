@@ -41,7 +41,7 @@ class StockProductCard extends StatelessWidget {
           padding: EdgeInsets.all(spacing.md),
           child: Row(
             children: [
-              ProductAvatar(name: product.name, colorSeed: product.id, photoUrl: product.photoUrl, size: context.sizes.productTile),
+              ProductAvatar(name: product.name, colorSeed: product.id, photoUrl: product.listPhotoUrl, size: context.sizes.productTile),
               SizedBox(width: spacing.md),
               Expanded(
                 child: Column(

@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:vendaqui/app/app.dart';
 import 'package:vendaqui/app/dependencies.dart';
 import 'package:vendaqui/core/routing/app_routes.dart';
+import 'package:vendaqui/core/stock/stock_changes.dart';
 import 'package:vendaqui/features/auth/presentation/controllers/session_controller.dart';
 
 import '../support/fakes.dart';
@@ -38,6 +39,7 @@ void main() {
       dashboardRepository: FakeDashboardRepository(),
       photoPicker: FakePhotoPicker(),
       sessionController: SessionController(auth),
+      stockChanges: StockChanges(),
     );
     await tester.pumpWidget(VendaquiApp(key: UniqueKey(), dependencies: dependencies, useGoogleFonts: false, themeMode: ThemeMode.light));
     await tester.pumpAndSettle();

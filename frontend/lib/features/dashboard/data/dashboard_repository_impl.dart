@@ -35,7 +35,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
     return StockAlert(
       productId: json.requireString('id'),
       name: json.requireString('name'),
-      photoUrl: json.optionalString('photoUrl'),
+      // O início só mostra miniaturas: a foto inteira fica para quando não há miniatura
+      photoUrl: json.optionalString('thumbUrl') ?? json.optionalString('photoUrl'),
       quantity: json.requireDouble('quantity'),
       soldByWeight: json.optionalBool('soldByWeight'),
       level: StockLevel.parse(json.optionalString('stockLevel')),

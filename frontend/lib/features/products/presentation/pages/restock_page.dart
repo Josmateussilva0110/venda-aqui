@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/utils/quantity_format.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -25,7 +26,7 @@ class RestockPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => RestockController(context.read<ProductsRepository>(), productId)..load(),
+      create: (context) => RestockController(context.read<ProductsRepository>(), context.read<StockChanges>(), productId)..load(),
       child: const _RestockView(),
     );
   }
@@ -39,7 +40,7 @@ class _RestockView extends StatelessWidget {
     final saved = await context.read<RestockController>().save();
     if (!saved || !context.mounted) return;
     showAppToast(context, l10n.restockDone);
-    context.pop(true);
+    context.pop();
   }
 
   @override

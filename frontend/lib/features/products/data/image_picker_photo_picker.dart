@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../domain/photo_picker.dart';
@@ -11,6 +13,10 @@ class ImagePickerPhotoPicker implements PhotoPicker {
   // Reduz a foto no aparelho: a lista mostra miniaturas e o limite do servidor é 5 MB
   static const _maxDimension = 1280.0;
   static const _jpegQuality = 80;
+
+  // Miniatura das listas: o menor lado com 256 px cobre o maior avatar (56 dp) em telas de até 4x
+  static const _thumbMinSide = 256;
+  static const _thumbQuality = 70;
   static const _typesByExtension = {'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'webp': 'image/webp'};
 
   @override
@@ -28,6 +34,22 @@ class ImagePickerPhotoPicker implements PhotoPicker {
 
     final bytes = await file.readAsBytes();
     if (bytes.length > ProductPhoto.maxBytes) return const PhotoTooLarge();
-    return PhotoPicked(ProductPhoto(bytes: bytes, contentType: contentType));
+    return PhotoPicked(ProductPhoto(bytes: bytes, contentType: contentType, thumbBytes: await _thumbnailOf(bytes)));
+  }
+
+  /// Sem miniatura a foto ainda é salva; as listas só passam a baixar a foto inteira.
+  Future<Uint8List?> _thumbnailOf(Uint8List bytes) async {
+    try {
+      return await FlutterImageCompress.compressWithList(
+        bytes,
+        minWidth: _thumbMinSide,
+        minHeight: _thumbMinSide,
+        quality: _thumbQuality,
+        format: CompressFormat.jpeg,
+      );
+    } on Object catch (error) {
+      if (kDebugMode) debugPrint('Miniatura não gerada: ${error.runtimeType}');
+      return null;
+    }
   }
 }
