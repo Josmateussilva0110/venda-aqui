@@ -17,7 +17,7 @@
 frontend/config/*.json
 !frontend/config/*.example.json
 
-# Chaves de assinatura Android/iOS e credenciais
+# Chaves de assinatura Android e credenciais
 *.keystore
 *.jks
 *.p8
@@ -114,45 +114,3 @@ frontend/android/app/debug/
 frontend/android/app/profile/
 frontend/android/app/release/
 frontend/android/.kotlin/
-
-# ------------------------------------------------------------------------------
-# Frontend: iOS / macOS (Xcode, CocoaPods)
-# ------------------------------------------------------------------------------
-frontend/ios/**/dgph
-frontend/ios/**/*.mode1v3
-frontend/ios/**/*.mode2v3
-frontend/ios/**/*.moved-aside
-frontend/ios/**/*.pbxuser
-frontend/ios/**/*.perspectivev3
-frontend/ios/**/*sync/
-frontend/ios/**/.sconsign.dblite
-frontend/ios/**/.tags*
-frontend/ios/**/.vagrant/
-frontend/ios/**/DerivedData/
-frontend/ios/**/Icon?
-frontend/ios/**/Pods/
-frontend/ios/**/.symlinks/
-frontend/ios/**/profile
-frontend/ios/**/xcuserdata
-frontend/ios/**/.generated/
-frontend/ios/Flutter/.last_build_id
-frontend/ios/Flutter/App.framework
-frontend/ios/Flutter/Flutter.framework
-frontend/ios/Flutter/Flutter.podspec
-frontend/ios/Flutter/Generated.xcconfig
-frontend/ios/Flutter/ephemeral/
-frontend/ios/Flutter/app.flx
-frontend/ios/Flutter/app.zip
-frontend/ios/Flutter/flutter_assets/
-frontend/ios/Flutter/flutter_export_environment.sh
-frontend/ios/ServiceDefinitions.json
-frontend/ios/Runner/GeneratedPluginRegistrant.*
-!frontend/ios/**/default.mode1v3
-!frontend/ios/**/default.mode2v3
-!frontend/ios/**/default.pbxuser
-!frontend/ios/**/default.perspectivev3
-
-# ------------------------------------------------------------------------------
-# Frontend: web
-# ------------------------------------------------------------------------------
-frontend/web/.dart_tool/

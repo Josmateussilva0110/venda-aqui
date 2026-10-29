@@ -33,6 +33,8 @@ Toda resposta usa o mesmo envelope:
 - Valores em dinheiro são **centavos inteiros** (`salePriceCents: 850` = R$ 8,50).
 - `quantity` aceita até 3 casas decimais só quando `soldByWeight` é `true` (kg); nos outros casos precisa ser inteira.
 - Telefone pode ir como o usuário digita (`(86) 99999-0000`) e volta sempre como `+5586999990000`.
+  Celular sem o 9 (`(86) 9999-0000`) é salvo com o 9, então cada número só pode ter um cadastro
+  (`409 PHONE_ALREADY_REGISTERED`). A coluna `phone` é `unique` e tem uma trava para o formato sem o 9.
 
 ### Sessão
 
