@@ -1,19 +1,32 @@
 import { randomUUID } from "node:crypto"
 import { supabase } from "../config/supabase"
 import { PRODUCT_COLUMNS } from "../constants/columns"
-import { PHOTO_EXTENSIONS, PRODUCT_PHOTOS_BUCKET, type PhotoContentType } from "../constants/storage"
+import { LOW_STOCK_THRESHOLD } from "../constants/products"
+import { PHOTO_EXTENSIONS, PHOTO_THUMB_SUFFIX, PRODUCT_PHOTOS_BUCKET, type PhotoContentType } from "../constants/storage"
 import type { ListProductsDTO } from "../schemas/products/listProducts"
 import type { ProductDTO } from "../schemas/products/product"
-import { ProductErrorCode, type PhotoUploadTarget, type Product, type ProductList } from "../types/products"
+import {
+  ProductErrorCode,
+  type PhotoUploadTarget,
+  type Product,
+  type ProductList,
+  type StockCounts,
+  type StockLevel,
+  type UploadTarget,
+} from "../types/products"
 import type { ServiceResult } from "../types/serviceResult"
-import { escapeLikePattern, isUniqueViolation } from "../utils/database"
+import { escapeLikePattern, isCheckViolation, isUniqueViolation } from "../utils/database"
 
 type ProductResult<T> = Promise<ServiceResult<T, ProductErrorCode>>
+type StockCountKey = keyof StockCounts
+
+const STOCK_COUNT_KEYS: StockCountKey[] = ["all", "low", "out"]
 
 interface ProductRow {
   id: string
   name: string
   photo_path: string | null
+  thumb_path: string | null
   sale_price_cents: number
   cost_price_cents: number
   quantity: number | string
@@ -34,23 +47,44 @@ class ProductService {
         .from("products")
         .select(PRODUCT_COLUMNS, { count: "exact" })
         .eq("merchant_id", merchantId)
-        .order("name", { ascending: true })
-        .range(filters.offset, filters.offset + filters.limit - 1)
 
       if (filters.search) {
         query = query.ilike("name", `%${escapeLikePattern(filters.search)}%`)
       }
+      if (filters.stockLevel === "low") {
+        query = query.gt("quantity", 0).lte("quantity", LOW_STOCK_THRESHOLD)
+      } else if (filters.stockLevel === "out") {
+        query = query.lte("quantity", 0)
+      } else if (filters.stockLevel === "attention") {
+        query = query.lte("quantity", LOW_STOCK_THRESHOLD).order("quantity", { ascending: true })
+      }
 
-      const { data, error, count } = await query.returns<ProductRow[]>()
+      // As abas só precisam das contagens na primeira página (o app guarda as que já tem). Sem busca,
+      // o total da própria página já é a contagem do filtro escolhido e não é consultado de novo
+      const reusedCountKey = filters.search ? null : this.countKeyOf(filters.stockLevel)
+      const [page, partialCounts] = await Promise.all([
+        query
+          .order("name", { ascending: true })
+          .range(filters.offset, filters.offset + filters.limit - 1)
+          .returns<ProductRow[]>(),
+        filters.offset === 0 ? this.countByStockLevel(merchantId, reusedCountKey) : null,
+      ])
 
-      if (error) {
-        console.error("[ProductService.list]", error)
+      if (page.error) {
+        console.error("[ProductService.list]", page.error)
         return { status: false, error: { code: ProductErrorCode.PRODUCT_LIST_FAILED, message: "Erro ao carregar os produtos." } }
       }
 
       return {
         status: true,
-        data: { items: data.map((row) => this.toProduct(row)), total: count ?? 0, limit: filters.limit, offset: filters.offset },
+        data: {
+          items: page.data.map((row) => this.toProduct(row)),
+          total: page.count ?? 0,
+          limit: filters.limit,
+          offset: filters.offset,
+          stockCounts: partialCounts ? this.completeCounts(partialCounts, reusedCountKey, page.count ?? 0) : undefined,
+          lowStockThreshold: LOW_STOCK_THRESHOLD,
+        },
       }
     } catch (error) {
       console.error("[ProductService.list] error:", error)
@@ -125,6 +159,31 @@ class ProductService {
     }
   }
 
+  async restock(merchantId: string, productId: string, quantity: number): ProductResult<{ id: string }> {
+    try {
+      const { data, error } = await supabase
+        .rpc("restock_product", { p_merchant_id: merchantId, p_product_id: productId, p_quantity: quantity })
+        .maybeSingle<{ id: string }>()
+
+      if (isCheckViolation(error)) {
+        return {
+          status: false,
+          error: { code: ProductErrorCode.RESTOCK_QUANTITY_NOT_INTEGER, message: "Este produto é vendido por unidade: use um número inteiro." },
+        }
+      }
+      if (error) {
+        console.error("[ProductService.restock]", error)
+        return { status: false, error: { code: ProductErrorCode.PRODUCT_RESTOCK_FAILED, message: "Erro ao repor o estoque." } }
+      }
+      if (!data) return { status: false, error: NOT_FOUND_ERROR }
+
+      return { status: true, data: { id: data.id } }
+    } catch (error) {
+      console.error("[ProductService.restock] error:", error)
+      return { status: false, error: { code: ProductErrorCode.PRODUCT_RESTOCK_FAILED, message: "Erro ao repor o estoque." } }
+    }
+  }
+
   // O app envia a imagem direto ao Storage por URL assinada, sem passar pela API
   // (que só aceita JSON pequeno), e depois confirma com updatePhoto
   async createPhotoUploadUrl(merchantId: string, productId: string, contentType: PhotoContentType): ProductResult<PhotoUploadTarget> {
@@ -133,14 +192,13 @@ class ProductService {
       if (!productExists) return { status: false, error: NOT_FOUND_ERROR }
 
       const path = `${this.photoFolder(merchantId, productId)}/${randomUUID()}.${PHOTO_EXTENSIONS[contentType]}`
-      const { data, error } = await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).createSignedUploadUrl(path)
+      const [photo, thumb] = await Promise.all([this.createUploadTarget(path), this.createUploadTarget(this.thumbPathOf(path))])
 
-      if (error || !data) {
-        console.error("[ProductService.createPhotoUploadUrl]", error)
+      if (!photo || !thumb) {
         return { status: false, error: { code: ProductErrorCode.PHOTO_UPLOAD_URL_FAILED, message: "Erro ao preparar o envio da foto." } }
       }
 
-      return { status: true, data: { path: data.path, signedUrl: data.signedUrl, token: data.token } }
+      return { status: true, data: { ...photo, thumb } }
     } catch (error) {
       console.error("[ProductService.createPhotoUploadUrl] error:", error)
       return { status: false, error: { code: ProductErrorCode.PHOTO_UPLOAD_URL_FAILED, message: "Erro ao preparar o envio da foto." } }
@@ -153,9 +211,16 @@ class ProductService {
         return { status: false, error: { code: ProductErrorCode.PHOTO_PATH_INVALID, message: "Foto inválida para este produto." } }
       }
 
-      const [current, uploaded] = await Promise.all([
-        supabase.from("products").select("photo_path").eq("id", productId).eq("merchant_id", merchantId).maybeSingle<{ photo_path: string | null }>(),
+      const thumbPath = this.thumbPathOf(path)
+      const [current, uploaded, thumbUploaded] = await Promise.all([
+        supabase
+          .from("products")
+          .select("photo_path, thumb_path")
+          .eq("id", productId)
+          .eq("merchant_id", merchantId)
+          .maybeSingle<Pick<ProductRow, "photo_path" | "thumb_path">>(),
         supabase.storage.from(PRODUCT_PHOTOS_BUCKET).exists(path),
+        supabase.storage.from(PRODUCT_PHOTOS_BUCKET).exists(thumbPath),
       ])
 
       if (current.error) {
@@ -167,13 +232,18 @@ class ProductService {
         return { status: false, error: { code: ProductErrorCode.PHOTO_NOT_UPLOADED, message: "A foto ainda não foi enviada." } }
       }
 
-      const { error } = await supabase.from("products").update({ photo_path: path }).eq("id", productId).eq("merchant_id", merchantId)
+      // Sem miniatura (falhou no aparelho ou app antigo), as listas usam a foto inteira
+      const { error } = await supabase
+        .from("products")
+        .update({ photo_path: path, thumb_path: thumbUploaded.data ? thumbPath : null })
+        .eq("id", productId)
+        .eq("merchant_id", merchantId)
       if (error) {
         console.error("[ProductService.updatePhoto]", error)
         return { status: false, error: { code: ProductErrorCode.PHOTO_UPDATE_FAILED, message: "Erro ao salvar a foto." } }
       }
 
-      await this.removeReplacedPhoto(current.data.photo_path, path)
+      await this.removeReplacedPhoto([current.data.photo_path, current.data.thumb_path], path)
       return { status: true, data: { id: productId } }
     } catch (error) {
       console.error("[ProductService.updatePhoto] error:", error)
@@ -191,6 +261,41 @@ class ProductService {
     return (count ?? 0) > 0
   }
 
+  // Contagens das abas do estoque; ignoram a busca para os números não mudarem enquanto o usuário digita.
+  // [skip] é a contagem que a própria página já traz
+  private async countByStockLevel(merchantId: string, skip: StockCountKey | null): Promise<Partial<StockCounts>> {
+    const base = () => supabase.from("products").select("id", { count: "exact", head: true }).eq("merchant_id", merchantId)
+    const queries = {
+      all: () => base(),
+      low: () => base().gt("quantity", 0).lte("quantity", LOW_STOCK_THRESHOLD),
+      out: () => base().lte("quantity", 0),
+    }
+    const entries = await Promise.all(
+      STOCK_COUNT_KEYS.filter((key) => key !== skip).map(async (key) => {
+        const { count, error } = await queries[key]()
+        if (error) throw error
+        return [key, count ?? 0] as const
+      }),
+    )
+    return Object.fromEntries(entries)
+  }
+
+  private completeCounts(partial: Partial<StockCounts>, reusedKey: StockCountKey | null, pageCount: number): StockCounts {
+    const counts = reusedKey ? { ...partial, [reusedKey]: pageCount } : partial
+    return { all: counts.all ?? 0, low: counts.low ?? 0, out: counts.out ?? 0 }
+  }
+
+  // Filtro da página cujo total coincide com uma das contagens das abas
+  private countKeyOf(stockLevel: ListProductsDTO["stockLevel"]): StockCountKey | null {
+    return stockLevel === "attention" ? null : stockLevel
+  }
+
+  private stockLevelOf(quantity: number): StockLevel {
+    if (quantity <= 0) return "out"
+    if (quantity <= LOW_STOCK_THRESHOLD) return "low"
+    return "ok"
+  }
+
   private photoFolder(merchantId: string, productId: string): string {
     return `${merchantId}/${productId}`
   }
@@ -203,11 +308,29 @@ class ProductService {
     return path.startsWith(prefix) && /^[0-9a-f-]{36}\.(jpg|png|webp)$/.test(fileName)
   }
 
-  // Falhar aqui só deixa um arquivo órfão no bucket; não vale desfazer a troca por isso
-  private async removeReplacedPhoto(previousPath: string | null, newPath: string): Promise<void> {
-    if (!previousPath || previousPath === newPath) return
-    const { error } = await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove([previousPath])
+  private thumbPathOf(photoPath: string): string {
+    return photoPath.replace(/\.[a-z]+$/, PHOTO_THUMB_SUFFIX)
+  }
+
+  private async createUploadTarget(path: string): Promise<UploadTarget | null> {
+    const { data, error } = await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).createSignedUploadUrl(path)
+    if (error || !data) {
+      console.error("[ProductService.createUploadTarget]", error)
+      return null
+    }
+    return { path: data.path, signedUrl: data.signedUrl, token: data.token }
+  }
+
+  // Falhar aqui só deixa arquivos órfãos no bucket; não vale desfazer a troca por isso
+  private async removeReplacedPhoto(previousPaths: Array<string | null>, newPath: string): Promise<void> {
+    const stale = previousPaths.filter((path): path is string => path !== null && path !== newPath)
+    if (stale.length === 0) return
+    const { error } = await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove(stale)
     if (error) console.error("[ProductService.removeReplacedPhoto]", error)
+  }
+
+  private publicUrlOf(path: string | null): string | null {
+    return path ? supabase.storage.from(PRODUCT_PHOTOS_BUCKET).getPublicUrl(path).data.publicUrl : null
   }
 
   private toRow(input: ProductDTO) {
@@ -221,15 +344,18 @@ class ProductService {
   }
 
   private toProduct(row: ProductRow): Product {
+    // numeric pode chegar como string dependendo da configuração do PostgREST
+    const quantity = Number(row.quantity)
     return {
       id: row.id,
       name: row.name,
-      photoUrl: row.photo_path ? supabase.storage.from(PRODUCT_PHOTOS_BUCKET).getPublicUrl(row.photo_path).data.publicUrl : null,
+      photoUrl: this.publicUrlOf(row.photo_path),
+      thumbUrl: this.publicUrlOf(row.thumb_path),
       salePriceCents: row.sale_price_cents,
       costPriceCents: row.cost_price_cents,
-      // numeric pode chegar como string dependendo da configuração do PostgREST
-      quantity: Number(row.quantity),
+      quantity,
       soldByWeight: row.sold_by_weight,
+      stockLevel: this.stockLevelOf(quantity),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }

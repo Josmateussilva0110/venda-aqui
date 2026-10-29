@@ -1,3 +1,116 @@
+# ==============================================================================
+# Vendaqui (monorepo): tudo que não deve ir para o GitHub, num arquivo só.
+# backend/ = API Node/TypeScript · frontend/ = app Flutter
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Segredos e configuração local (nunca versionar; só os arquivos de exemplo)
+# ------------------------------------------------------------------------------
 .env
 .env.*
 !.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Endereço da API do app (copie de frontend/config/api.example.json)
+frontend/config/*.json
+!frontend/config/*.example.json
+
+# Chaves de assinatura Android e credenciais
+*.keystore
+*.jks
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+frontend/android/key.properties
+google-services.json
+GoogleService-Info.plist
+
+# Configurações pessoais do Claude Code (as skills do projeto continuam versionadas)
+.claude/settings.local.json
+
+# ------------------------------------------------------------------------------
+# Sistema operacional e editores
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.history/
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/extensions.json
+.atom/
+.svn/
+
+# ------------------------------------------------------------------------------
+# Logs e arquivos temporários
+# ------------------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.pyc
+*.class
+*.tmp
+
+# ------------------------------------------------------------------------------
+# Backend (Node + TypeScript + Supabase)
+# ------------------------------------------------------------------------------
+backend/node_modules/
+backend/dist/
+backend/coverage/
+backend/*.tsbuildinfo
+backend/.vitest/
+backend/.npm/
+backend/.eslintcache
+# Arquivos locais da CLI do Supabase (as migrations continuam versionadas)
+backend/supabase/.temp/
+backend/supabase/.branches/
+
+# ------------------------------------------------------------------------------
+# Frontend: Flutter / Dart
+# ------------------------------------------------------------------------------
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.packages
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/coverage/
+frontend/.build/
+frontend/.buildlog/
+frontend/.swiftpm/
+frontend/.widget_preview/
+frontend/migrate_working_dir/
+frontend/**/doc/api/
+
+# Símbolos de debug e mapas de ofuscação (gerados no build de release; guardar fora do repositório)
+frontend/app.*.symbols
+frontend/app.*.map.json
+frontend/build/symbols/
+
+# ------------------------------------------------------------------------------
+# Frontend: Android
+# ------------------------------------------------------------------------------
+frontend/android/.gradle/
+frontend/android/captures/
+frontend/android/gradlew
+frontend/android/gradlew.bat
+frontend/android/gradle/wrapper/gradle-wrapper.jar
+frontend/android/local.properties
+frontend/android/**/GeneratedPluginRegistrant.java
+frontend/android/app/.cxx/
+frontend/android/app/debug/
+frontend/android/app/profile/
+frontend/android/app/release/
+frontend/android/.kotlin/

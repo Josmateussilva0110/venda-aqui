@@ -4,6 +4,7 @@ import { newPinField, pinField } from "../src/schemas/fields/pin"
 import { RegisterSchema } from "../src/schemas/auth/register"
 import { ProductSchema } from "../src/schemas/products/product"
 import { ListProductsSchema } from "../src/schemas/products/listProducts"
+import { RestockSchema } from "../src/schemas/products/restock"
 
 describe("phoneField", () => {
   it.each([
@@ -11,6 +12,9 @@ describe("phoneField", () => {
     ["+55 86 99999-0000", "+5586999990000"],
     ["5586999990000", "+5586999990000"],
     ["86 3222-1100", "+558632221100"],
+    // Celular sem o 9 vira o mesmo número com o 9: não dá para cadastrar a mesma linha duas vezes
+    ["(86) 9999-0000", "+5586999990000"],
+    ["+55 86 8888-1234", "+5586988881234"],
   ])("normaliza %s", (input, expected) => {
     expect(phoneField.parse(input)).toBe(expected)
   })
@@ -80,10 +84,28 @@ describe("ProductSchema", () => {
 
 describe("ListProductsSchema", () => {
   it("converte a query string e aplica padrões", () => {
-    expect(ListProductsSchema.parse({ limit: "20", search: "  tom " })).toEqual({ limit: 20, offset: 0, search: "tom" })
+    expect(ListProductsSchema.parse({ limit: "20", search: "  tom " })).toEqual({ limit: 20, offset: 0, search: "tom", stockLevel: "all" })
   })
 
   it("limita o tamanho da página", () => {
     expect(ListProductsSchema.safeParse({ limit: "500" }).success).toBe(false)
+  })
+})
+
+describe("ListProductsSchema stockLevel", () => {
+  it("recusa filtro de estoque desconhecido", () => {
+    expect(ListProductsSchema.safeParse({ stockLevel: "zero" }).success).toBe(false)
+  })
+})
+
+describe("RestockSchema", () => {
+  it("recusa quantidade zero ou negativa", () => {
+    expect(RestockSchema.safeParse({ quantity: 0 }).success).toBe(false)
+    expect(RestockSchema.safeParse({ quantity: -2 }).success).toBe(false)
+  })
+
+  it("aceita peso com até 3 casas", () => {
+    expect(RestockSchema.safeParse({ quantity: 1.25 }).success).toBe(true)
+    expect(RestockSchema.safeParse({ quantity: 1.2345 }).success).toBe(false)
   })
 })
