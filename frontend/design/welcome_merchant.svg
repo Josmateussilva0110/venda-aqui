@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" width="1200" height="1000">
+  <!-- Fundo no verde da marca, para fundir com o topo da tela -->
+  <rect width="1200" height="1000" fill="#3E7350"/>
+  <circle cx="600" cy="470" r="360" fill="#4A8059"/>
+  <circle cx="600" cy="470" r="270" fill="#548C63"/>
+
+  <!-- Postes da barraca -->
+  <rect x="150" y="190" width="22" height="560" rx="6" fill="#2E5A3D"/>
+  <rect x="1028" y="190" width="22" height="560" rx="6" fill="#2E5A3D"/>
+
+  <!-- Toldo listrado -->
+  <g>
+    <rect x="110" y="120" width="980" height="90" fill="#F4EFE6"/>
+    <rect x="110" y="120" width="98" height="90" fill="#E07A4F"/>
+    <rect x="306" y="120" width="98" height="90" fill="#E07A4F"/>
+    <rect x="502" y="120" width="98" height="90" fill="#E07A4F"/>
+    <rect x="698" y="120" width="98" height="90" fill="#E07A4F"/>
+    <rect x="894" y="120" width="98" height="90" fill="#E07A4F"/>
+    <!-- Babado do toldo -->
+    <path d="M110,210 a49,34 0 0 0 98,0 z" fill="#E07A4F"/>
+    <path d="M208,210 a49,34 0 0 0 98,0 z" fill="#F4EFE6"/>
+    <path d="M306,210 a49,34 0 0 0 98,0 z" fill="#E07A4F"/>
+    <path d="M404,210 a49,34 0 0 0 98,0 z" fill="#F4EFE6"/>
+    <path d="M502,210 a49,34 0 0 0 98,0 z" fill="#E07A4F"/>
+    <path d="M600,210 a49,34 0 0 0 98,0 z" fill="#F4EFE6"/>
+    <path d="M698,210 a49,34 0 0 0 98,0 z" fill="#E07A4F"/>
+    <path d="M796,210 a49,34 0 0 0 98,0 z" fill="#F4EFE6"/>
+    <path d="M894,210 a49,34 0 0 0 98,0 z" fill="#E07A4F"/>
+    <path d="M992,210 a49,34 0 0 0 98,0 z" fill="#F4EFE6"/>
+    <rect x="100" y="108" width="1000" height="18" rx="9" fill="#2E5A3D"/>
+  </g>
+
+  <!-- Cacho de bananas pendurado -->
+  <g transform="translate(905 232)">
+    <line x1="0" y1="-12" x2="0" y2="28" stroke="#2E5A3D" stroke-width="6"/>
+    <rect x="-9" y="22" width="18" height="34" rx="6" fill="#7A6A2E"/>
+    <path d="M-6,50 C-70,60 -88,130 -60,170 C-58,120 -40,82 -2,66 Z" fill="#F2C94C"/>
+    <path d="M-4,54 C-44,82 -50,150 -22,182 C-26,132 -12,94 2,72 Z" fill="#E8B830"/>
+    <path d="M4,54 C44,82 50,150 22,182 C26,132 12,94 -2,72 Z" fill="#F2C94C"/>
+    <path d="M6,50 C70,60 88,130 60,170 C58,120 40,82 2,66 Z" fill="#E8B830"/>
+    <circle cx="-60" cy="170" r="5" fill="#6B5A22"/>
+    <circle cx="-22" cy="182" r="5" fill="#6B5A22"/>
+    <circle cx="22" cy="182" r="5" fill="#6B5A22"/>
+    <circle cx="60" cy="170" r="5" fill="#6B5A22"/>
+  </g>
+
+  <!-- Feirante -->
+  <g>
+    <!-- Cabelo atrás -->
+    <ellipse cx="600" cy="430" rx="104" ry="112" fill="#2B1D16"/>
+    <!-- Pescoço -->
+    <rect x="574" y="480" width="52" height="70" rx="20" fill="#7A4A30"/>
+    <!-- Tronco (blusa) -->
+    <path d="M430,760 C430,620 470,560 545,540 L655,540 C730,560 770,620 770,760 Z" fill="#F2B84B"/>
+    <!-- Gola -->
+    <path d="M560,540 L600,590 L640,540 Z" fill="#7A4A30"/>
+    <!-- Avental -->
+    <path d="M520,600 L680,600 L700,760 L500,760 Z" fill="#F4EFE6"/>
+    <path d="M540,600 L560,545" stroke="#F4EFE6" stroke-width="12" stroke-linecap="round"/>
+    <path d="M660,600 L640,545" stroke="#F4EFE6" stroke-width="12" stroke-linecap="round"/>
+    <rect x="560" y="640" width="80" height="50" rx="10" fill="#E5DCCB"/>
+    <!-- Braços -->
+    <path d="M462,610 C440,660 440,720 470,760 L520,760 C500,720 498,670 512,630 Z" fill="#E9A93A"/>
+    <path d="M738,610 C760,660 760,720 730,760 L680,760 C700,720 702,670 688,630 Z" fill="#E9A93A"/>
+    <!-- Cabeça -->
+    <ellipse cx="600" cy="425" rx="80" ry="92" fill="#8D5A3B"/>
+    <!-- Orelhas e brincos -->
+    <ellipse cx="521" cy="432" rx="12" ry="18" fill="#8D5A3B"/>
+    <ellipse cx="679" cy="432" rx="12" ry="18" fill="#8D5A3B"/>
+    <circle cx="520" cy="462" r="9" fill="#F2C94C"/>
+    <circle cx="680" cy="462" r="9" fill="#F2C94C"/>
+    <!-- Lenço na cabeça -->
+    <path d="M516,410 C512,330 560,300 600,300 C640,300 688,330 684,410 C660,370 620,356 600,356 C580,356 540,370 516,410 Z" fill="#E07A4F"/>
+    <circle cx="560" cy="335" r="7" fill="#F4EFE6"/>
+    <circle cx="610" cy="322" r="7" fill="#F4EFE6"/>
+    <circle cx="650" cy="345" r="7" fill="#F4EFE6"/>
+    <circle cx="585" cy="360" r="5" fill="#F4EFE6"/>
+    <!-- Nó do lenço -->
+    <path d="M676,372 C720,350 742,372 728,398 C716,388 700,384 684,392 Z" fill="#C9653E"/>
+    <path d="M680,384 C716,404 718,436 694,446 C694,428 690,410 678,398 Z" fill="#C9653E"/>
+    <!-- Rosto -->
+    <path d="M556,428 q14,-12 28,0" stroke="#2B1D16" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M616,428 q14,-12 28,0" stroke="#2B1D16" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <circle cx="556" cy="458" r="13" fill="#C56B4E" opacity="0.55"/>
+    <circle cx="644" cy="458" r="13" fill="#C56B4E" opacity="0.55"/>
+    <path d="M574,470 Q600,500 626,470 Q600,484 574,470 Z" fill="#5A2A1E"/>
+    <path d="M582,474 Q600,482 618,474" stroke="#F4EFE6" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Balcão de madeira -->
+  <rect x="80" y="740" width="1040" height="260" fill="#B9804A"/>
+  <rect x="80" y="730" width="1040" height="28" rx="8" fill="#8E5B30"/>
+  <line x1="80" y1="830" x2="1120" y2="830" stroke="#A06C3C" stroke-width="6"/>
+  <line x1="80" y1="915" x2="1120" y2="915" stroke="#A06C3C" stroke-width="6"/>
+  <line x1="330" y1="758" x2="330" y2="1000" stroke="#A06C3C" stroke-width="6"/>
+  <line x1="870" y1="758" x2="870" y2="1000" stroke="#A06C3C" stroke-width="6"/>
+
+  <!-- Caixote de tomates -->
+  <g>
+    <circle cx="200" cy="690" r="34" fill="#D9443A"/>
+    <circle cx="262" cy="684" r="34" fill="#E2523F"/>
+    <circle cx="324" cy="692" r="34" fill="#D9443A"/>
+    <circle cx="232" cy="650" r="32" fill="#E2523F"/>
+    <circle cx="294" cy="648" r="32" fill="#D9443A"/>
+    <g transform="translate(232 622)"><ellipse cx="-9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="0" cy="-5" rx="5" ry="9" fill="#5C9A44"/></g>
+    <g transform="translate(294 620)"><ellipse cx="-9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="0" cy="-5" rx="5" ry="9" fill="#5C9A44"/></g>
+    <g transform="translate(200 660)"><ellipse cx="-9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="0" cy="-5" rx="5" ry="9" fill="#5C9A44"/></g>
+    <g transform="translate(262 654)"><ellipse cx="-9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="0" cy="-5" rx="5" ry="9" fill="#5C9A44"/></g>
+    <g transform="translate(324 662)"><ellipse cx="-9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="9" cy="0" rx="10" ry="5" fill="#4E8A3A"/><ellipse cx="0" cy="-5" rx="5" ry="9" fill="#5C9A44"/></g>
+    <circle cx="186" cy="676" r="8" fill="#F4EFE6" opacity="0.45"/>
+    <circle cx="248" cy="670" r="8" fill="#F4EFE6" opacity="0.45"/>
+    <rect x="150" y="700" width="230" height="70" rx="6" fill="#C9925A"/>
+    <rect x="150" y="718" width="230" height="10" fill="#A97640"/>
+    <rect x="150" y="744" width="230" height="10" fill="#A97640"/>
+  </g>
+
+  <!-- Caixote de laranjas -->
+  <g>
+    <circle cx="455" cy="690" r="33" fill="#F29B30"/>
+    <circle cx="518" cy="694" r="33" fill="#F5A83F"/>
+    <circle cx="486" cy="652" r="31" fill="#F5A83F"/>
+    <circle cx="444" cy="676" r="7" fill="#F4EFE6" opacity="0.45"/>
+    <path d="M486,622 q8,-14 20,-10" stroke="#4E8A3A" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <rect x="410" y="705" width="150" height="65" rx="6" fill="#C9925A"/>
+    <rect x="410" y="722" width="150" height="9" fill="#A97640"/>
+    <rect x="410" y="746" width="150" height="9" fill="#A97640"/>
+  </g>
+
+  <!-- Caixote de alfaces -->
+  <g>
+    <circle cx="700" cy="686" r="40" fill="#6FA84B"/>
+    <circle cx="700" cy="686" r="26" fill="#8BC063"/>
+    <circle cx="700" cy="686" r="12" fill="#A9D37E"/>
+    <circle cx="780" cy="690" r="40" fill="#5F9A40"/>
+    <circle cx="780" cy="690" r="26" fill="#7FB55A"/>
+    <circle cx="780" cy="690" r="12" fill="#A9D37E"/>
+    <rect x="645" y="705" width="190" height="65" rx="6" fill="#C9925A"/>
+    <rect x="645" y="722" width="190" height="9" fill="#A97640"/>
+    <rect x="645" y="746" width="190" height="9" fill="#A97640"/>
+  </g>
+
+  <!-- Caixote de cenouras e plaquinha de preço -->
+  <g>
+    <path d="M880,640 L900,720 L920,640 Z" fill="#EE8434"/>
+    <path d="M915,630 L935,715 L955,630 Z" fill="#F29B30"/>
+    <path d="M950,640 L970,720 L990,640 Z" fill="#EE8434"/>
+    <path d="M890,640 q10,-30 0,-40 M900,640 q10,-30 20,-36" stroke="#4E8A3A" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M935,630 q-8,-30 2,-42 M935,630 q10,-30 20,-34" stroke="#4E8A3A" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M970,640 q8,-28 -2,-40 M970,640 q12,-26 22,-30" stroke="#4E8A3A" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <rect x="860" y="705" width="150" height="65" rx="6" fill="#C9925A"/>
+    <rect x="860" y="722" width="150" height="9" fill="#A97640"/>
+    <rect x="860" y="746" width="150" height="9" fill="#A97640"/>
+    <!-- Plaquinha -->
+    <rect x="1030" y="600" width="8" height="130" fill="#8E5B30"/>
+    <rect x="990" y="560" width="88" height="66" rx="8" fill="#2B2B2B" stroke="#8E5B30" stroke-width="6"/>
+    <path d="M1006,582 h56 M1006,598 h40 M1006,612 h48" stroke="#F4EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>
