@@ -1,4 +1,10 @@
+import type { ServiceResult } from "../serviceResult"
+import type { ProductErrorCode } from "./errors"
+
 export * from "./errors"
+export * from "./row"
+
+export type ProductResult<T> = Promise<ServiceResult<T, ProductErrorCode>>
 
 export type StockLevel = "ok" | "low" | "out"
 
@@ -21,6 +27,8 @@ export interface StockCounts {
   low: number
   out: number
 }
+
+export type StockCountKey = keyof StockCounts
 
 export interface ProductList {
   items: Product[]
