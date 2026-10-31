@@ -49,4 +49,17 @@ describe("contrato HTTP sem banco", () => {
     expect(response.status).toBe(422)
     expect(response.body.errors[0].field).toBe("id")
   })
+
+  it("exige token nas rotas de cliente", async () => {
+    const response = await request(app).get("/api/customers")
+    expect(response.status).toBe(401)
+    expect(response.body.code).toBe("ACCESS_TOKEN_INVALID")
+  })
+
+  it.each(["get", "put", "delete"] as const)("valida o id do cliente no %s antes de consultar o banco", async (method) => {
+    const token = signAccessToken({ merchantId: "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11", sessionId: "s" })
+    const response = await request(app)[method]("/api/customers/abc").set("Authorization", `Bearer ${token}`)
+    expect(response.status).toBe(422)
+    expect(response.body.errors[0].field).toBe("id")
+  })
 })

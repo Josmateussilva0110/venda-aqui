@@ -5,7 +5,8 @@
 - Banco: Supabase (Postgres + Storage), acessado com `@supabase/supabase-js` em `backend/src/config/supabase.ts`.
 - Autenticação própria (telefone + PIN, JWT HS256 de 15 min + refresh token opaco rotativo por aparelho).
   Não há usuário do Supabase Auth, então o único cliente é o da chave secreta, que ignora o RLS.
-  **Todo acesso a dado de comerciante filtra por `merchant_id` vindo de `request.merchantId`**; o RLS fica
+  **Todo acesso a dado de comerciante filtra por `merchant_id` vindo de `requireAuthField(request, "merchantId")`**
+  (`AuthField` = `"merchantId" | "sessionId"`, em `backend/src/utils/requireAuthField.ts`); o RLS fica
   ligado sem políticas, só para bloquear a chave pública.
 - Códigos de erro e mapas separados por domínio (`types/<domínio>/errors.ts` + `errors/<domínio>.ts`);
   `sendFailure` sempre inclui o `code` no corpo.

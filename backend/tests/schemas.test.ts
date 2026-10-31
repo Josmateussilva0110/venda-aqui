@@ -5,6 +5,8 @@ import { RegisterSchema } from "../src/schemas/auth/register"
 import { ProductSchema } from "../src/schemas/products/product"
 import { ListProductsSchema } from "../src/schemas/products/listProducts"
 import { RestockSchema } from "../src/schemas/products/restock"
+import { CustomerSchema } from "../src/schemas/customers/customer"
+import { ListCustomersSchema } from "../src/schemas/customers/listCustomers"
 
 describe("phoneField", () => {
   it.each([
@@ -107,5 +109,28 @@ describe("RestockSchema", () => {
   it("aceita peso com até 3 casas", () => {
     expect(RestockSchema.safeParse({ quantity: 1.25 }).success).toBe(true)
     expect(RestockSchema.safeParse({ quantity: 1.2345 }).success).toBe(false)
+  })
+})
+
+describe("CustomerSchema", () => {
+  it("normaliza nome e telefone", () => {
+    expect(CustomerSchema.parse({ name: "  Maria  ", phone: "(86) 99999-0000" })).toEqual({ name: "Maria", phone: "+5586999990000" })
+  })
+
+  it("aponta os campos inválidos", () => {
+    const result = CustomerSchema.safeParse({ name: "M", phone: "123" })
+    expect(result.success).toBe(false)
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual(["name", "phone"])
+  })
+})
+
+describe("ListCustomersSchema", () => {
+  it("converte a query string e aplica padrões", () => {
+    expect(ListCustomersSchema.parse({ limit: "20", search: "  ana " })).toEqual({ limit: 20, offset: 0, search: "ana" })
+  })
+
+  it("responde em português quando a página é inválida", () => {
+    const result = ListCustomersSchema.safeParse({ limit: "500", offset: "-1" })
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual(["A página tem no máximo 100 itens.", "Posição da página inválida."])
   })
 })
