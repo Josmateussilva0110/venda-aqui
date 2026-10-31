@@ -3,7 +3,17 @@ import { supabase } from "../config/supabase"
 import { PRODUCT_COLUMNS } from "../constants/columns"
 import { LOW_STOCK_THRESHOLD, STOCK_COUNT_KEYS } from "../constants/products"
 import { PHOTO_EXTENSIONS, PHOTO_THUMB_SUFFIX, PRODUCT_PHOTOS_BUCKET, type PhotoContentType } from "../constants/storage"
-import { NAME_TAKEN_ERROR, NOT_FOUND_ERROR } from "../errors/products"
+import {
+  PRODUCT_CREATE_FAILED_ERROR,
+  PRODUCT_FETCH_FAILED_ERROR,
+  PRODUCT_LIST_FAILED_ERROR,
+  PRODUCT_NAME_TAKEN_ERROR,
+  PRODUCT_NOT_FOUND_ERROR,
+  PRODUCT_PHOTO_UPDATE_FAILED_ERROR,
+  PRODUCT_PHOTO_UPLOAD_URL_FAILED_ERROR,
+  PRODUCT_RESTOCK_FAILED_ERROR,
+  PRODUCT_UPDATE_FAILED_ERROR,
+} from "../errors/products"
 import type { ListProductsDTO } from "../schemas/products/listProducts"
 import type { ProductDTO } from "../schemas/products/product"
 import {
@@ -54,7 +64,7 @@ class ProductService {
 
       if (page.error) {
         console.error("[ProductService.list]", page.error)
-        return { status: false, error: { code: ProductErrorCode.PRODUCT_LIST_FAILED, message: "Erro ao carregar os produtos." } }
+        return { status: false, error: PRODUCT_LIST_FAILED_ERROR }
       }
 
       return {
@@ -70,7 +80,7 @@ class ProductService {
       }
     } catch (error) {
       console.error("[ProductService.list] error:", error)
-      return { status: false, error: { code: ProductErrorCode.PRODUCT_LIST_FAILED, message: "Erro ao carregar os produtos." } }
+      return { status: false, error: PRODUCT_LIST_FAILED_ERROR }
     }
   }
 
@@ -85,14 +95,14 @@ class ProductService {
 
       if (error) {
         console.error("[ProductService.get]", error)
-        return { status: false, error: { code: ProductErrorCode.PRODUCT_FETCH_FAILED, message: "Erro ao carregar o produto." } }
+        return { status: false, error: PRODUCT_FETCH_FAILED_ERROR }
       }
-      if (!data) return { status: false, error: NOT_FOUND_ERROR }
+      if (!data) return { status: false, error: PRODUCT_NOT_FOUND_ERROR }
 
       return { status: true, data: this.toProduct(data) }
     } catch (error) {
       console.error("[ProductService.get] error:", error)
-      return { status: false, error: { code: ProductErrorCode.PRODUCT_FETCH_FAILED, message: "Erro ao carregar o produto." } }
+      return { status: false, error: PRODUCT_FETCH_FAILED_ERROR }
     }
   }
 
@@ -104,16 +114,16 @@ class ProductService {
         .select("id")
         .single<{ id: string }>()
 
-      if (isUniqueViolation(error)) return { status: false, error: NAME_TAKEN_ERROR }
+      if (isUniqueViolation(error)) return { status: false, error: PRODUCT_NAME_TAKEN_ERROR }
       if (error || !data) {
         console.error("[ProductService.create]", error)
-        return { status: false, error: { code: ProductErrorCode.PRODUCT_CREATE_FAILED, message: "Erro ao cadastrar o produto." } }
+        return { status: false, error: PRODUCT_CREATE_FAILED_ERROR }
       }
 
       return { status: true, data: { id: data.id } }
     } catch (error) {
       console.error("[ProductService.create] error:", error)
-      return { status: false, error: { code: ProductErrorCode.PRODUCT_CREATE_FAILED, message: "Erro ao cadastrar o produto." } }
+      return { status: false, error: PRODUCT_CREATE_FAILED_ERROR }
     }
   }
 
@@ -127,17 +137,17 @@ class ProductService {
         .select("id")
         .maybeSingle<{ id: string }>()
 
-      if (isUniqueViolation(error)) return { status: false, error: NAME_TAKEN_ERROR }
+      if (isUniqueViolation(error)) return { status: false, error: PRODUCT_NAME_TAKEN_ERROR }
       if (error) {
         console.error("[ProductService.update]", error)
-        return { status: false, error: { code: ProductErrorCode.PRODUCT_UPDATE_FAILED, message: "Erro ao salvar o produto." } }
+        return { status: false, error: PRODUCT_UPDATE_FAILED_ERROR }
       }
-      if (!data) return { status: false, error: NOT_FOUND_ERROR }
+      if (!data) return { status: false, error: PRODUCT_NOT_FOUND_ERROR }
 
       return { status: true, data: { id: data.id } }
     } catch (error) {
       console.error("[ProductService.update] error:", error)
-      return { status: false, error: { code: ProductErrorCode.PRODUCT_UPDATE_FAILED, message: "Erro ao salvar o produto." } }
+      return { status: false, error: PRODUCT_UPDATE_FAILED_ERROR }
     }
   }
 
@@ -155,14 +165,14 @@ class ProductService {
       }
       if (error) {
         console.error("[ProductService.restock]", error)
-        return { status: false, error: { code: ProductErrorCode.PRODUCT_RESTOCK_FAILED, message: "Erro ao repor o estoque." } }
+        return { status: false, error: PRODUCT_RESTOCK_FAILED_ERROR }
       }
-      if (!data) return { status: false, error: NOT_FOUND_ERROR }
+      if (!data) return { status: false, error: PRODUCT_NOT_FOUND_ERROR }
 
       return { status: true, data: { id: data.id } }
     } catch (error) {
       console.error("[ProductService.restock] error:", error)
-      return { status: false, error: { code: ProductErrorCode.PRODUCT_RESTOCK_FAILED, message: "Erro ao repor o estoque." } }
+      return { status: false, error: PRODUCT_RESTOCK_FAILED_ERROR }
     }
   }
 
@@ -171,19 +181,19 @@ class ProductService {
   async createPhotoUploadUrl(merchantId: string, productId: string, contentType: PhotoContentType): ProductResult<PhotoUploadTarget> {
     try {
       const productExists = await this.belongsToMerchant(merchantId, productId)
-      if (!productExists) return { status: false, error: NOT_FOUND_ERROR }
+      if (!productExists) return { status: false, error: PRODUCT_NOT_FOUND_ERROR }
 
       const path = `${this.photoFolder(merchantId, productId)}/${randomUUID()}.${PHOTO_EXTENSIONS[contentType]}`
       const [photo, thumb] = await Promise.all([this.createUploadTarget(path), this.createUploadTarget(this.thumbPathOf(path))])
 
       if (!photo || !thumb) {
-        return { status: false, error: { code: ProductErrorCode.PHOTO_UPLOAD_URL_FAILED, message: "Erro ao preparar o envio da foto." } }
+        return { status: false, error: PRODUCT_PHOTO_UPLOAD_URL_FAILED_ERROR }
       }
 
       return { status: true, data: { ...photo, thumb } }
     } catch (error) {
       console.error("[ProductService.createPhotoUploadUrl] error:", error)
-      return { status: false, error: { code: ProductErrorCode.PHOTO_UPLOAD_URL_FAILED, message: "Erro ao preparar o envio da foto." } }
+      return { status: false, error: PRODUCT_PHOTO_UPLOAD_URL_FAILED_ERROR }
     }
   }
 
@@ -207,9 +217,9 @@ class ProductService {
 
       if (current.error) {
         console.error("[ProductService.updatePhoto]", current.error)
-        return { status: false, error: { code: ProductErrorCode.PHOTO_UPDATE_FAILED, message: "Erro ao salvar a foto." } }
+        return { status: false, error: PRODUCT_PHOTO_UPDATE_FAILED_ERROR }
       }
-      if (!current.data) return { status: false, error: NOT_FOUND_ERROR }
+      if (!current.data) return { status: false, error: PRODUCT_NOT_FOUND_ERROR }
       if (!uploaded.data) {
         return { status: false, error: { code: ProductErrorCode.PHOTO_NOT_UPLOADED, message: "A foto ainda não foi enviada." } }
       }
@@ -222,14 +232,14 @@ class ProductService {
         .eq("merchant_id", merchantId)
       if (error) {
         console.error("[ProductService.updatePhoto]", error)
-        return { status: false, error: { code: ProductErrorCode.PHOTO_UPDATE_FAILED, message: "Erro ao salvar a foto." } }
+        return { status: false, error: PRODUCT_PHOTO_UPDATE_FAILED_ERROR }
       }
 
       await this.removeReplacedPhoto([current.data.photo_path, current.data.thumb_path], path)
       return { status: true, data: { id: productId } }
     } catch (error) {
       console.error("[ProductService.updatePhoto] error:", error)
-      return { status: false, error: { code: ProductErrorCode.PHOTO_UPDATE_FAILED, message: "Erro ao salvar a foto." } }
+      return { status: false, error: PRODUCT_PHOTO_UPDATE_FAILED_ERROR }
     }
   }
 

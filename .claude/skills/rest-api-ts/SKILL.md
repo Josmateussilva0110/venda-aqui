@@ -167,6 +167,44 @@ sessão local só quando a sessão foi revogada, e não quando a rede falhou —
 inclua também o `code` no corpo do erro. Trate isso como contrato: mudar
 aquele código muda o comportamento do cliente.
 
+### Dados da autenticação no controller
+
+Campos que o middleware de auth pendura no `request` (id do usuário, da
+sessão) são declarados opcionais, porque o tipo vale também para as rotas
+públicas. **Leia esses campos sempre por um helper `requireAuthField`, nunca com
+`!`**:
+
+```ts
+// utils/requireAuthField.ts
+type AuthField = "userId" | "sessionId"
+
+export function requireAuthField(request: Pick<Request, AuthField | "method" | "originalUrl">, field: AuthField): string {
+  const value = request[field]
+  if (!value) {
+    throw new Error(`${field} ausente em ${request.method} ${request.originalUrl}: rota sem authMiddleware`)
+  }
+  return value
+}
+
+// no controller
+const result = await Service.list(requireAuthField(request, "userId"), request.query)
+```
+
+O `!` só cala o compilador. Se alguém montar a rota sem o middleware, `undefined`
+chega ao service e vira filtro `user_id = undefined`, que falha de um jeito
+confuso ou, pior, não filtra. O helper transforma esse erro de montagem num
+erro claro no log, que o Express 5 leva ao `errorHandler` como 500: é bug do
+servidor, não do cliente, então não é 401.
+
+Dois detalhes do helper:
+
+- `AuthField` lista só os campos que o middleware preenche, então um nome
+  errado não compila. Campo novo no token entra nessa união e na declaração
+  global do `Request`.
+- O parâmetro usa `Pick<Request, ...>` em vez de `Request`, porque um
+  controller tipado como `Request<unknown, unknown, Dto>` não é aceito onde se
+  espera o `Request` padrão.
+
 ### Onde colocam-se os helpers de cada camada
 
 Métodos de controller são passados soltos para o roteador

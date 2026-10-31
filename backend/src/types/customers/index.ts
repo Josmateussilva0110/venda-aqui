@@ -13,3 +13,10 @@ export interface Customer {
   createdAt: string
   updatedAt: string
 }
+
+export interface CustomerList {
+  items: Customer[]
+  total: number
+  limit: number
+  offset: number
+}

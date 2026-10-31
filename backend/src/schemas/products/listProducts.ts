@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { STOCK_LEVELS } from "../../constants/products"
+import { paginationFields } from "../fields/pagination"
 
 export const ListProductsSchema = z.object({
   search: z
@@ -9,8 +10,7 @@ export const ListProductsSchema = z.object({
     .optional(),
   // "attention" junta baixo e esgotado, do menor estoque para o maior (alertas do início)
   stockLevel: z.enum(STOCK_LEVELS, { error: "Filtro de estoque inválido." }).default("all"),
-  limit: z.coerce.number().int().min(1).max(100).default(50),
-  offset: z.coerce.number().int().min(0).default(0),
+  ...paginationFields,
 })
 
 export type ListProductsDTO = z.infer<typeof ListProductsSchema>

@@ -1,10 +1,53 @@
 import { supabase } from "../config/supabase"
-import { CUSTOMER_PHONE_TAKEN_ERROR } from "../errors/customers"
+import { CUSTOMER_COLUMNS } from "../constants/columns"
+import { CUSTOMER_LIST_FAILED_ERROR, CUSTOMER_PHONE_TAKEN_ERROR } from "../errors/customers"
 import type { CustomerDTO } from "../schemas/customers/customer"
-import { CustomerErrorCode, type CustomerResult } from "../types/customers"
-import { isUniqueViolation } from "../utils/database"
+import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
+import { type Customer, CustomerErrorCode, type CustomerList, type CustomerResult, type CustomerRow } from "../types/customers"
+import { escapeLikePattern, isUniqueViolation } from "../utils/database"
 
 class CustomerService {
+
+  async list(merchantId: string, filters: ListCustomersDTO): CustomerResult<CustomerList> {
+    try {
+      let query = supabase
+        .from("customers")
+        .select(CUSTOMER_COLUMNS, { count: "exact" })
+        .eq("merchant_id", merchantId)
+
+      if (filters.search) {
+        const phoneDigits = this.phoneDigitsOf(filters.search)
+        query = phoneDigits
+          ? query.ilike("phone", `%${phoneDigits}%`)
+          : query.ilike("name", `%${escapeLikePattern(filters.search)}%`)
+      }
+
+      // O id desempata nomes iguais, senão um cliente pode repetir ou sumir entre as páginas
+      const { data, count, error } = await query
+        .order("name", { ascending: true })
+        .order("id", { ascending: true })
+        .range(filters.offset, filters.offset + filters.limit - 1)
+        .returns<CustomerRow[]>()
+
+      if (error) {
+        console.error("[CustomerService.list]", error)
+        return { status: false, error: CUSTOMER_LIST_FAILED_ERROR }
+      }
+
+      return {
+        status: true,
+        data: {
+          items: data.map((row) => this.toCustomer(row)),
+          total: count ?? 0,
+          limit: filters.limit,
+          offset: filters.offset,
+        },
+      }
+    } catch (error) {
+      console.error("[CustomerService.list] error:", error)
+      return { status: false, error: CUSTOMER_LIST_FAILED_ERROR }
+    }
+  }
 
   async create(merchantId: string, input: CustomerDTO): CustomerResult<{ id: string }> {
     try {
@@ -27,10 +70,28 @@ class CustomerService {
     }
   }
 
+  // Busca só com dígitos e pontuação de telefone ("(86) 9999-") procura no telefone; o resto, no nome.
+  // Decidir aqui evita montar um filtro .or() com texto do cliente, que o PostgREST interpretaria
+  private phoneDigitsOf(search: string): string | null {
+    if (!/^[\d\s()+-]+$/.test(search)) return null
+    const digits = search.replace(/\D/g, "")
+    return digits.length > 0 ? digits : null
+  }
+
   private toRow(input: CustomerDTO) {
     return {
       name: input.name,
       phone: input.phone
+    }
+  }
+
+  private toCustomer(row: CustomerRow): Customer {
+    return {
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     }
   }
 }

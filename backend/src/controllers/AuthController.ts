@@ -10,6 +10,7 @@ import AuthService from "../services/AuthService"
 import PinRecoveryService from "../services/PinRecoveryService"
 import { sendFailure } from "../utils/sendFailure"
 import { sendSuccess } from "../utils/sendSuccess"
+import { requireAuthField } from "../utils/requireAuthField"
 
 class AuthController {
   async checkPhone(request: Request<unknown, unknown, CheckPhoneDTO>, response: Response): Promise<Response> {
@@ -39,13 +40,13 @@ class AuthController {
   }
 
   async logout(request: Request, response: Response): Promise<Response> {
-    const result = await AuthService.logout(request.merchantId!, request.sessionId!)
+    const result = await AuthService.logout(requireAuthField(request, "merchantId"), requireAuthField(request, "sessionId"))
     if (!result.status) return sendFailure(response, result.error, authErrorHttpStatusMap)
     return sendSuccess(response, "Você saiu da conta.")
   }
 
   async me(request: Request, response: Response): Promise<Response> {
-    const result = await AuthService.getProfile(request.merchantId!)
+    const result = await AuthService.getProfile(requireAuthField(request, "merchantId"))
     if (!result.status) return sendFailure(response, result.error, authErrorHttpStatusMap)
     return sendSuccess(response, "Dados da conta.", result.data)
   }
