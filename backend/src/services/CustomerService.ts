@@ -1,9 +1,17 @@
 import { supabase } from "../config/supabase"
 import { CUSTOMER_COLUMNS } from "../constants/columns"
-import { CUSTOMER_LIST_FAILED_ERROR, CUSTOMER_PHONE_TAKEN_ERROR } from "../errors/customers"
+import {
+  CUSTOMER_CREATE_FAILED_ERROR,
+  CUSTOMER_DELETE_FAILED_ERROR,
+  CUSTOMER_FETCH_FAILED_ERROR,
+  CUSTOMER_LIST_FAILED_ERROR,
+  CUSTOMER_NOT_FOUND_ERROR,
+  CUSTOMER_PHONE_TAKEN_ERROR,
+  CUSTOMER_UPDATE_FAILED_ERROR,
+} from "../errors/customers"
 import type { CustomerDTO } from "../schemas/customers/customer"
 import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
-import { type Customer, CustomerErrorCode, type CustomerList, type CustomerResult, type CustomerRow } from "../types/customers"
+import type { Customer, CustomerList, CustomerResult, CustomerRow } from "../types/customers"
 import { escapeLikePattern, isUniqueViolation } from "../utils/database"
 
 class CustomerService {
@@ -49,6 +57,28 @@ class CustomerService {
     }
   }
 
+  async get(merchantId: string, customerId: string): CustomerResult<Customer> {
+    try {
+      const { data, error } = await supabase
+        .from("customers")
+        .select(CUSTOMER_COLUMNS)
+        .eq("id", customerId)
+        .eq("merchant_id", merchantId)
+        .maybeSingle<CustomerRow>()
+
+      if (error) {
+        console.error("[CustomerService.get]", error)
+        return { status: false, error: CUSTOMER_FETCH_FAILED_ERROR }
+      }
+      if (!data) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+
+      return { status: true, data: this.toCustomer(data) }
+    } catch (error) {
+      console.error("[CustomerService.get] error:", error)
+      return { status: false, error: CUSTOMER_FETCH_FAILED_ERROR }
+    }
+  }
+
   async create(merchantId: string, input: CustomerDTO): CustomerResult<{ id: string }> {
     try {
       const { data, error } = await supabase
@@ -60,13 +90,61 @@ class CustomerService {
       if (isUniqueViolation(error)) return { status: false, error: CUSTOMER_PHONE_TAKEN_ERROR }
       if (error || !data) {
         console.error("[CustomerService.create]", error)
-        return { status: false, error: { code: CustomerErrorCode.CUSTOMER_CREATE_FAILED, message: "Erro ao cadastrar o cliente." } }
+        return { status: false, error: CUSTOMER_CREATE_FAILED_ERROR }
       }
 
       return { status: true, data: { id: data.id } }
     } catch (error) {
       console.error("[CustomerService.create] error:", error)
-      return { status: false, error: { code: CustomerErrorCode.CUSTOMER_CREATE_FAILED, message: "Erro ao cadastrar o cliente." } }
+      return { status: false, error: CUSTOMER_CREATE_FAILED_ERROR }
+    }
+  }
+
+  async update(merchantId: string, customerId: string, input: CustomerDTO): CustomerResult<{ id: string }> {
+    try {
+      const { data, error } = await supabase
+        .from("customers")
+        .update(this.toRow(input))
+        .eq("id", customerId)
+        .eq("merchant_id", merchantId)
+        .select("id")
+        .maybeSingle<{ id: string }>()
+
+      if (isUniqueViolation(error)) return { status: false, error: CUSTOMER_PHONE_TAKEN_ERROR }
+      if (error) {
+        console.error("[CustomerService.update]", error)
+        return { status: false, error: CUSTOMER_UPDATE_FAILED_ERROR }
+      }
+      if (!data) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+
+      return { status: true, data: { id: data.id } }
+    } catch (error) {
+      console.error("[CustomerService.update] error:", error)
+      return { status: false, error: CUSTOMER_UPDATE_FAILED_ERROR }
+    }
+  }
+
+  async delete(merchantId: string, customerId: string): CustomerResult<{ id: string }> {
+    try {
+      // O filtro pelo comerciante garante que um id de outro comércio não apaga nada (vira 404)
+      const { data, error } = await supabase
+        .from("customers")
+        .delete()
+        .eq("id", customerId)
+        .eq("merchant_id", merchantId)
+        .select("id")
+        .maybeSingle<{ id: string }>()
+
+      if (error) {
+        console.error("[CustomerService.delete]", error)
+        return { status: false, error: CUSTOMER_DELETE_FAILED_ERROR }
+      }
+      if (!data) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+
+      return { status: true, data: { id: data.id } }
+    } catch (error) {
+      console.error("[CustomerService.delete] error:", error)
+      return { status: false, error: CUSTOMER_DELETE_FAILED_ERROR }
     }
   }
 
@@ -81,7 +159,7 @@ class CustomerService {
   private toRow(input: CustomerDTO) {
     return {
       name: input.name,
-      phone: input.phone
+      phone: input.phone,
     }
   }
 
