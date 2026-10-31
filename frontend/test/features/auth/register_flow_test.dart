@@ -32,6 +32,7 @@ void main() {
   setUpAll(() => initializeDateFormatting('pt_BR'));
 
   Future<void> openRegister(WidgetTester tester, _RecordingAuth auth) async {
+    final sales = FakeSalesRepository();
     final dependencies = AppDependencies(
       authRepository: auth,
       productsRepository: FakeProductsRepository(),
@@ -40,6 +41,8 @@ void main() {
       sessionController: SessionController(auth),
       stockChanges: StockChanges(),
       themeController: lightThemeController(),
+      salesRepository: sales,
+      saleCart: saleCartFor(sales),
     );
     await tester.pumpWidget(VendaquiApp(dependencies: dependencies));
     await tester.pumpAndSettle();

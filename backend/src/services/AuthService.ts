@@ -1,20 +1,15 @@
-import { ACCESS_TOKEN_TTL_SECONDS, PIN_LOCK_MINUTES, REFRESH_TOKEN_TTL_DAYS } from "../constants/auth"
+import { ACCESS_TOKEN_TTL_SECONDS, REFRESH_TOKEN_TTL_DAYS } from "../constants/auth"
+import { INVALID_CREDENTIALS_MESSAGE, PIN_LOCKED_MESSAGE } from "../errors/auth"
 import MerchantModel from "../models/MerchantModel"
 import SessionModel, { type Session } from "../models/SessionModel"
 import type { LoginDTO } from "../schemas/auth/login"
 import type { RefreshDTO } from "../schemas/auth/refresh"
 import type { RegisterDTO } from "../schemas/auth/register"
-import { AuthErrorCode, type AuthSession, type AuthTokens, type Merchant, type PhoneAvailability } from "../types/auth"
-import type { ServiceResult } from "../types/serviceResult"
+import { AuthErrorCode, type AuthResult, type AuthSession, type AuthTokens, type Merchant, type PhoneAvailability } from "../types/auth"
 import { isUniqueViolation } from "../utils/database"
 import { addDays, isFuture, isPast } from "../utils/dates"
 import { comparePin, hashPin } from "../utils/pin"
 import { generateRefreshToken, hashSecret, signAccessToken } from "../utils/tokens"
-
-type AuthResult<T> = Promise<ServiceResult<T, AuthErrorCode>>
-
-const INVALID_CREDENTIALS_MESSAGE = "Telefone ou PIN incorretos."
-const PIN_LOCKED_MESSAGE = `PIN bloqueado por muitas tentativas. Tente de novo em ${PIN_LOCK_MINUTES} minutos ou recupere o PIN pelo WhatsApp.`
 
 class AuthService {
   async checkPhone(phone: string): AuthResult<PhoneAvailability> {

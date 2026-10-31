@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto"
 import { supabase } from "../config/supabase"
 import { PRODUCT_COLUMNS } from "../constants/columns"
-import { LOW_STOCK_THRESHOLD } from "../constants/products"
+import { LOW_STOCK_THRESHOLD, STOCK_COUNT_KEYS } from "../constants/products"
 import { PHOTO_EXTENSIONS, PHOTO_THUMB_SUFFIX, PRODUCT_PHOTOS_BUCKET, type PhotoContentType } from "../constants/storage"
+import { NAME_TAKEN_ERROR, NOT_FOUND_ERROR } from "../errors/products"
 import type { ListProductsDTO } from "../schemas/products/listProducts"
 import type { ProductDTO } from "../schemas/products/product"
 import {
@@ -10,33 +11,14 @@ import {
   type PhotoUploadTarget,
   type Product,
   type ProductList,
+  type ProductResult,
+  type ProductRow,
+  type StockCountKey,
   type StockCounts,
   type StockLevel,
   type UploadTarget,
 } from "../types/products"
-import type { ServiceResult } from "../types/serviceResult"
 import { escapeLikePattern, isCheckViolation, isUniqueViolation } from "../utils/database"
-
-type ProductResult<T> = Promise<ServiceResult<T, ProductErrorCode>>
-type StockCountKey = keyof StockCounts
-
-const STOCK_COUNT_KEYS: StockCountKey[] = ["all", "low", "out"]
-
-interface ProductRow {
-  id: string
-  name: string
-  photo_path: string | null
-  thumb_path: string | null
-  sale_price_cents: number
-  cost_price_cents: number
-  quantity: number | string
-  sold_by_weight: boolean
-  created_at: string
-  updated_at: string
-}
-
-const NOT_FOUND_ERROR = { code: ProductErrorCode.PRODUCT_NOT_FOUND, message: "Produto não encontrado." }
-const NAME_TAKEN_ERROR = { code: ProductErrorCode.PRODUCT_NAME_TAKEN, message: "Você já tem um produto com esse nome." }
 
 // Todas as consultas filtram por merchant_id vindo do token: o cliente do Supabase
 // usado aqui ignora o RLS, então esse filtro é o que separa uma conta da outra

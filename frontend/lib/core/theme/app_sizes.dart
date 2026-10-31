@@ -20,6 +20,10 @@ class AppSizes extends ThemeExtension<AppSizes> {
     this.logoMedium = 32,
     this.photoBoxHeight = 132,
     this.welcomeImageMinHeight = 160,
+    this.catalogImageHeight = 92,
+    this.catalogTileMinWidth = 160,
+    this.cartBadge = 28,
+    this.weightInputWidth = 120,
     this.toggleWidth = 50,
     this.toggleHeight = 30,
     this.progressBarHeight = 5,
@@ -45,6 +49,14 @@ class AppSizes extends ThemeExtension<AppSizes> {
   final double logoMedium;
   final double photoBoxHeight;
   final double welcomeImageMinHeight;
+  final double catalogImageHeight;
+
+  /// Largura mínima de um card da grade de venda; define quantas colunas cabem.
+  final double catalogTileMinWidth;
+  final double cartBadge;
+
+  /// Campo de peso dentro de um card (edição de venda).
+  final double weightInputWidth;
   final double toggleWidth;
   final double toggleHeight;
   final double progressBarHeight;

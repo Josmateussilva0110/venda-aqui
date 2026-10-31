@@ -30,10 +30,15 @@ void main() {
     AppRoutes.productEdit('p1'),
     AppRoutes.productRestock('p2'),
     AppRoutes.settings,
+    AppRoutes.sell,
+    AppRoutes.sellSummary,
+    AppRoutes.sellPayment,
+    AppRoutes.salesHistory,
   ];
 
   Future<void> pumpApp(WidgetTester tester, {required bool signedIn}) async {
     final auth = FakeAuthRepository(signedIn: signedIn);
+    final sales = FakeSalesRepository();
     final dependencies = AppDependencies(
       authRepository: auth,
       productsRepository: FakeProductsRepository(),
@@ -42,7 +47,13 @@ void main() {
       sessionController: SessionController(auth),
       stockChanges: StockChanges(),
       themeController: lightThemeController(),
+      salesRepository: sales,
+      saleCart: saleCartFor(sales),
     );
+    // Carrinho com um item de cada tipo: a barra do carrinho, o resumo e o pagamento aparecem preenchidos
+    for (final product in sales.catalogItems.where((product) => !product.isOutOfStock)) {
+      dependencies.saleCart.addOne(product);
+    }
     await tester.pumpWidget(VendaquiApp(key: UniqueKey(), dependencies: dependencies));
     await tester.pumpAndSettle();
   }

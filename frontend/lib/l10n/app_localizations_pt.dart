@@ -495,4 +495,278 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get restockDone => 'Estoque atualizado.';
+
+  @override
+  String get navSell => 'Vender';
+
+  @override
+  String get dashboardRegisterSale => 'Registrar venda';
+
+  @override
+  String get shortcutSalesHistory => 'Vendas';
+
+  @override
+  String get sellTitle => 'Nova venda';
+
+  @override
+  String get sellHint => 'Toque para somar 1 · segure para pesar';
+
+  @override
+  String get sellClear => 'Limpar';
+
+  @override
+  String get sellSearchHint => 'Buscar produto pelo nome';
+
+  @override
+  String get sellEmpty => 'Nenhum produto encontrado.';
+
+  @override
+  String get sellByWeight => 'por peso';
+
+  @override
+  String get sellOutOfStock => 'Esgotado';
+
+  @override
+  String sellStock(String quantity) {
+    return 'Estoque: $quantity';
+  }
+
+  @override
+  String get sellNoStock => 'Sem estoque';
+
+  @override
+  String sellUnitPrice(String price, String unit) {
+    return '$price /$unit';
+  }
+
+  @override
+  String get sellViewSummary => 'Ver resumo';
+
+  @override
+  String sellInCart(String quantity) {
+    return '$quantity no carrinho';
+  }
+
+  @override
+  String cartItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count itens', one: '1 item');
+    return '$_temp0';
+  }
+
+  @override
+  String cartOutOfStock(String name) {
+    return '$name está esgotado.';
+  }
+
+  @override
+  String cartInsufficientStock(String quantity) {
+    return 'Estoque insuficiente: $quantity';
+  }
+
+  @override
+  String get cartInvalidQuantity => 'Este produto é vendido por unidade: use um número inteiro.';
+
+  @override
+  String get weightTitle => 'Vender por peso';
+
+  @override
+  String get weightRequired => 'Digite o peso.';
+
+  @override
+  String weightAvailable(String quantity) {
+    return 'Estoque disponível: $quantity';
+  }
+
+  @override
+  String get weightAdd => 'Adicionar';
+
+  @override
+  String get weightUpdate => 'Atualizar';
+
+  @override
+  String get weightQuick250 => '250 g';
+
+  @override
+  String get weightQuick500 => '500 g';
+
+  @override
+  String get weightQuick1kg => '1 kg';
+
+  @override
+  String get summaryTitle => 'Resumo da venda';
+
+  @override
+  String get summaryEmpty => 'A venda está vazia.';
+
+  @override
+  String get summaryAddMore => '+ Adicionar mais itens';
+
+  @override
+  String get summaryItems => 'Itens';
+
+  @override
+  String get summaryTotal => 'Total';
+
+  @override
+  String get summaryFinish => 'Finalizar venda';
+
+  @override
+  String get summaryRemove => 'Remover';
+
+  @override
+  String summaryEditWeight(String quantity) {
+    return '$quantity · editar';
+  }
+
+  @override
+  String get summaryDecrease => 'Diminuir';
+
+  @override
+  String get summaryIncrease => 'Aumentar';
+
+  @override
+  String get paymentTitle => 'Pagamento';
+
+  @override
+  String get paymentTotal => 'Total a receber';
+
+  @override
+  String get paymentQuestion => 'Como o cliente vai pagar?';
+
+  @override
+  String get paymentHint => 'Um toque na forma de pagamento conclui a venda.';
+
+  @override
+  String get paymentCash => 'Dinheiro';
+
+  @override
+  String get paymentCashDetail => 'Em espécie';
+
+  @override
+  String get paymentPix => 'PIX';
+
+  @override
+  String get paymentPixDetail => 'Transferência na hora';
+
+  @override
+  String get paymentCard => 'Cartão';
+
+  @override
+  String get paymentCardDetail => 'Débito ou crédito';
+
+  @override
+  String get saleDoneTitle => 'Venda registrada!';
+
+  @override
+  String get saleDoneBackHome => 'Voltar ao início';
+
+  @override
+  String get saleDoneNewSale => 'Nova venda';
+
+  @override
+  String saleDoneCountdown(int seconds) {
+    return 'Voltando ao início em ${seconds}s';
+  }
+
+  @override
+  String get historyTitle => 'Histórico de vendas';
+
+  @override
+  String historySaleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count vendas', one: '1 venda', zero: 'Nenhuma venda');
+    return '$_temp0';
+  }
+
+  @override
+  String historySummary(String count, String total) {
+    return '$count · $total';
+  }
+
+  @override
+  String get historyToday => 'Hoje';
+
+  @override
+  String get historyYesterday => 'Ontem';
+
+  @override
+  String get historyWeek => '7 dias';
+
+  @override
+  String get historyMonth => '30 dias';
+
+  @override
+  String get historyCustom => 'Período';
+
+  @override
+  String get historyFrom => 'De';
+
+  @override
+  String get historyTo => 'Até';
+
+  @override
+  String get historyInvalidRange => 'A data inicial precisa ser antes da final.';
+
+  @override
+  String get historySearchHint => 'Buscar produto';
+
+  @override
+  String get historyAllMethods => 'Todas';
+
+  @override
+  String get historyEmpty => 'Nenhuma venda encontrada.';
+
+  @override
+  String historyProductCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count produtos', one: '1 produto');
+    return '$_temp0';
+  }
+
+  @override
+  String get saleDetailTitle => 'Detalhe da venda';
+
+  @override
+  String get saleDetailTotal => 'Total da venda';
+
+  @override
+  String get saleDetailPayment => 'Pagamento';
+
+  @override
+  String get saleDetailItems => 'Itens';
+
+  @override
+  String get saleDetailProducts => 'Produtos';
+
+  @override
+  String saleDetailEdited(String date) {
+    return 'Editada em $date';
+  }
+
+  @override
+  String get saleDetailEdit => 'Editar venda';
+
+  @override
+  String saleLine(String quantity, String price) {
+    return '$quantity × $price';
+  }
+
+  @override
+  String get saleLoadFailed => 'Não foi possível carregar a venda.';
+
+  @override
+  String get saleEditTitle => 'Editar venda';
+
+  @override
+  String get saleEditMethod => 'Forma de pagamento';
+
+  @override
+  String get saleEditNewTotal => 'Novo total';
+
+  @override
+  String get saleEditSave => 'Salvar alterações';
+
+  @override
+  String get saleEditNoItems => 'A venda precisa ter pelo menos um produto.';
+
+  @override
+  String get saleEditSaved => 'Venda atualizada.';
 }

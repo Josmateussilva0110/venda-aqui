@@ -6,6 +6,7 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -76,6 +77,12 @@ class _DashboardView extends StatelessWidget {
                       ErrorView(message: failureMessage(l10n, controller.failure!), onRetry: controller.load)
                     else
                       const LoadingView(),
+                    SizedBox(height: spacing.lg),
+                    AppButton(
+                      label: l10n.dashboardRegisterSale,
+                      icon: Icons.add_shopping_cart_rounded,
+                      onPressed: () => context.go(AppRoutes.sell),
+                    ),
                     SizedBox(height: spacing.xxl - 2),
                     SectionHeader(title: l10n.shortcutsTitle),
                     SizedBox(height: spacing.md),
@@ -105,11 +112,11 @@ class _DashboardView extends StatelessWidget {
                           SizedBox(width: spacing.sm + 2),
                           Expanded(
                             child: ShortcutTile(
-                              label: l10n.shortcutStock,
-                              icon: Icons.inventory_2_rounded,
+                              label: l10n.shortcutSalesHistory,
+                              icon: Icons.receipt_long_rounded,
                               tint: colors.successSoft,
                               ink: colors.success,
-                              onTap: () => _openStock(context),
+                              onTap: () => context.push(AppRoutes.salesHistory),
                             ),
                           ),
                         ],

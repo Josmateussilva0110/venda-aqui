@@ -8,26 +8,39 @@ import '../utils/photo_cache.dart';
 /// Foto do produto ou, sem foto, quadrado colorido com as iniciais.
 /// Passe a miniatura sempre que houver: a foto inteira pesa dezenas de vezes mais.
 class ProductAvatar extends StatelessWidget {
-  const ProductAvatar({super.key, required this.name, required this.colorSeed, required this.size, this.photoUrl});
+  const ProductAvatar({
+    super.key,
+    required this.name,
+    required this.colorSeed,
+    required this.size,
+    this.photoUrl,
+    this.height,
+    this.initialsStyle,
+  });
 
   final String name;
   final String colorSeed;
   final String? photoUrl;
+
+  /// Largura; também a altura quando [height] não é informada (quadrado).
   final double size;
+  final double? height;
+  final TextStyle? initialsStyle;
 
   @override
   Widget build(BuildContext context) {
     final tile = context.colors.tileFor(hueOf(colorSeed));
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final fallback = Center(
-      child: Text(initialsOf(name), style: context.text.titleMedium?.copyWith(color: tile.foreground), maxLines: 1),
+      child: Text(initialsOf(name), style: (initialsStyle ?? context.text.titleMedium)?.copyWith(color: tile.foreground), maxLines: 1),
     );
 
     return ExcludeSemantics(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(context.radius.md),
-        child: SizedBox.square(
-          dimension: size,
+        child: SizedBox(
+          width: size,
+          height: height ?? size,
           child: ColoredBox(
             color: tile.background,
             child: photoUrl == null

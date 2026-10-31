@@ -14,6 +14,15 @@ import '../features/products/presentation/pages/product_create_page.dart';
 import '../features/products/presentation/pages/product_edit_page.dart';
 import '../features/products/presentation/pages/restock_page.dart';
 import '../features/products/presentation/pages/stock_page.dart';
+import '../features/sales/domain/sale.dart';
+import '../features/sales/presentation/pages/payment_page.dart';
+import '../features/sales/presentation/pages/sale_detail_page.dart';
+import '../features/sales/presentation/pages/sale_done_page.dart';
+import '../features/sales/presentation/pages/sale_edit_page.dart';
+import '../features/sales/presentation/pages/sale_summary_page.dart';
+import '../features/sales/presentation/pages/sales_history_page.dart';
+import '../features/sales/presentation/pages/sell_page.dart';
+import '../features/sales/presentation/pages/weight_page.dart';
 import '../features/settings/presentation/pages/settings_page.dart';
 import 'home_shell.dart';
 
@@ -49,6 +58,9 @@ GoRouter buildRouter(SessionController session) {
             ],
           ),
           StatefulShellBranch(
+            routes: [GoRoute(path: AppRoutes.sell, builder: (_, _) => const SellPage())],
+          ),
+          StatefulShellBranch(
             routes: [
               GoRoute(
                 path: AppRoutes.stock,
@@ -60,6 +72,29 @@ GoRouter buildRouter(SessionController session) {
       ),
       // Fora do shell: telas de tarefa ocupam a tela toda, como no protótipo
       GoRoute(path: AppRoutes.productNew, builder: (_, _) => const ProductCreatePage()),
+      // Telas da venda: as que recebem dados por `extra` voltam ao vender se abertas sem eles
+      GoRoute(
+        path: AppRoutes.sellWeight,
+        redirect: (_, state) => state.extra is WeightRequest ? null : AppRoutes.sell,
+        builder: (_, state) => WeightPage(request: state.extra! as WeightRequest),
+      ),
+      GoRoute(path: AppRoutes.sellSummary, builder: (_, _) => const SaleSummaryPage()),
+      GoRoute(path: AppRoutes.sellPayment, builder: (_, _) => const PaymentPage()),
+      GoRoute(
+        path: AppRoutes.sellDone,
+        redirect: (_, state) => state.extra is Sale ? null : AppRoutes.home,
+        builder: (_, state) => SaleDonePage(sale: state.extra! as Sale),
+      ),
+      GoRoute(path: AppRoutes.salesHistory, builder: (_, _) => const SalesHistoryPage()),
+      GoRoute(
+        path: '/sales/:id',
+        builder: (_, state) => SaleDetailPage(saleId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/sales/:id/edit',
+        redirect: (_, state) => state.extra is Sale ? null : AppRoutes.sale(state.pathParameters['id']!),
+        builder: (_, state) => SaleEditPage(sale: state.extra! as Sale),
+      ),
       // Sair é decidido pela sessão (app), por isso chega como callback
       GoRoute(
         path: AppRoutes.settings,

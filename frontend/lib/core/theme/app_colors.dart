@@ -34,6 +34,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.dangerCardBorder,
     required this.warning,
     required this.warningSoft,
+    required this.violet,
+    required this.violetSoft,
     required this.warningCard,
     required this.warningCardBorder,
     required this.warningDot,
@@ -78,6 +80,10 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color dangerCardBorder;
   final Color warning;
   final Color warningSoft;
+
+  /// Cor de destaque para categorias (ex.: pagamento em cartão).
+  final Color violet;
+  final Color violetSoft;
   final Color warningCard;
   final Color warningCardBorder;
   final Color warningDot;
@@ -122,6 +128,8 @@ class AppColors extends ThemeExtension<AppColors> {
     dangerCardBorder: Color(0xFFF8D3CF),
     warning: Color(0xFF8A5A00),
     warningSoft: Color(0xFFFDF0CC),
+    violet: Color(0xFF5B3AA8),
+    violetSoft: Color(0xFFEFE7FB),
     warningCard: Color(0xFFFFFBEF),
     warningCardBorder: Color(0xFFF5E4B0),
     warningDot: Color(0xFFE0A100),
@@ -168,6 +176,8 @@ class AppColors extends ThemeExtension<AppColors> {
     dangerCardBorder: Color(0xFF4A2A27),
     warning: Color(0xFFE8C46A),
     warningSoft: Color(0xFF3A2F12),
+    violet: Color(0xFFC4B1F0),
+    violetSoft: Color(0xFF2E2540),
     warningCard: Color(0xFF242014),
     warningCardBorder: Color(0xFF4A3E1C),
     warningDot: Color(0xFFE0A100),
@@ -224,6 +234,8 @@ class AppColors extends ThemeExtension<AppColors> {
       dangerCardBorder: dangerCardBorder,
       warning: warning,
       warningSoft: warningSoft,
+      violet: violet,
+      violetSoft: violetSoft,
       warningCard: warningCard,
       warningCardBorder: warningCardBorder,
       warningDot: warningDot,

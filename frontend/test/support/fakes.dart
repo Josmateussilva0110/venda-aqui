@@ -2,6 +2,11 @@ import 'package:vendaqui/core/network/cancel_signal.dart';
 import 'package:flutter/material.dart';
 import 'package:vendaqui/core/stock/stock_level.dart';
 import 'package:vendaqui/core/theme/theme_controller.dart';
+import 'package:vendaqui/features/sales/data/catalog_remote_data_source.dart';
+import 'package:vendaqui/features/sales/data/in_memory_sales_repository.dart';
+import 'package:vendaqui/features/sales/domain/sale.dart';
+import 'package:vendaqui/features/sales/domain/sales_repository.dart';
+import 'package:vendaqui/features/sales/presentation/controllers/sale_cart_controller.dart';
 import 'package:vendaqui/features/auth/domain/auth_repository.dart';
 import 'package:vendaqui/features/auth/domain/merchant.dart';
 import 'package:vendaqui/features/dashboard/domain/stock_overview.dart';
@@ -144,3 +149,50 @@ class _MemoryThemeStore implements ThemePreferenceStore {
 
 /// Tema fixo em claro nos testes, sem tocar no armazenamento do aparelho.
 ThemeController lightThemeController() => ThemeController(_MemoryThemeStore(), initial: ThemeMode.light);
+
+/// Catálogo da venda montado a partir de [testProducts]; vendas guardadas em memória.
+class FakeSalesRepository implements SalesRepository {
+  FakeSalesRepository({List<CatalogProduct>? catalog})
+    : catalogItems =
+          catalog ??
+          [
+            for (final product in testProducts)
+              CatalogProduct(
+                id: product.id,
+                name: product.name,
+                salePriceCents: product.salePriceCents,
+                quantity: product.quantity,
+                soldByWeight: product.soldByWeight,
+              ),
+          ];
+
+  final List<CatalogProduct> catalogItems;
+
+  // O repositório provisório do app já guarda vendas em memória; o catálogo de rede não é usado aqui
+  final _sales = InMemorySalesRepository(const CatalogRemoteDataSource());
+
+  @override
+  Future<CatalogPage> catalog({required String search, required int offset, required int limit, CancelSignal? cancel}) async {
+    final matching = catalogItems.where((product) => product.name.toLowerCase().contains(search.toLowerCase())).toList();
+    return CatalogPage(items: matching.skip(offset).take(limit).toList(), total: matching.length);
+  }
+
+  @override
+  Future<Sale> register(SaleInput input) => _sales.register(input);
+
+  int historyCalls = 0;
+
+  @override
+  Future<List<Sale>> history(SaleFilter filter, {CancelSignal? cancel}) {
+    historyCalls++;
+    return _sales.history(filter);
+  }
+
+  @override
+  Future<Sale> get(String id) => _sales.get(id);
+
+  @override
+  Future<Sale> update(String id, SaleInput input) => _sales.update(id, input);
+}
+
+SaleCartController saleCartFor(SalesRepository repository) => SaleCartController(repository);

@@ -1,5 +1,8 @@
 import { ProductErrorCode } from "../types/products"
 
+export const NOT_FOUND_ERROR = { code: ProductErrorCode.PRODUCT_NOT_FOUND, message: "Produto não encontrado." }
+export const NAME_TAKEN_ERROR = { code: ProductErrorCode.PRODUCT_NAME_TAKEN, message: "Você já tem um produto com esse nome." }
+
 export const productErrorHttpStatusMap: Record<ProductErrorCode, number> = {
   [ProductErrorCode.PRODUCT_NOT_FOUND]: 404,
   [ProductErrorCode.PRODUCT_NAME_TAKEN]: 409,

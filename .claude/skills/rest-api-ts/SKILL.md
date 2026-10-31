@@ -147,21 +147,15 @@ controller vira um tradutor de seis linhas e o compilador cobra os casos.
 async metodo(request: Request, response: Response): Promise<Response> {
   const result = await Service.metodo(...)
 
-  if (!result.status) {
-    const httpStatus = getHttpStatusFromError(result.error.code, errorHttpStatusMap)
-    return response.status(httpStatus).json({
-      success: false,
-      message: result.error.message,
-    })
-  }
+  if (!result.status) return sendFailure(response, result.error, errorHttpStatusMap)
 
-  return response.status(200).json({
-    success: true,
-    message: "...",
-    data: result.data,
-  })
+  return sendSuccess(response, "...", result.data)
 }
 ```
+
+`sendFailure` e `sendSuccess` (em `utils/`, ver "Funções pequenas e sem
+repetição") são a única forma de responder: controller não chama
+`response.status().json()` direto.
 
 **`create` e `update` respondem só com o `id`**, não com o recurso inteiro. O
 cliente acabou de enviar os demais campos, então devolvê-los é tráfego sem
@@ -188,6 +182,22 @@ privado dele; o que serve a vários vira helper em `utils/`.
 
 O objetivo dos dois lados é o mesmo: arquivos de controller e service com
 imports e a classe, sem funções soltas no topo.
+
+A regra vale também para declarações: **nada de `type`, `interface` ou
+`const` no topo de controller ou service.** Cada coisa tem pasta própria:
+
+| Declaração | Vai para |
+|---|---|
+| Alias de resultado (`AuthResult<T>`, `ProductResult<T>`) e tipos derivados | `types/<domínio>/index.ts` |
+| Tipo da linha do banco (`ProductRow`) | `types/<domínio>/row.ts`, ou dentro do model quando ele existe |
+| Valores fixos e listas (`STOCK_COUNT_KEYS`) | `constants/<domínio>.ts` |
+| Erros e mensagens reaproveitados (`NOT_FOUND_ERROR`, `INVALID_CREDENTIALS_MESSAGE`) | `errors/<domínio>.ts`, ao lado do mapa de status |
+
+O motivo é o mesmo das funções soltas: declaração no topo do service é
+invisível para os outros arquivos e acaba copiada no próximo service do
+mesmo domínio, e as cópias divergem. O sinal de que isso já aconteceu é
+achar o mesmo `type XResult<T>` ou a mesma mensagem de erro em dois
+services.
 
 ## Service — sempre esta forma
 
@@ -236,7 +246,7 @@ processo (`mapPasswordUpdateError` diz mais que `step2`).
 Isso não é estética. Função que faz uma coisa só é a que dá para testar
 isoladamente, reaproveitar e ler sem rolar a tela.
 
-Nesta arquitetura a duplicação aparece quase sempre nos mesmos três lugares —
+Nesta arquitetura a duplicação aparece quase sempre nos mesmos quatro lugares —
 vale extrair já na segunda ocorrência:
 
 - **o bloco de erro do controller** (traduzir código para status e montar o
@@ -244,6 +254,13 @@ vale extrair já na segunda ocorrência:
   código de erro, recebendo o mapa por parâmetro — assim ele serve a todos os
   recursos, e o genérico amarra enum e mapa: passar o mapa de outro domínio
   não compila;
+- **o bloco de sucesso do controller**. Extraia um
+  `sendSuccess(response, message, data?, status = 200)` que monta o envelope
+  com `success: true`, tipado como `HttpResponse<T>`. Com ele nenhum
+  controller monta o corpo à mão, e um campo esquecido ou com nome errado
+  (`sucess`, `msg`) deixa de ser possível — é exatamente o tipo de quebra que
+  o parser único do cliente não perdoa. Status diferente de 200 vai no último
+  parâmetro (`201` no `create`);
 - **o mapeamento de linha do banco para tipo**, repetido entre `get` e
   `update` do mesmo recurso;
 - **listas de colunas de `SELECT`**, que devem morar em `constants/`, senão

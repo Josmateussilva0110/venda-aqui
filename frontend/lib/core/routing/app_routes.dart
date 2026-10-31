@@ -7,6 +7,14 @@ abstract final class AppRoutes {
   static const recoverPin = '/recover-pin';
 
   static const home = '/home';
+  static const sell = '/sell';
+  static const sellWeight = '/sell/weight';
+  static const sellSummary = '/sell/summary';
+  static const sellPayment = '/sell/payment';
+  static const sellDone = '/sell/done';
+  static const salesHistory = '/sales';
+  static String sale(String id) => '/sales/$id';
+  static String saleEdit(String id) => '/sales/$id/edit';
   static const settings = '/settings';
   static const stock = '/stock';
 

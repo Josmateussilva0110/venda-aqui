@@ -9,7 +9,7 @@ import '../l10n/app_localizations.dart';
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key, required this.navigationShell});
 
-  /// Abas na ordem dos ramos do roteador: início e estoque.
+  /// Abas na ordem dos ramos do roteador: início, vender e estoque.
   final StatefulNavigationShell navigationShell;
 
   int get _selectedIndex => navigationShell.currentIndex;
@@ -22,6 +22,7 @@ class HomeShell extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final destinations = [
       (label: l10n.navHome, icon: Icons.home_outlined, selectedIcon: Icons.home_rounded),
+      (label: l10n.navSell, icon: Icons.add_shopping_cart_outlined, selectedIcon: Icons.add_shopping_cart_rounded),
       (label: l10n.navStock, icon: Icons.inventory_2_outlined, selectedIcon: Icons.inventory_2_rounded),
     ];
 

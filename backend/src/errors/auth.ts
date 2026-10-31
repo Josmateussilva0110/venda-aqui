@@ -1,4 +1,13 @@
+import { PIN_LOCK_MINUTES } from "../constants/auth"
 import { AuthErrorCode } from "../types/auth"
+
+export const INVALID_CREDENTIALS_MESSAGE = "Telefone ou PIN incorretos."
+export const PIN_LOCKED_MESSAGE = `PIN bloqueado por muitas tentativas. Tente de novo em ${PIN_LOCK_MINUTES} minutos ou recupere o PIN pelo WhatsApp.`
+
+export const INVALID_CODE_ERROR = {
+  code: AuthErrorCode.RECOVERY_CODE_INVALID,
+  message: "Código inválido ou expirado. Peça um novo código.",
+}
 
 export const authErrorHttpStatusMap: Record<AuthErrorCode, number> = {
   [AuthErrorCode.PHONE_ALREADY_REGISTERED]: 409,

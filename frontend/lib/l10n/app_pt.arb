@@ -3,7 +3,6 @@
   "appTitle": "Vendaqui",
   "brandPrefix": "Vend",
   "brandSuffix": "aqui",
-
   "genericNetworkError": "Sem conexão com o servidor. Confira a internet e tente de novo.",
   "genericServerError": "Algo deu errado do nosso lado. Tente de novo em instantes.",
   "genericSessionExpired": "Sua sessão terminou. Entre de novo com seu PIN.",
@@ -13,14 +12,12 @@
   "continueAction": "Continuar",
   "decimalSeparatorKey": "Vírgula",
   "splashLoading": "Abrindo o Vendaqui…",
-
   "welcomeHeadline": "Venda rápido,\nlucre mais",
   "welcomeSubtitle": "Vendas, estoque e fiado do seu comércio num só lugar, em poucos toques.",
   "welcomeStart": "Começar agora",
   "welcomeHaveAccount": "Já tenho conta · ",
   "welcomeSignIn": "Entrar",
   "welcomeImageLabel": "Ilustração de uma feirante sorrindo na sua banca de frutas e verduras",
-
   "loginTitle": "Entrar",
   "loginSubtitle": "Use seu telefone e seu PIN.",
   "phoneFieldLabel": "Telefone / WhatsApp",
@@ -31,7 +28,6 @@
   "loginSubmit": "Entrar",
   "loginMissingFields": "Preencha o telefone e o PIN.",
   "loginWelcome": "Bem-vindo! Você continua conectado até sair.",
-
   "registerTitle": "Cadastro",
   "registerStepOne": "Etapa 1 de 2",
   "registerStepTwo": "Etapa 2 de 2 · PIN",
@@ -51,16 +47,27 @@
   "registerPinTooShort": "Use pelo menos 4 números.",
   "registerPinMismatch": "Os PINs não conferem. Tente de novo.",
   "registerDone": "Cadastro concluído. Você já está conectado.",
-
   "recoverTitle": "Recuperar PIN",
   "recoverStep": "Passo {step} de 3",
-  "@recoverStep": { "placeholders": { "step": { "type": "int" } } },
+  "@recoverStep": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
   "recoverPhoneTitle": "Qual é o seu telefone?",
   "recoverPhoneSubtitle": "Vamos enviar um código pelo WhatsApp.",
   "recoverSendCode": "Enviar código",
   "recoverCodeTitle": "Digite o código",
   "recoverCodeSubtitle": "Código de 6 dígitos enviado para {phone}.",
-  "@recoverCodeSubtitle": { "placeholders": { "phone": { "type": "String" } } },
+  "@recoverCodeSubtitle": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "recoverResendCode": "Reenviar código",
   "recoverCodeSent": "Código enviado pelo WhatsApp.",
   "recoverNewPinTitle": "Crie um novo PIN",
@@ -69,10 +76,8 @@
   "recoverPhoneInvalid": "Digite o telefone com DDD.",
   "recoverPinTooShort": "O PIN precisa ter de 4 a 6 números.",
   "recoverDone": "PIN alterado. Você já está conectado.",
-
   "navHome": "Início",
   "navStock": "Estoque",
-
   "dashboardSettings": "Configurações",
   "settingsTitle": "Configurações",
   "settingsAppearance": "Aparência",
@@ -87,17 +92,50 @@
   "greetingAfternoon": "Boa tarde",
   "greetingEvening": "Boa noite",
   "greetingLine": "{greeting},",
-  "@greetingLine": { "placeholders": { "greeting": { "type": "String" } } },
+  "@greetingLine": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      }
+    }
+  },
   "greetingLineWithName": "{greeting}, {name},",
-  "@greetingLineWithName": { "placeholders": { "greeting": { "type": "String" }, "name": { "type": "String" } } },
+  "@greetingLineWithName": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "greetingCallToAction": "bora vender?",
   "dashboardStockCardTitle": "Seu estoque",
   "dashboardProductCount": "{count, plural, =0{Nenhum produto} =1{1 produto} other{{count} produtos}}",
-  "@dashboardProductCount": { "placeholders": { "count": { "type": "int" } } },
+  "@dashboardProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dashboardLowCount": "{count, plural, =1{1 com estoque baixo} other{{count} com estoque baixo}}",
-  "@dashboardLowCount": { "placeholders": { "count": { "type": "int" } } },
+  "@dashboardLowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dashboardOutCount": "{count, plural, =1{1 esgotado} other{{count} esgotados}}",
-  "@dashboardOutCount": { "placeholders": { "count": { "type": "int" } } },
+  "@dashboardOutCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dashboardAllGood": "Tudo em dia",
   "shortcutsTitle": "Atalhos",
   "shortcutRestock": "Repor estoque",
@@ -107,34 +145,86 @@
   "seeAll": "Ver todos",
   "restockAction": "Repor",
   "stockRemaining": "Restam {quantity}",
-  "@stockRemaining": { "placeholders": { "quantity": { "type": "String" } } },
+  "@stockRemaining": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardNoProducts": "Cadastre seu primeiro produto para começar.",
-
   "stockTitle": "Estoque",
   "stockSubtitle": "{count, plural, =1{1 produto} other{{count} produtos}} · estoque baixo: até {threshold} unid./kg",
-  "@stockSubtitle": { "placeholders": { "count": { "type": "int" }, "threshold": { "type": "int" } } },
+  "@stockSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "threshold": {
+        "type": "int"
+      }
+    }
+  },
   "searchProductHint": "Buscar produto pelo nome",
   "stockFilterAll": "Todos {count}",
-  "@stockFilterAll": { "placeholders": { "count": { "type": "int" } } },
+  "@stockFilterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "stockFilterLow": "Baixo {count}",
-  "@stockFilterLow": { "placeholders": { "count": { "type": "int" } } },
+  "@stockFilterLow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "stockFilterOut": "Esgotado {count}",
-  "@stockFilterOut": { "placeholders": { "count": { "type": "int" } } },
+  "@stockFilterOut": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "stockEmpty": "Nenhum produto aqui.",
   "stockEndOfList": "Fim da lista",
   "stockAddProduct": "Adicionar Produto",
   "stockSalePrice": "Venda {price}",
-  "@stockSalePrice": { "placeholders": { "price": { "type": "String" } } },
+  "@stockSalePrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "stockCostPrice": " · Custo {price}",
-  "@stockCostPrice": { "placeholders": { "price": { "type": "String" } } },
+  "@stockCostPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "stockLevelOk": "Normal",
   "stockLevelLow": "Baixo",
   "stockLevelOut": "Esgotado",
   "unitKg": "kg",
   "unitPiece": "un",
   "quantityWithUnit": "{quantity} {unit}",
-  "@quantityWithUnit": { "placeholders": { "quantity": { "type": "String" }, "unit": { "type": "String" } } },
-
+  "@quantityWithUnit": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "productNewTitle": "Novo produto",
   "productEditTitle": "Editar produto",
   "productPhotoPick": "tirar ou escolher foto",
@@ -151,7 +241,19 @@
   "currencySymbol": "R$",
   "moneyHint": "0,00",
   "productMargin": "Lucro por {unit}: {profit} ({percent}%)",
-  "@productMargin": { "placeholders": { "unit": { "type": "String" }, "profit": { "type": "String" }, "percent": { "type": "int" } } },
+  "@productMargin": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "profit": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "productMarginNegative": "O custo está maior ou igual ao preço de venda.",
   "productInitialQuantity": "Quantidade inicial",
   "productStockQuantity": "Quantidade em estoque",
@@ -166,15 +268,214 @@
   "productCreated": "Produto cadastrado.",
   "productUpdated": "Produto atualizado.",
   "productLoadFailed": "Não foi possível carregar o produto.",
-
   "restockTitle": "Repor estoque",
   "restockCurrent": "Atual: {quantity}",
-  "@restockCurrent": { "placeholders": { "quantity": { "type": "String" } } },
+  "@restockCurrent": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
   "restockAmountLabel": "Quantidade a adicionar",
   "restockAmountSign": "+",
   "restockAmountHint": "0",
   "restockNewTotal": "Novo total: {quantity}",
-  "@restockNewTotal": { "placeholders": { "quantity": { "type": "String" } } },
+  "@restockNewTotal": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
   "restockConfirm": "Confirmar reposição",
-  "restockDone": "Estoque atualizado."
+  "restockDone": "Estoque atualizado.",
+  "navSell": "Vender",
+  "dashboardRegisterSale": "Registrar venda",
+  "shortcutSalesHistory": "Vendas",
+  "sellTitle": "Nova venda",
+  "sellHint": "Toque para somar 1 · segure para pesar",
+  "sellClear": "Limpar",
+  "sellSearchHint": "Buscar produto pelo nome",
+  "sellEmpty": "Nenhum produto encontrado.",
+  "sellByWeight": "por peso",
+  "sellOutOfStock": "Esgotado",
+  "sellStock": "Estoque: {quantity}",
+  "@sellStock": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "sellNoStock": "Sem estoque",
+  "sellUnitPrice": "{price} /{unit}",
+  "@sellUnitPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "sellViewSummary": "Ver resumo",
+  "sellInCart": "{quantity} no carrinho",
+  "@sellInCart": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "cartItemCount": "{count, plural, =1{1 item} other{{count} itens}}",
+  "@cartItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartOutOfStock": "{name} está esgotado.",
+  "@cartOutOfStock": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartInsufficientStock": "Estoque insuficiente: {quantity}",
+  "@cartInsufficientStock": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "cartInvalidQuantity": "Este produto é vendido por unidade: use um número inteiro.",
+  "weightTitle": "Vender por peso",
+  "weightRequired": "Digite o peso.",
+  "weightAvailable": "Estoque disponível: {quantity}",
+  "@weightAvailable": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "weightAdd": "Adicionar",
+  "weightUpdate": "Atualizar",
+  "weightQuick250": "250 g",
+  "weightQuick500": "500 g",
+  "weightQuick1kg": "1 kg",
+  "summaryTitle": "Resumo da venda",
+  "summaryEmpty": "A venda está vazia.",
+  "summaryAddMore": "+ Adicionar mais itens",
+  "summaryItems": "Itens",
+  "summaryTotal": "Total",
+  "summaryFinish": "Finalizar venda",
+  "summaryRemove": "Remover",
+  "summaryEditWeight": "{quantity} · editar",
+  "@summaryEditWeight": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryDecrease": "Diminuir",
+  "summaryIncrease": "Aumentar",
+  "paymentTitle": "Pagamento",
+  "paymentTotal": "Total a receber",
+  "paymentQuestion": "Como o cliente vai pagar?",
+  "paymentHint": "Um toque na forma de pagamento conclui a venda.",
+  "paymentCash": "Dinheiro",
+  "paymentCashDetail": "Em espécie",
+  "paymentPix": "PIX",
+  "paymentPixDetail": "Transferência na hora",
+  "paymentCard": "Cartão",
+  "paymentCardDetail": "Débito ou crédito",
+  "saleDoneTitle": "Venda registrada!",
+  "saleDoneBackHome": "Voltar ao início",
+  "saleDoneNewSale": "Nova venda",
+  "saleDoneCountdown": "Voltando ao início em {seconds}s",
+  "@saleDoneCountdown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "historyTitle": "Histórico de vendas",
+  "historySaleCount": "{count, plural, =0{Nenhuma venda} =1{1 venda} other{{count} vendas}}",
+  "@historySaleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historySummary": "{count} · {total}",
+  "@historySummary": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "historyToday": "Hoje",
+  "historyYesterday": "Ontem",
+  "historyWeek": "7 dias",
+  "historyMonth": "30 dias",
+  "historyCustom": "Período",
+  "historyFrom": "De",
+  "historyTo": "Até",
+  "historyInvalidRange": "A data inicial precisa ser antes da final.",
+  "historySearchHint": "Buscar produto",
+  "historyAllMethods": "Todas",
+  "historyEmpty": "Nenhuma venda encontrada.",
+  "historyProductCount": "{count, plural, =1{1 produto} other{{count} produtos}}",
+  "@historyProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "saleDetailTitle": "Detalhe da venda",
+  "saleDetailTotal": "Total da venda",
+  "saleDetailPayment": "Pagamento",
+  "saleDetailItems": "Itens",
+  "saleDetailProducts": "Produtos",
+  "saleDetailEdited": "Editada em {date}",
+  "@saleDetailEdited": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "saleDetailEdit": "Editar venda",
+  "saleLine": "{quantity} × {price}",
+  "@saleLine": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "saleLoadFailed": "Não foi possível carregar a venda.",
+  "saleEditTitle": "Editar venda",
+  "saleEditMethod": "Forma de pagamento",
+  "saleEditNewTotal": "Novo total",
+  "saleEditSave": "Salvar alterações",
+  "saleEditNoItems": "A venda precisa ter pelo menos um produto.",
+  "saleEditSaved": "Venda atualizada."
 }

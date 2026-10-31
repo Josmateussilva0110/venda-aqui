@@ -1,22 +1,15 @@
 import { RECOVERY_CODE_LENGTH, RECOVERY_CODE_TTL_MINUTES } from "../constants/auth"
+import { INVALID_CODE_ERROR } from "../errors/auth"
 import MerchantModel from "../models/MerchantModel"
 import PinRecoveryModel from "../models/PinRecoveryModel"
 import SessionModel from "../models/SessionModel"
 import { whatsAppSender } from "../providers/whatsapp"
 import type { PinRecoveryConfirmDTO } from "../schemas/auth/pinRecoveryConfirm"
-import { AuthErrorCode, type AuthSession } from "../types/auth"
-import type { ServiceResult } from "../types/serviceResult"
+import { AuthErrorCode, type AuthResult, type AuthSession } from "../types/auth"
 import { addMinutes } from "../utils/dates"
 import { hashPin } from "../utils/pin"
 import { generateNumericCode, hashSecret, secretMatchesHash } from "../utils/tokens"
 import AuthService from "./AuthService"
-
-type AuthResult<T> = Promise<ServiceResult<T, AuthErrorCode>>
-
-const INVALID_CODE_ERROR = {
-  code: AuthErrorCode.RECOVERY_CODE_INVALID,
-  message: "Código inválido ou expirado. Peça um novo código.",
-}
 
 class PinRecoveryService {
   async requestCode(phone: string): AuthResult<void> {
