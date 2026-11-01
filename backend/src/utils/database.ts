@@ -9,6 +9,11 @@ export function escapeLikePattern(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`)
 }
 
+// Chave estrangeira com restrict: o registro ainda é usado por outra tabela
+export function isForeignKeyViolation(error: unknown): boolean {
+  return (error as PostgrestError | null)?.code === "23503"
+}
+
 export function isCheckViolation(error: unknown): boolean {
   return (error as PostgrestError | null)?.code === "23514"
 }

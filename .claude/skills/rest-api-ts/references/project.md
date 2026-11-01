@@ -17,3 +17,12 @@
 - Models existem para merchants, sessions e pin_recovery_codes (usados por mais de um service). Produtos
   falam direto com o banco no `ProductService`; vale extrair um `ProductModel` quando vendas (Iteração 2)
   precisarem das mesmas consultas.
+- Vendas e fiado (`20261031010000_sales_and_credit.sql`): tudo que mexe em estoque ou saldo do cliente passa por
+  função SQL (`register_sale`, `update_sale`, `register_customer_payment`), que calcula o total pelo preço do
+  produto e trava os produtos em ordem de id (evita deadlock). O app nunca envia preço nem total.
+  Erros de regra saem com SQLSTATE próprio `VQ001`–`VQ006` (lista em `constants/sales.ts`, `SALE_DB_ERRORS`) e o
+  service traduz para o código de erro; não são `console.error`.
+- `customers.balance_cents` é o saldo do fiado, guardado na linha e alterado só por essas funções.
+  Venda e pagamento referenciam o cliente por chave composta `(id, merchant_id)`, com `on delete restrict`.
+- `GET /customers` devolve `summary: { owingCount, owedCents }` (função `customer_credit_summary`, migration
+  `20261031020000_customer_credit_summary.sql`) só quando `offset = 0`; o resumo não muda entre as páginas.
