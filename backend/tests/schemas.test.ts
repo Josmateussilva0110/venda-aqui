@@ -7,6 +7,9 @@ import { ListProductsSchema } from "../src/schemas/products/listProducts"
 import { RestockSchema } from "../src/schemas/products/restock"
 import { CustomerSchema } from "../src/schemas/customers/customer"
 import { ListCustomersSchema } from "../src/schemas/customers/listCustomers"
+import { PaymentSchema } from "../src/schemas/customers/payment"
+import { ListSalesSchema } from "../src/schemas/sales/listSales"
+import { SaleSchema } from "../src/schemas/sales/sale"
 
 describe("phoneField", () => {
   it.each([
@@ -126,11 +129,51 @@ describe("CustomerSchema", () => {
 
 describe("ListCustomersSchema", () => {
   it("converte a query string e aplica padrões", () => {
-    expect(ListCustomersSchema.parse({ limit: "20", search: "  ana " })).toEqual({ limit: 20, offset: 0, search: "ana" })
+    expect(ListCustomersSchema.parse({ limit: "20", search: "  ana " })).toEqual({ limit: 20, offset: 0, search: "ana", balance: "all" })
   })
 
   it("responde em português quando a página é inválida", () => {
     const result = ListCustomersSchema.safeParse({ limit: "500", offset: "-1" })
     expect(result.error?.issues.map((issue) => issue.message)).toEqual(["A página tem no máximo 100 itens.", "Posição da página inválida."])
+  })
+})
+
+describe("SaleSchema", () => {
+  const productId = "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11"
+  const customerId = "7a2d2b63-7e1c-4b51-8e1b-0d2c6b1f3a22"
+  const fieldsOf = (input: unknown) => SaleSchema.safeParse(input).error?.issues.map((issue) => issue.path.join(".")) ?? []
+
+  it("exige cliente no fiado e só no fiado", () => {
+    expect(fieldsOf({ paymentMethod: "credit", items: [{ productId, quantity: 1 }] })).toEqual(["customerId"])
+    expect(fieldsOf({ paymentMethod: "pix", customerId, items: [{ productId, quantity: 1 }] })).toEqual(["customerId"])
+    expect(fieldsOf({ paymentMethod: "credit", customerId, items: [{ productId, quantity: 1 }] })).toEqual([])
+  })
+
+  // Preço e total nunca vêm do app: campos extras são descartados, e o banco calcula
+  it("descarta preço e total enviados pelo cliente", () => {
+    const parsed = SaleSchema.parse({ paymentMethod: "cash", totalCents: 1, items: [{ productId, quantity: 2, unitPriceCents: 1 }] })
+    expect(parsed).toEqual({ paymentMethod: "cash", items: [{ productId, quantity: 2 }] })
+  })
+
+  it("recusa venda vazia, quantidade zero e produto repetido", () => {
+    expect(fieldsOf({ paymentMethod: "cash", items: [] })).toEqual(["items"])
+    expect(fieldsOf({ paymentMethod: "cash", items: [{ productId, quantity: 0 }] })).toEqual(["items.0.quantity"])
+    expect(fieldsOf({ paymentMethod: "cash", items: [{ productId, quantity: 1 }, { productId, quantity: 2 }] })).toEqual(["items"])
+  })
+})
+
+describe("ListSalesSchema", () => {
+  it("recusa período invertido ou maior que um ano", () => {
+    expect(ListSalesSchema.safeParse({ from: "2026-10-31T00:00:00-03:00", to: "2026-10-01T00:00:00-03:00" }).success).toBe(false)
+    expect(ListSalesSchema.safeParse({ from: "2024-01-01T00:00:00-03:00", to: "2026-01-01T00:00:00-03:00" }).success).toBe(false)
+    expect(ListSalesSchema.safeParse({ from: "2026-10-01T00:00:00-03:00", to: "2026-11-01T00:00:00-03:00" }).success).toBe(true)
+  })
+})
+
+describe("PaymentSchema", () => {
+  it("recusa valor zero e pagamento de fiado com fiado", () => {
+    expect(PaymentSchema.safeParse({ amountCents: 0, paymentMethod: "pix" }).success).toBe(false)
+    expect(PaymentSchema.safeParse({ amountCents: 500, paymentMethod: "credit" }).success).toBe(false)
+    expect(PaymentSchema.safeParse({ amountCents: 500, paymentMethod: "cash" }).success).toBe(true)
   })
 })

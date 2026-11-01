@@ -3,6 +3,8 @@ import { customerErrorHttpStatusMap } from "../errors/customers"
 import type { CustomerDTO } from "../schemas/customers/customer"
 import type { CustomerParamsDTO } from "../schemas/customers/customerParams"
 import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
+import type { PaymentDTO } from "../schemas/customers/payment"
+import type { StatementDTO } from "../schemas/customers/statement"
 import CustomerService from "../services/CustomerService"
 import { requireAuthField } from "../utils/requireAuthField"
 import { sendFailure } from "../utils/sendFailure"
@@ -38,6 +40,19 @@ class CustomerController {
     const result = await CustomerService.delete(requireAuthField(request, "merchantId"), request.params.id)
     if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
     return sendSuccess(response, "Cliente excluído com sucesso.", result.data)
+  }
+
+  async statement(request: Request<CustomerParamsDTO>, response: Response): Promise<Response> {
+    const filters = request.query as unknown as StatementDTO
+    const result = await CustomerService.statement(requireAuthField(request, "merchantId"), request.params.id, filters)
+    if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
+    return sendSuccess(response, "Extrato carregado.", result.data)
+  }
+
+  async registerPayment(request: Request<CustomerParamsDTO, unknown, PaymentDTO>, response: Response): Promise<Response> {
+    const result = await CustomerService.registerPayment(requireAuthField(request, "merchantId"), request.params.id, request.body)
+    if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
+    return sendSuccess(response, "Pagamento registrado com sucesso.", result.data, 201)
   }
 
 }

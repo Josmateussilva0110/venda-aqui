@@ -6,6 +6,16 @@ export const CUSTOMER_LIST_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_LIS
 export const CUSTOMER_FETCH_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_FETCH_FAILED, message: "Erro ao carregar o cliente." }
 export const CUSTOMER_CREATE_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_CREATE_FAILED, message: "Erro ao cadastrar o cliente." }
 export const CUSTOMER_UPDATE_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_UPDATE_FAILED, message: "Erro ao salvar o cliente." }
+export const CUSTOMER_HAS_HISTORY_ERROR = {
+  code: CustomerErrorCode.CUSTOMER_HAS_HISTORY,
+  message: "Este cliente tem fiado no histórico e não pode ser excluído.",
+}
+export const CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR = {
+  code: CustomerErrorCode.CUSTOMER_PAYMENT_EXCEEDS_BALANCE,
+  message: "O valor é maior do que o cliente deve.",
+}
+export const CUSTOMER_PAYMENT_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_PAYMENT_FAILED, message: "Erro ao registrar o pagamento." }
+export const CUSTOMER_STATEMENT_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_STATEMENT_FAILED, message: "Erro ao carregar o extrato." }
 export const CUSTOMER_DELETE_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_DELETE_FAILED, message: "Erro ao excluir o cliente." }
 
 export const customerErrorHttpStatusMap: Record<CustomerErrorCode, number> = {
@@ -16,4 +26,8 @@ export const customerErrorHttpStatusMap: Record<CustomerErrorCode, number> = {
   [CustomerErrorCode.CUSTOMER_LIST_FAILED]: 500,
   [CustomerErrorCode.CUSTOMER_FETCH_FAILED]: 500,
   [CustomerErrorCode.CUSTOMER_DELETE_FAILED]: 500,
+  [CustomerErrorCode.CUSTOMER_HAS_HISTORY]: 409,
+  [CustomerErrorCode.CUSTOMER_PAYMENT_EXCEEDS_BALANCE]: 409,
+  [CustomerErrorCode.CUSTOMER_PAYMENT_FAILED]: 500,
+  [CustomerErrorCode.CUSTOMER_STATEMENT_FAILED]: 500,
 }

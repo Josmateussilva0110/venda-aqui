@@ -2,6 +2,7 @@ import { Router } from "express"
 import authRoutes from "./auth"
 import customerRoutes from "./customers"
 import productRoutes from "./products"
+import saleRoutes from "./sales"
 
 const router = Router()
 
@@ -11,5 +12,6 @@ router.get("/health", (_request, response) => {
 router.use("/auth", authRoutes)
 router.use("/products", productRoutes)
 router.use("/customers", customerRoutes)
+router.use("/sales", saleRoutes)
 
 export default router
