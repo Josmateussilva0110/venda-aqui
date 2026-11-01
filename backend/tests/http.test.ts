@@ -56,6 +56,19 @@ describe("contrato HTTP sem banco", () => {
     expect(response.body.code).toBe("ACCESS_TOKEN_INVALID")
   })
 
+  it("exige token nas rotas de venda", async () => {
+    const response = await request(app).post("/api/sales").send({})
+    expect(response.status).toBe(401)
+    expect(response.body.code).toBe("ACCESS_TOKEN_INVALID")
+  })
+
+  it("valida o id da venda e do pagamento antes de consultar o banco", async () => {
+    const token = signAccessToken({ merchantId: "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11", sessionId: "s" })
+    const sale = await request(app).get("/api/sales/abc").set("Authorization", `Bearer ${token}`)
+    const payment = await request(app).post("/api/customers/abc/payments").set("Authorization", `Bearer ${token}`).send({ amountCents: 100, paymentMethod: "pix" })
+    expect([sale.status, payment.status]).toEqual([422, 422])
+  })
+
   it.each(["get", "put", "delete"] as const)("valida o id do cliente no %s antes de consultar o banco", async (method) => {
     const token = signAccessToken({ merchantId: "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11", sessionId: "s" })
     const response = await request(app)[method]("/api/customers/abc").set("Authorization", `Bearer ${token}`)

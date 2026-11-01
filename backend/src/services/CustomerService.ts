@@ -4,15 +4,35 @@ import {
   CUSTOMER_CREATE_FAILED_ERROR,
   CUSTOMER_DELETE_FAILED_ERROR,
   CUSTOMER_FETCH_FAILED_ERROR,
+  CUSTOMER_HAS_HISTORY_ERROR,
   CUSTOMER_LIST_FAILED_ERROR,
   CUSTOMER_NOT_FOUND_ERROR,
+  CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR,
+  CUSTOMER_PAYMENT_FAILED_ERROR,
   CUSTOMER_PHONE_TAKEN_ERROR,
+  CUSTOMER_STATEMENT_FAILED_ERROR,
   CUSTOMER_UPDATE_FAILED_ERROR,
 } from "../errors/customers"
+import { SALE_DB_ERRORS } from "../constants/sales"
 import type { CustomerDTO } from "../schemas/customers/customer"
 import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
-import type { Customer, CustomerList, CustomerResult, CustomerRow } from "../types/customers"
-import { escapeLikePattern, isUniqueViolation } from "../utils/database"
+import type { PaymentDTO } from "../schemas/customers/payment"
+import type { StatementDTO } from "../schemas/customers/statement"
+import type {
+  CreditSummary,
+  CreditSummaryRow,
+  Customer,
+  CustomerList,
+  CustomerResult,
+  CustomerRow,
+  CustomerStatement,
+  PaymentSaved,
+  StatementEntry,
+  StatementEntryRow,
+  StatementRow,
+} from "../types/customers"
+import type { PaymentMethod } from "../types/sales"
+import { escapeLikePattern, isForeignKeyViolation, isUniqueViolation } from "../utils/database"
 
 class CustomerService {
 
@@ -29,16 +49,26 @@ class CustomerService {
           ? query.ilike("phone", `%${phoneDigits}%`)
           : query.ilike("name", `%${escapeLikePattern(filters.search)}%`)
       }
+      if (filters.balance === "owing") {
+        query = query.gt("balance_cents", 0)
+      }
 
       // O id desempata nomes iguais, senão um cliente pode repetir ou sumir entre as páginas
-      const { data, count, error } = await query
-        .order("name", { ascending: true })
-        .order("id", { ascending: true })
-        .range(filters.offset, filters.offset + filters.limit - 1)
-        .returns<CustomerRow[]>()
+      const [page, summary] = await Promise.all([
+        query
+          .order("name", { ascending: true })
+          .order("id", { ascending: true })
+          .range(filters.offset, filters.offset + filters.limit - 1)
+          .returns<CustomerRow[]>(),
+        // O resumo não muda entre as páginas: só a primeira paga essa consulta
+        filters.offset === 0
+          ? supabase.rpc("customer_credit_summary", { p_merchant_id: merchantId }).single<CreditSummaryRow>()
+          : null,
+      ])
 
-      if (error) {
-        console.error("[CustomerService.list]", error)
+      const { data, count, error } = page
+      if (error || summary?.error || (summary && !summary.data)) {
+        console.error("[CustomerService.list]", error ?? summary?.error)
         return { status: false, error: CUSTOMER_LIST_FAILED_ERROR }
       }
 
@@ -49,6 +79,7 @@ class CustomerService {
           total: count ?? 0,
           limit: filters.limit,
           offset: filters.offset,
+          ...(summary?.data ? { summary: this.toCreditSummary(summary.data) } : {}),
         },
       }
     } catch (error) {
@@ -135,6 +166,8 @@ class CustomerService {
         .select("id")
         .maybeSingle<{ id: string }>()
 
+      // A chave estrangeira com restrict barra cliente com venda fiado ou pagamento registrado
+      if (isForeignKeyViolation(error)) return { status: false, error: CUSTOMER_HAS_HISTORY_ERROR }
       if (error) {
         console.error("[CustomerService.delete]", error)
         return { status: false, error: CUSTOMER_DELETE_FAILED_ERROR }
@@ -146,6 +179,77 @@ class CustomerService {
       console.error("[CustomerService.delete] error:", error)
       return { status: false, error: CUSTOMER_DELETE_FAILED_ERROR }
     }
+  }
+
+  async registerPayment(merchantId: string, customerId: string, input: PaymentDTO): CustomerResult<PaymentSaved> {
+    try {
+      const { data, error } = await supabase
+        .rpc("register_customer_payment", {
+          p_merchant_id: merchantId,
+          p_customer_id: customerId,
+          p_amount_cents: input.amountCents,
+          p_payment_method: input.paymentMethod,
+        })
+        .single<{ id: string; balance_cents: number }>()
+
+      if (error?.code === SALE_DB_ERRORS.customerNotFound) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+      if (error?.code === SALE_DB_ERRORS.negativeBalance) return { status: false, error: CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR }
+      if (error || !data) {
+        console.error("[CustomerService.registerPayment]", error)
+        return { status: false, error: CUSTOMER_PAYMENT_FAILED_ERROR }
+      }
+
+      return { status: true, data: { id: data.id, balanceCents: data.balance_cents } }
+    } catch (error) {
+      console.error("[CustomerService.registerPayment] error:", error)
+      return { status: false, error: CUSTOMER_PAYMENT_FAILED_ERROR }
+    }
+  }
+
+  async statement(merchantId: string, customerId: string, filters: StatementDTO): CustomerResult<CustomerStatement> {
+    try {
+      // Extrato de cliente inexistente viria vazio; o 404 avisa o app que o cliente sumiu
+      const [exists, page] = await Promise.all([
+        this.belongsToMerchant(merchantId, customerId),
+        supabase
+          .rpc("customer_statement", {
+            p_merchant_id: merchantId,
+            p_customer_id: customerId,
+            p_limit: filters.limit,
+            p_offset: filters.offset,
+          })
+          .single<StatementRow>(),
+      ])
+
+      if (!exists) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+      if (page.error || !page.data) {
+        console.error("[CustomerService.statement]", page.error)
+        return { status: false, error: CUSTOMER_STATEMENT_FAILED_ERROR }
+      }
+
+      return {
+        status: true,
+        data: {
+          items: page.data.items.map((row) => this.toStatementEntry(row)),
+          total: page.data.total,
+          limit: filters.limit,
+          offset: filters.offset,
+        },
+      }
+    } catch (error) {
+      console.error("[CustomerService.statement] error:", error)
+      return { status: false, error: CUSTOMER_STATEMENT_FAILED_ERROR }
+    }
+  }
+
+  private async belongsToMerchant(merchantId: string, customerId: string): Promise<boolean> {
+    const { count, error } = await supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("id", customerId)
+      .eq("merchant_id", merchantId)
+    if (error) throw error
+    return (count ?? 0) > 0
   }
 
   // Busca só com dígitos e pontuação de telefone ("(86) 9999-") procura no telefone; o resto, no nome.
@@ -168,8 +272,24 @@ class CustomerService {
       id: row.id,
       name: row.name,
       phone: row.phone,
+      balanceCents: row.balance_cents,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
+    }
+  }
+
+  // bigint chega como texto ou número conforme o tamanho; o saldo somado cabe com folga num number
+  private toCreditSummary(row: CreditSummaryRow): CreditSummary {
+    return { owingCount: row.owing_count, owedCents: Number(row.owed_cents) }
+  }
+
+  private toStatementEntry(row: StatementEntryRow): StatementEntry {
+    return {
+      kind: row.kind,
+      id: row.id,
+      amountCents: row.amount_cents,
+      paymentMethod: row.payment_method as PaymentMethod,
+      createdAt: row.created_at,
     }
   }
 }
