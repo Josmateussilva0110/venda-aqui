@@ -2,6 +2,7 @@ import { Router } from "express"
 import authRoutes from "./auth"
 import customerRoutes from "./customers"
 import productRoutes from "./products"
+import reportRoutes from "./reports"
 import saleRoutes from "./sales"
 
 const router = Router()
@@ -13,5 +14,6 @@ router.use("/auth", authRoutes)
 router.use("/products", productRoutes)
 router.use("/customers", customerRoutes)
 router.use("/sales", saleRoutes)
+router.use("/reports", reportRoutes)
 
 export default router
