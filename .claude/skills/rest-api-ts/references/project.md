@@ -26,3 +26,7 @@
   Venda e pagamento referenciam o cliente por chave composta `(id, merchant_id)`, com `on delete restrict`.
 - `GET /customers` devolve `summary: { owingCount, owedCents }` (função `customer_credit_summary`, migration
   `20261031020000_customer_credit_summary.sql`) só quando `offset = 0`; o resumo não muda entre as páginas.
+- Relatórios (`20261104000000_sale_item_cost_and_reports.sql`): `sale_items.unit_cost_cents` guarda o custo da época,
+  como o preço; a edição mantém preço e custo dos itens que continuam (mapa `{price, cost}` em `_sale_apply_items`).
+  `GET /reports/sales?from&to` chama `sales_report` (lucro = total vendido − custo; ranking pelo lucro, até 6).
+  Regras de período compartilhadas com o histórico em `schemas/fields/period.ts`.

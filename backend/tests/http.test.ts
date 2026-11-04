@@ -62,6 +62,13 @@ describe("contrato HTTP sem banco", () => {
     expect(response.body.code).toBe("ACCESS_TOKEN_INVALID")
   })
 
+  it("exige token no relatório e valida o período antes de consultar o banco", async () => {
+    const anonymous = await request(app).get("/api/reports/sales")
+    const token = signAccessToken({ merchantId: "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11", sessionId: "s" })
+    const invalid = await request(app).get("/api/reports/sales").query({ from: "2026-11-02T00:00:00Z", to: "2026-11-01T00:00:00Z" }).set("Authorization", `Bearer ${token}`)
+    expect([anonymous.status, invalid.status]).toEqual([401, 422])
+  })
+
   it("valida o id da venda e do pagamento antes de consultar o banco", async () => {
     const token = signAccessToken({ merchantId: "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11", sessionId: "s" })
     const sale = await request(app).get("/api/sales/abc").set("Authorization", `Bearer ${token}`)
