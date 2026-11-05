@@ -52,7 +52,8 @@ class AppButton extends StatelessWidget {
         child: InkWell(
           onTap: isLoading ? null : onPressed,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.spacing.lg, vertical: context.spacing.md),
+            // Compacto costuma dividir a linha com outro botão: menos folga lateral para o texto não quebrar
+            padding: EdgeInsets.symmetric(horizontal: compact ? context.spacing.sm : context.spacing.lg, vertical: context.spacing.md),
             child: Center(
               widthFactor: 1,
               child: isLoading

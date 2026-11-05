@@ -2,6 +2,14 @@ import 'package:vendaqui/core/network/cancel_signal.dart';
 import 'package:flutter/material.dart';
 import 'package:vendaqui/core/stock/stock_level.dart';
 import 'package:vendaqui/core/theme/theme_controller.dart';
+import 'package:vendaqui/core/network/app_failure.dart';
+import 'package:vendaqui/core/stock/stock_changes.dart';
+import 'package:vendaqui/features/customers/domain/customer.dart';
+import 'package:vendaqui/features/customers/domain/customers_repository.dart';
+import 'package:vendaqui/features/reports/domain/sales_report.dart';
+import 'package:vendaqui/features/sales/domain/sale.dart';
+import 'package:vendaqui/features/sales/domain/sales_repository.dart';
+import 'package:vendaqui/features/sales/presentation/controllers/sale_cart_controller.dart';
 import 'package:vendaqui/features/auth/domain/auth_repository.dart';
 import 'package:vendaqui/features/auth/domain/merchant.dart';
 import 'package:vendaqui/features/dashboard/domain/stock_overview.dart';
@@ -107,6 +115,32 @@ class FakeProductsRepository implements ProductsRepository {
 
 class FakeDashboardRepository implements DashboardRepository {
   @override
+  Future<TodaySales> todaySales(DateTime now, {required int recentLimit}) async => TodaySales(
+    count: 2,
+    totalCents: 4590,
+    recent: [
+      RecentSale(
+        id: 's1',
+        productNames: const ['Banana prata', 'Cheiro-verde'],
+        createdAt: DateTime(2026, 11, 4, 8, 1),
+        paymentMethod: 'credit',
+        totalCents: 1200,
+        customerName: 'Maria das Graças Oliveira Santos',
+      ),
+      RecentSale(
+        id: 's2',
+        productNames: const ['Macaxeira'],
+        createdAt: DateTime(2026, 11, 4, 6, 45),
+        paymentMethod: 'pix',
+        totalCents: 3390,
+      ),
+    ],
+  );
+
+  @override
+  Future<CreditOverview> creditOverview() async => const CreditOverview(owingCount: 0, owedCents: 0);
+
+  @override
   Future<StockOverview> stockOverview({required int alertLimit}) async {
     return StockOverview(
       totalProducts: 3,
@@ -144,3 +178,190 @@ class _MemoryThemeStore implements ThemePreferenceStore {
 
 /// Tema fixo em claro nos testes, sem tocar no armazenamento do aparelho.
 ThemeController lightThemeController() => ThemeController(_MemoryThemeStore(), initial: ThemeMode.light);
+
+/// Catálogo da venda montado a partir de [testProducts]; vendas guardadas em memória.
+class FakeSalesRepository implements SalesRepository {
+  FakeSalesRepository({List<CatalogProduct>? catalog})
+    : catalogItems =
+          catalog ??
+          [
+            for (final product in testProducts)
+              CatalogProduct(
+                id: product.id,
+                name: product.name,
+                salePriceCents: product.salePriceCents,
+                quantity: product.quantity,
+                soldByWeight: product.soldByWeight,
+              ),
+          ];
+
+  final List<CatalogProduct> catalogItems;
+
+  /// Vendas registradas, na ordem em que entraram.
+  final List<Sale> sales = [];
+  int _nextId = 1;
+
+  @override
+  Future<CatalogPage> catalog({required String search, required int offset, required int limit, CancelSignal? cancel}) async {
+    final matching = catalogItems.where((product) => product.name.toLowerCase().contains(search.toLowerCase())).toList();
+    return CatalogPage(items: matching.skip(offset).take(limit).toList(), total: matching.length);
+  }
+
+  @override
+  Future<Sale> register(SaleInput input) async {
+    final sale = Sale(
+      id: 'sale-${_nextId++}',
+      createdAt: DateTime.now(),
+      items: input.items,
+      method: input.method,
+      totalCents: _totalOf(input.items),
+      customer: input.customer,
+    );
+    sales.add(sale);
+    return sale;
+  }
+
+  int historyCalls = 0;
+
+  // Simula o servidor: filtro por dia, forma de pagamento e nome do produto, paginado
+  @override
+  Future<SaleHistoryPage> history(SaleFilter filter, {required int offset, required int limit, CancelSignal? cancel}) async {
+    historyCalls++;
+    final from = DateTime(filter.from.year, filter.from.month, filter.from.day);
+    final until = DateTime(filter.to.year, filter.to.month, filter.to.day + 1);
+    final search = filter.search.trim().toLowerCase();
+    final matching =
+        sales
+            .where((sale) => !sale.createdAt.isBefore(from) && sale.createdAt.isBefore(until))
+            .where((sale) => filter.method == null || sale.method == filter.method)
+            .where((sale) => search.isEmpty || sale.items.any((item) => item.name.toLowerCase().contains(search)))
+            .toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return SaleHistoryPage(
+      items: matching.skip(offset).take(limit).toList(),
+      total: matching.length,
+      totalCents: matching.fold(0, (sum, sale) => sum + sale.totalCents),
+    );
+  }
+
+  @override
+  Future<Sale> get(String id) async => _find(id);
+
+  @override
+  Future<Sale> update(String id, SaleInput input, {required DateTime createdAt}) async {
+    final original = _find(id);
+    final updated = Sale(
+      id: id,
+      createdAt: createdAt,
+      items: input.items,
+      method: input.method,
+      totalCents: _totalOf(input.items),
+      editedAt: DateTime.now(),
+      customer: input.customer,
+    );
+    sales[sales.indexOf(original)] = updated;
+    return updated;
+  }
+
+  Sale _find(String id) => sales.firstWhere((sale) => sale.id == id, orElse: () => throw const ServerFailure());
+
+  int _totalOf(List<SaleItem> items) => items.fold(0, (sum, item) => sum + item.subtotalCents);
+}
+
+/// Relatório fixo com um produto de nome longo e um com prejuízo, para os testes de layout.
+class FakeReportsRepository implements ReportsRepository {
+  @override
+  Future<SalesReport> salesReport({required DateTime from, required DateTime to}) async => const SalesReport(
+    saleCount: 12,
+    revenueCents: 125090,
+    costCents: 80050,
+    profitCents: 45040,
+    ranking: [
+      ReportRankingItem(
+        name: 'Arroz Tipo 1 Pacote de Cinco Quilos',
+        soldByWeight: false,
+        quantity: 14,
+        revenueCents: 36260,
+        profitCents: 12040,
+      ),
+      ReportRankingItem(name: 'Tomate', soldByWeight: true, quantity: 3.25, revenueCents: 2600, profitCents: -150),
+    ],
+  );
+}
+
+/// Nome longo de propósito: os testes de layout conferem que não estoura em tela pequena.
+const testCustomer = Customer(id: 'c1', name: 'Maria das Graças Oliveira Santos', phone: '+5586999990000', balanceCents: 10345);
+
+/// Clientes em memória, com saldo do fiado e extrato como o servidor faria.
+class FakeCustomersRepository implements CustomersRepository {
+  FakeCustomersRepository({List<Customer>? customers}) : customers = customers ?? [];
+
+  final List<Customer> customers;
+  final Map<String, List<StatementEntry>> statements = {};
+  int _nextId = 1;
+
+  @override
+  Future<CustomerPage> list({
+    required String search,
+    required CustomerBalanceFilter balance,
+    required int offset,
+    required int limit,
+    CancelSignal? cancel,
+  }) async {
+    final query = search.toLowerCase();
+    final matching =
+        customers
+            .where((customer) => balance == CustomerBalanceFilter.all || customer.owes)
+            .where((customer) => customer.name.toLowerCase().contains(query) || customer.phone.contains(query))
+            .toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
+    final owing = customers.where((customer) => customer.owes);
+    return CustomerPage(
+      items: matching.skip(offset).take(limit).toList(),
+      total: matching.length,
+      summary: CreditSummary(owingCount: owing.length, owedCents: owing.fold(0, (sum, customer) => sum + customer.balanceCents)),
+    );
+  }
+
+  @override
+  Future<Customer> get(String id) async => customers.firstWhere((customer) => customer.id == id);
+
+  @override
+  Future<Customer> create(CustomerInput input) async {
+    final customer = Customer(id: 'customer-${_nextId++}', name: input.name, phone: input.phone, balanceCents: 0);
+    customers.add(customer);
+    return customer;
+  }
+
+  @override
+  Future<StatementPage> statement(String customerId, {required int offset, required int limit}) async {
+    final entries = statements[customerId] ?? const [];
+    return StatementPage(items: entries.skip(offset).take(limit).toList(), total: entries.length);
+  }
+
+  @override
+  Future<int> registerPayment(String customerId, {required int amountCents, required SettlementMethod method}) async {
+    final index = customers.indexWhere((customer) => customer.id == customerId);
+    final customer = customers[index];
+    if (amountCents > customer.balanceCents) {
+      throw const RequestFailure(statusCode: 409, message: 'O pagamento passa da dívida do cliente.');
+    }
+    final balance = customer.balanceCents - amountCents;
+    customers[index] = customer.copyWith(balanceCents: balance);
+    statements
+        .putIfAbsent(customerId, () => [])
+        .insert(
+          0,
+          StatementEntry(
+            kind: StatementEntryKind.payment,
+            id: 'payment-${_nextId++}',
+            amountCents: amountCents,
+            createdAt: DateTime.now(),
+            settlementMethod: method,
+          ),
+        );
+    return balance;
+  }
+}
+
+SaleCartController saleCartFor(SalesRepository repository) => SaleCartController(repository, StockChanges());

@@ -114,6 +114,9 @@ class StockController extends ChangeNotifier with DisposeAwareNotifier {
       // A posição do novo produto na ordem alfabética só o servidor sabe
       case ProductCreated():
         loadFirstPage();
+      // Vários produtos mudaram e podem ter trocado de nível: uma recarga só, em vez de um pedido por item
+      case StockSold():
+        loadFirstPage();
       case ProductUpdated(:final productId):
         _refreshProduct(productId);
     }
