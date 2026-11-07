@@ -72,6 +72,7 @@ void main() {
 
   Future<void> pumpApp(WidgetTester tester, _CountingProducts products, _CountingDashboard dashboard) async {
     final auth = FakeAuthRepository(signedIn: true);
+    final sales = FakeSalesRepository();
     final dependencies = AppDependencies(
       authRepository: auth,
       productsRepository: products,
@@ -80,6 +81,10 @@ void main() {
       sessionController: SessionController(auth),
       stockChanges: StockChanges(),
       themeController: lightThemeController(),
+      salesRepository: sales,
+      saleCart: saleCartFor(sales),
+      reportsRepository: FakeReportsRepository(),
+      customersRepository: FakeCustomersRepository(),
     );
     await tester.pumpWidget(VendaquiApp(dependencies: dependencies));
     await tester.pumpAndSettle();

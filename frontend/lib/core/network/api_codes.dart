@@ -27,4 +27,14 @@ abstract final class ApiPaths {
   static String productRestock(String id) => '/products/$id/restock';
   static String productPhotoUploadUrl(String id) => '/products/$id/photo/upload-url';
   static String productPhoto(String id) => '/products/$id/photo';
+
+  static const sales = '/sales';
+  static String sale(String id) => '/sales/$id';
+
+  static const customers = '/customers';
+  static String customer(String id) => '/customers/$id';
+  static String customerStatement(String id) => '/customers/$id/statement';
+  static String customerPayments(String id) => '/customers/$id/payments';
+
+  static const salesReport = '/reports/sales';
 }

@@ -22,6 +22,15 @@ import '../features/products/data/products_remote_data_source.dart';
 import '../features/products/data/products_repository_impl.dart';
 import '../features/products/domain/photo_picker.dart';
 import '../features/products/domain/products_repository.dart';
+import '../features/customers/data/customers_repository_impl.dart';
+import '../features/customers/domain/customers_repository.dart';
+import '../features/reports/data/reports_repository_impl.dart';
+import '../features/reports/domain/sales_report.dart';
+import '../features/sales/data/catalog_remote_data_source.dart';
+import '../features/sales/data/sales_remote_data_source.dart';
+import '../features/sales/data/sales_repository_impl.dart';
+import '../features/sales/domain/sales_repository.dart';
+import '../features/sales/presentation/controllers/sale_cart_controller.dart';
 
 /// Tudo que acessa rede, armazenamento ou plugins é criado aqui e injetado por Provider,
 /// para os testes trocarem por versões falsas.
@@ -34,6 +43,10 @@ class AppDependencies {
     required this.sessionController,
     required this.stockChanges,
     required this.themeController,
+    required this.salesRepository,
+    required this.saleCart,
+    required this.customersRepository,
+    required this.reportsRepository,
   });
 
   final AuthRepository authRepository;
@@ -43,6 +56,12 @@ class AppDependencies {
   final SessionController sessionController;
   final StockChanges stockChanges;
   final ThemeController themeController;
+  final SalesRepository salesRepository;
+
+  /// Venda em andamento: sobrevive à navegação entre vender, peso, resumo e pagamento.
+  final SaleCartController saleCart;
+  final CustomersRepository customersRepository;
+  final ReportsRepository reportsRepository;
 
   factory AppDependencies.create(AppConfig config, {required ThemeController themeController}) {
     final tokenStore = TokenStore(const FlutterSecureStorage());
@@ -67,6 +86,13 @@ class AppDependencies {
 
     final authRepository = AuthRepositoryImpl(remote: const AuthRemoteDataSource(), tokenStore: tokenStore, refresher: refresher);
     session = SessionController(authRepository);
+    final salesRepository = SalesRepositoryImpl(const CatalogRemoteDataSource(), const SalesRemoteDataSource());
+    final stockChanges = StockChanges();
+    final saleCart = SaleCartController(salesRepository, stockChanges);
+    // Sair da conta descarta a venda em andamento, para o próximo login não herdar o carrinho
+    session.addListener(() {
+      if (session.status == SessionStatus.signedOut) saleCart.clear();
+    });
 
     return AppDependencies(
       authRepository: authRepository,
@@ -74,8 +100,12 @@ class AppDependencies {
       dashboardRepository: const DashboardRepositoryImpl(),
       photoPicker: ImagePickerPhotoPicker(),
       sessionController: session,
-      stockChanges: StockChanges(),
+      stockChanges: stockChanges,
       themeController: themeController,
+      salesRepository: salesRepository,
+      saleCart: saleCart,
+      customersRepository: const CustomersRepositoryImpl(),
+      reportsRepository: const ReportsRepositoryImpl(),
     );
   }
 
@@ -87,5 +117,9 @@ class AppDependencies {
     Provider<StockChanges>.value(value: stockChanges),
     ChangeNotifierProvider<SessionController>.value(value: sessionController),
     ChangeNotifierProvider<ThemeController>.value(value: themeController),
+    Provider<SalesRepository>.value(value: salesRepository),
+    ChangeNotifierProvider<SaleCartController>.value(value: saleCart),
+    Provider<CustomersRepository>.value(value: customersRepository),
+    Provider<ReportsRepository>.value(value: reportsRepository),
   ];
 }

@@ -6,16 +6,19 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/stock_overview.dart';
 import '../controllers/dashboard_controller.dart';
+import '../widgets/credit_summary_card.dart';
 import '../widgets/dashboard_header.dart';
+import '../widgets/revenue_card.dart';
 import '../widgets/shortcut_tile.dart';
 import '../widgets/stock_alerts_card.dart';
-import '../widgets/stock_summary_card.dart';
+import '../widgets/today_sales_card.dart';
 
 /// Início. O nome do comerciante vem do app (sessão), sem depender da feature de login.
 class DashboardPage extends StatelessWidget {
@@ -40,6 +43,13 @@ class _DashboardView extends StatelessWidget {
 
   // O resumo se atualiza sozinho pelo aviso de mudança no estoque (DashboardController)
   void _push(BuildContext context, String location) => context.push(location);
+
+  // Pagamento recebido não passa pelo aviso de estoque: confere o fiado ao voltar, se mudou algo
+  Future<void> _openCredit(BuildContext context) async {
+    final controller = context.read<DashboardController>();
+    final changed = await context.push<bool>(AppRoutes.customers);
+    if (changed == true) await controller.loadCredit();
+  }
 
   void _openStock(BuildContext context, {String? filter}) {
     context.go(AppRoutes.stockFiltered(filter));
@@ -70,12 +80,22 @@ class _DashboardView extends StatelessWidget {
                   children: [
                     DashboardHeader(now: DateTime.now(), merchantName: merchantName, onSettings: () => context.push(AppRoutes.settings)),
                     SizedBox(height: spacing.xl),
-                    if (overview != null)
-                      StockSummaryCard(overview: overview, onTap: () => _openStock(context))
-                    else if (controller.failure != null)
-                      ErrorView(message: failureMessage(l10n, controller.failure!), onRetry: controller.load)
+                    if (controller.todaySales case final sales?)
+                      RevenueCard(sales: sales, onTap: () => context.push(AppRoutes.salesHistory))
+                    else if (controller.salesFailure case final failure?)
+                      ErrorView(message: failureMessage(l10n, failure), onRetry: controller.loadSales)
                     else
                       const LoadingView(),
+                    SizedBox(height: spacing.lg),
+                    AppButton(
+                      label: l10n.dashboardRegisterSale,
+                      icon: Icons.add_shopping_cart_rounded,
+                      onPressed: () => context.go(AppRoutes.sell),
+                    ),
+                    if (controller.credit case final credit?) ...[
+                      SizedBox(height: spacing.md),
+                      CreditSummaryCard(credit: credit, onTap: () => _openCredit(context)),
+                    ],
                     SizedBox(height: spacing.xxl - 2),
                     SectionHeader(title: l10n.shortcutsTitle),
                     SizedBox(height: spacing.md),
@@ -105,17 +125,30 @@ class _DashboardView extends StatelessWidget {
                           SizedBox(width: spacing.sm + 2),
                           Expanded(
                             child: ShortcutTile(
-                              label: l10n.shortcutStock,
-                              icon: Icons.inventory_2_rounded,
+                              label: l10n.shortcutSalesHistory,
+                              icon: Icons.receipt_long_rounded,
                               tint: colors.successSoft,
                               ink: colors.success,
-                              onTap: () => _openStock(context),
+                              onTap: () => context.push(AppRoutes.salesHistory),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    if (overview != null) ..._alertsSection(context, overview),
+                    if (overview != null)
+                      ..._alertsSection(context, overview)
+                    else if (controller.failure case final failure?)
+                      ErrorView(message: failureMessage(l10n, failure), onRetry: controller.loadStock),
+                    if (controller.todaySales case final sales?) ...[
+                      SizedBox(height: spacing.xxl - 2),
+                      SectionHeader(
+                        title: l10n.dashboardTodaySalesTitle,
+                        actionLabel: l10n.dashboardSeeHistory,
+                        onAction: () => context.push(AppRoutes.salesHistory),
+                      ),
+                      SizedBox(height: spacing.md),
+                      TodaySalesCard(sales: sales.recent, onOpen: (sale) => context.push(AppRoutes.sale(sale.id))),
+                    ],
                   ],
                 ),
               ),

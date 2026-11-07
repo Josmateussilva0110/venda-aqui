@@ -258,30 +258,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get greetingCallToAction => 'bora vender?';
 
   @override
-  String get dashboardStockCardTitle => 'Seu estoque';
-
-  @override
-  String dashboardProductCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count produtos', one: '1 produto', zero: 'Nenhum produto');
-    return '$_temp0';
-  }
-
-  @override
-  String dashboardLowCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count com estoque baixo', one: '1 com estoque baixo');
-    return '$_temp0';
-  }
-
-  @override
-  String dashboardOutCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count esgotados', one: '1 esgotado');
-    return '$_temp0';
-  }
-
-  @override
-  String get dashboardAllGood => 'Tudo em dia';
-
-  @override
   String get shortcutsTitle => 'Atalhos';
 
   @override
@@ -495,4 +471,570 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get restockDone => 'Estoque atualizado.';
+
+  @override
+  String get navSell => 'Vender';
+
+  @override
+  String get dashboardRegisterSale => 'Registrar venda';
+
+  @override
+  String get shortcutSalesHistory => 'Vendas';
+
+  @override
+  String get sellTitle => 'Nova venda';
+
+  @override
+  String get sellHint => 'Toque para somar 1 · segure para pesar';
+
+  @override
+  String get sellClear => 'Limpar';
+
+  @override
+  String get sellSearchHint => 'Buscar produto pelo nome';
+
+  @override
+  String get sellEmpty => 'Nenhum produto encontrado.';
+
+  @override
+  String get sellByWeight => 'por peso';
+
+  @override
+  String get sellOutOfStock => 'Esgotado';
+
+  @override
+  String sellStock(String quantity) {
+    return 'Estoque: $quantity';
+  }
+
+  @override
+  String get sellNoStock => 'Sem estoque';
+
+  @override
+  String sellUnitPrice(String price, String unit) {
+    return '$price /$unit';
+  }
+
+  @override
+  String get sellViewSummary => 'Ver resumo';
+
+  @override
+  String sellInCart(String quantity) {
+    return '$quantity no carrinho';
+  }
+
+  @override
+  String cartItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count itens', one: '1 item');
+    return '$_temp0';
+  }
+
+  @override
+  String cartOutOfStock(String name) {
+    return '$name está esgotado.';
+  }
+
+  @override
+  String cartInsufficientStock(String quantity) {
+    return 'Estoque insuficiente: $quantity';
+  }
+
+  @override
+  String get cartInvalidQuantity => 'Este produto é vendido por unidade: use um número inteiro.';
+
+  @override
+  String get weightTitle => 'Vender por peso';
+
+  @override
+  String get weightRequired => 'Digite o peso.';
+
+  @override
+  String weightAvailable(String quantity) {
+    return 'Estoque disponível: $quantity';
+  }
+
+  @override
+  String get weightAdd => 'Adicionar';
+
+  @override
+  String get weightUpdate => 'Atualizar';
+
+  @override
+  String get weightQuick250 => '250 g';
+
+  @override
+  String get weightQuick500 => '500 g';
+
+  @override
+  String get weightQuick1kg => '1 kg';
+
+  @override
+  String get summaryTitle => 'Resumo da venda';
+
+  @override
+  String get summaryEmpty => 'A venda está vazia.';
+
+  @override
+  String get summaryAddMore => '+ Adicionar mais itens';
+
+  @override
+  String get summaryItems => 'Itens';
+
+  @override
+  String get summaryTotal => 'Total';
+
+  @override
+  String get summaryFinish => 'Finalizar venda';
+
+  @override
+  String get summaryRemove => 'Remover';
+
+  @override
+  String summaryEditWeight(String quantity) {
+    return '$quantity · editar';
+  }
+
+  @override
+  String get summaryDecrease => 'Diminuir';
+
+  @override
+  String get summaryIncrease => 'Aumentar';
+
+  @override
+  String get paymentTitle => 'Pagamento';
+
+  @override
+  String get paymentTotal => 'Total a receber';
+
+  @override
+  String get paymentQuestion => 'Como o cliente vai pagar?';
+
+  @override
+  String get paymentHint => 'Um toque na forma de pagamento conclui a venda e dá baixa no estoque.';
+
+  @override
+  String get paymentCash => 'Dinheiro';
+
+  @override
+  String get paymentCashDetail => 'Em espécie';
+
+  @override
+  String get paymentPix => 'PIX';
+
+  @override
+  String get paymentPixDetail => 'Transferência na hora';
+
+  @override
+  String get paymentCard => 'Cartão';
+
+  @override
+  String get paymentCardDetail => 'Débito ou crédito';
+
+  @override
+  String get saleDoneTitle => 'Venda registrada!';
+
+  @override
+  String get saleDoneBackHome => 'Voltar ao início';
+
+  @override
+  String get saleDoneNewSale => 'Nova venda';
+
+  @override
+  String saleDoneCountdown(int seconds) {
+    return 'Voltando ao início em ${seconds}s';
+  }
+
+  @override
+  String get historyTitle => 'Histórico de vendas';
+
+  @override
+  String historySaleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count vendas', one: '1 venda', zero: 'Nenhuma venda');
+    return '$_temp0';
+  }
+
+  @override
+  String historySummary(String count, String total) {
+    return '$count · $total';
+  }
+
+  @override
+  String get historyToday => 'Hoje';
+
+  @override
+  String get historyYesterday => 'Ontem';
+
+  @override
+  String get historyWeek => '7 dias';
+
+  @override
+  String get historyMonth => '30 dias';
+
+  @override
+  String get historyCustom => 'Período';
+
+  @override
+  String get historyFrom => 'De';
+
+  @override
+  String get historyTo => 'Até';
+
+  @override
+  String get historyInvalidRange => 'A data inicial precisa ser antes da final.';
+
+  @override
+  String get historySearchHint => 'Buscar produto';
+
+  @override
+  String get historyAllMethods => 'Todas';
+
+  @override
+  String get historyEmpty => 'Nenhuma venda encontrada.';
+
+  @override
+  String historyProductCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count produtos', one: '1 produto');
+    return '$_temp0';
+  }
+
+  @override
+  String get saleDetailTitle => 'Detalhe da venda';
+
+  @override
+  String get saleDetailTotal => 'Total da venda';
+
+  @override
+  String get saleDetailPayment => 'Pagamento';
+
+  @override
+  String get saleDetailItems => 'Itens';
+
+  @override
+  String get saleDetailProducts => 'Produtos';
+
+  @override
+  String saleDetailEdited(String date) {
+    return 'Editada em $date';
+  }
+
+  @override
+  String get saleDetailEdit => 'Editar venda';
+
+  @override
+  String saleLine(String quantity, String price) {
+    return '$quantity × $price';
+  }
+
+  @override
+  String get saleLoadFailed => 'Não foi possível carregar a venda.';
+
+  @override
+  String get saleEditTitle => 'Editar venda';
+
+  @override
+  String get saleEditMethod => 'Forma de pagamento';
+
+  @override
+  String get saleEditNewTotal => 'Novo total';
+
+  @override
+  String get saleEditSave => 'Salvar alterações';
+
+  @override
+  String get saleEditNoItems => 'A venda precisa ter pelo menos um produto.';
+
+  @override
+  String get saleEditSaved => 'Venda atualizada.';
+
+  @override
+  String get paymentCredit => 'Fiado';
+
+  @override
+  String get paymentCreditDetail => 'Cliente paga depois';
+
+  @override
+  String saleDoneCredit(String name) {
+    return 'Fiado · $name';
+  }
+
+  @override
+  String get creditPickerTitle => 'Venda no fiado';
+
+  @override
+  String get creditPickerAmount => 'Valor a anotar';
+
+  @override
+  String get creditPickerQuestion => 'Para qual cliente?';
+
+  @override
+  String get creditPickerEmpty => 'Nenhum cliente encontrado. Cadastre um novo.';
+
+  @override
+  String creditPickerConfirm(String name) {
+    return 'Anotar para $name';
+  }
+
+  @override
+  String get creditPickerSelect => 'Selecione um cliente';
+
+  @override
+  String get creditPickerHint => 'A venda entra no caixa do dia e fica pendente na conta do cliente.';
+
+  @override
+  String get customerSearchHint => 'Buscar por nome ou telefone';
+
+  @override
+  String get customerNewButton => 'Cadastrar novo cliente';
+
+  @override
+  String get customerNewTitle => 'Novo cliente';
+
+  @override
+  String get customerNameLabel => 'Nome';
+
+  @override
+  String get customerNamePlaceholder => 'Ex.: Dona Maria';
+
+  @override
+  String get customerPhoneLabel => 'Telefone (WhatsApp)';
+
+  @override
+  String get customerNameInvalid => 'Use pelo menos 2 letras.';
+
+  @override
+  String get customerPhoneInvalid => 'Telefone inválido. Use DDD + número.';
+
+  @override
+  String get customerSave => 'Salvar cliente';
+
+  @override
+  String get customerSaved => 'Cliente cadastrado.';
+
+  @override
+  String customerOwes(String amount) {
+    return 'Deve $amount';
+  }
+
+  @override
+  String get customerUpToDate => 'Em dia';
+
+  @override
+  String get debtorsTitle => 'Fiado';
+
+  @override
+  String get debtorsSubtitle => 'Clientes que compraram para pagar depois';
+
+  @override
+  String get debtorsTotal => 'Total a receber';
+
+  @override
+  String debtorsOwingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count clientes devendo',
+      one: '1 cliente devendo',
+      zero: 'Ninguém devendo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get debtorsSearchHint => 'Buscar cliente';
+
+  @override
+  String get debtorsFilterOwing => 'Devendo';
+
+  @override
+  String get debtorsFilterAll => 'Todos';
+
+  @override
+  String get debtorsEmptyOwing => 'Ninguém devendo.';
+
+  @override
+  String get debtorsEmpty => 'Nenhum cliente encontrado.';
+
+  @override
+  String get accountTitle => 'Conta do cliente';
+
+  @override
+  String get accountBalance => 'Valor devendo';
+
+  @override
+  String get accountClear => 'Nenhuma conta em aberto';
+
+  @override
+  String get accountReceivePart => 'Receber parte';
+
+  @override
+  String get accountReceiveAll => 'Receber tudo';
+
+  @override
+  String get receiveAmountQuestion => 'Quanto o cliente está pagando?';
+
+  @override
+  String get receiveHalf => 'Metade';
+
+  @override
+  String receiveCurrentDebt(String amount) {
+    return 'Dívida atual: $amount';
+  }
+
+  @override
+  String receiveRemaining(String amount) {
+    return 'Restará $amount';
+  }
+
+  @override
+  String get receiveSettles => 'Quita a dívida';
+
+  @override
+  String get receiveMethodQuestion => 'Como o cliente pagou?';
+
+  @override
+  String get receiveConfirm => 'Confirmar pagamento';
+
+  @override
+  String get receiveInvalidAmount => 'Informe um valor maior que zero.';
+
+  @override
+  String get receiveExceedsBalance => 'O valor passa da dívida do cliente.';
+
+  @override
+  String get receiveDone => 'Pagamento registrado.';
+
+  @override
+  String get statementTitle => 'Movimentações';
+
+  @override
+  String get statementSale => 'Compra no fiado';
+
+  @override
+  String statementPayment(String method) {
+    return 'Pagamento · $method';
+  }
+
+  @override
+  String get statementEmpty => 'Nenhuma movimentação ainda.';
+
+  @override
+  String get saleDetailCustomer => 'Cliente';
+
+  @override
+  String get saleEditCustomer => 'Cliente do fiado';
+
+  @override
+  String get saleEditChooseCustomer => 'Escolher cliente';
+
+  @override
+  String get saleEditChangeCustomer => 'Trocar';
+
+  @override
+  String get saleEditMissingCustomer => 'Escolha o cliente do fiado.';
+
+  @override
+  String get saleEditDeletedProduct => 'Um produto desta venda foi excluído do estoque. Remova-o para salvar.';
+
+  @override
+  String get dashboardCreditTitle => 'Fiado a receber';
+
+  @override
+  String get dashboardRevenueTitle => 'Faturamento do dia';
+
+  @override
+  String get navReports => 'Relatórios';
+
+  @override
+  String get reportsTitle => 'Relatórios';
+
+  @override
+  String get reportsToday => 'Hoje';
+
+  @override
+  String get reportsWeek => 'Semana';
+
+  @override
+  String get reportsMonth => 'Mês';
+
+  @override
+  String get reportsCustom => 'Período';
+
+  @override
+  String reportsRangeToday(String date) {
+    return 'Hoje, $date';
+  }
+
+  @override
+  String reportsRange(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportsRangeSwapped => 'A data inicial é depois da final: invertemos para calcular.';
+
+  @override
+  String get reportsProfit => 'Lucro líquido real';
+
+  @override
+  String reportsMargin(int percent) {
+    return 'Margem de $percent% sobre o total vendido';
+  }
+
+  @override
+  String get reportsNoSales => 'Sem vendas no período';
+
+  @override
+  String get reportsRevenue => 'Total vendido';
+
+  @override
+  String reportsSaleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vendas concluídas',
+      one: '1 venda concluída',
+      zero: 'Nenhuma venda concluída',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reportsCost => 'Custo dos produtos';
+
+  @override
+  String get reportsCostHint => 'Preço de custo no momento da venda';
+
+  @override
+  String reportsCostValue(String amount) {
+    return '− $amount';
+  }
+
+  @override
+  String get reportsProfitLine => '= Lucro';
+
+  @override
+  String get reportsRankingTitle => 'Produtos que mais dão lucro';
+
+  @override
+  String get reportsRankingHint => 'Ordenado pelo lucro gerado, não pela quantidade.';
+
+  @override
+  String reportsRankingLine(String quantity, String revenue) {
+    return '$quantity vendidos · $revenue';
+  }
+
+  @override
+  String get reportsRankingEmpty => 'Sem vendas no período.';
+
+  @override
+  String get reportsFootnote => 'Considera só vendas concluídas e o preço de custo registrado no momento de cada venda.';
+
+  @override
+  String get dashboardTodaySalesTitle => 'Vendas de hoje';
+
+  @override
+  String get dashboardSeeHistory => 'Ver histórico';
+
+  @override
+  String get dashboardNoSalesToday => 'Nenhuma venda hoje ainda.';
 }

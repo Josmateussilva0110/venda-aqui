@@ -571,36 +571,6 @@ abstract class AppLocalizations {
   /// **'bora vender?'**
   String get greetingCallToAction;
 
-  /// No description provided for @dashboardStockCardTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Seu estoque'**
-  String get dashboardStockCardTitle;
-
-  /// No description provided for @dashboardProductCount.
-  ///
-  /// In pt, this message translates to:
-  /// **'{count, plural, =0{Nenhum produto} =1{1 produto} other{{count} produtos}}'**
-  String dashboardProductCount(int count);
-
-  /// No description provided for @dashboardLowCount.
-  ///
-  /// In pt, this message translates to:
-  /// **'{count, plural, =1{1 com estoque baixo} other{{count} com estoque baixo}}'**
-  String dashboardLowCount(int count);
-
-  /// No description provided for @dashboardOutCount.
-  ///
-  /// In pt, this message translates to:
-  /// **'{count, plural, =1{1 esgotado} other{{count} esgotados}}'**
-  String dashboardOutCount(int count);
-
-  /// No description provided for @dashboardAllGood.
-  ///
-  /// In pt, this message translates to:
-  /// **'Tudo em dia'**
-  String get dashboardAllGood;
-
   /// No description provided for @shortcutsTitle.
   ///
   /// In pt, this message translates to:
@@ -984,6 +954,996 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Estoque atualizado.'**
   String get restockDone;
+
+  /// No description provided for @navSell.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vender'**
+  String get navSell;
+
+  /// No description provided for @dashboardRegisterSale.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar venda'**
+  String get dashboardRegisterSale;
+
+  /// No description provided for @shortcutSalesHistory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vendas'**
+  String get shortcutSalesHistory;
+
+  /// No description provided for @sellTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova venda'**
+  String get sellTitle;
+
+  /// No description provided for @sellHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toque para somar 1 · segure para pesar'**
+  String get sellHint;
+
+  /// No description provided for @sellClear.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limpar'**
+  String get sellClear;
+
+  /// No description provided for @sellSearchHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar produto pelo nome'**
+  String get sellSearchHint;
+
+  /// No description provided for @sellEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum produto encontrado.'**
+  String get sellEmpty;
+
+  /// No description provided for @sellByWeight.
+  ///
+  /// In pt, this message translates to:
+  /// **'por peso'**
+  String get sellByWeight;
+
+  /// No description provided for @sellOutOfStock.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esgotado'**
+  String get sellOutOfStock;
+
+  /// No description provided for @sellStock.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estoque: {quantity}'**
+  String sellStock(String quantity);
+
+  /// No description provided for @sellNoStock.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem estoque'**
+  String get sellNoStock;
+
+  /// No description provided for @sellUnitPrice.
+  ///
+  /// In pt, this message translates to:
+  /// **'{price} /{unit}'**
+  String sellUnitPrice(String price, String unit);
+
+  /// No description provided for @sellViewSummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver resumo'**
+  String get sellViewSummary;
+
+  /// No description provided for @sellInCart.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quantity} no carrinho'**
+  String sellInCart(String quantity);
+
+  /// No description provided for @cartItemCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} itens}}'**
+  String cartItemCount(int count);
+
+  /// No description provided for @cartOutOfStock.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} está esgotado.'**
+  String cartOutOfStock(String name);
+
+  /// No description provided for @cartInsufficientStock.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estoque insuficiente: {quantity}'**
+  String cartInsufficientStock(String quantity);
+
+  /// No description provided for @cartInvalidQuantity.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este produto é vendido por unidade: use um número inteiro.'**
+  String get cartInvalidQuantity;
+
+  /// No description provided for @weightTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vender por peso'**
+  String get weightTitle;
+
+  /// No description provided for @weightRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite o peso.'**
+  String get weightRequired;
+
+  /// No description provided for @weightAvailable.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estoque disponível: {quantity}'**
+  String weightAvailable(String quantity);
+
+  /// No description provided for @weightAdd.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar'**
+  String get weightAdd;
+
+  /// No description provided for @weightUpdate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atualizar'**
+  String get weightUpdate;
+
+  /// No description provided for @weightQuick250.
+  ///
+  /// In pt, this message translates to:
+  /// **'250 g'**
+  String get weightQuick250;
+
+  /// No description provided for @weightQuick500.
+  ///
+  /// In pt, this message translates to:
+  /// **'500 g'**
+  String get weightQuick500;
+
+  /// No description provided for @weightQuick1kg.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 kg'**
+  String get weightQuick1kg;
+
+  /// No description provided for @summaryTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Resumo da venda'**
+  String get summaryTitle;
+
+  /// No description provided for @summaryEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'A venda está vazia.'**
+  String get summaryEmpty;
+
+  /// No description provided for @summaryAddMore.
+  ///
+  /// In pt, this message translates to:
+  /// **'+ Adicionar mais itens'**
+  String get summaryAddMore;
+
+  /// No description provided for @summaryItems.
+  ///
+  /// In pt, this message translates to:
+  /// **'Itens'**
+  String get summaryItems;
+
+  /// No description provided for @summaryTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total'**
+  String get summaryTotal;
+
+  /// No description provided for @summaryFinish.
+  ///
+  /// In pt, this message translates to:
+  /// **'Finalizar venda'**
+  String get summaryFinish;
+
+  /// No description provided for @summaryRemove.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover'**
+  String get summaryRemove;
+
+  /// No description provided for @summaryEditWeight.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quantity} · editar'**
+  String summaryEditWeight(String quantity);
+
+  /// No description provided for @summaryDecrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diminuir'**
+  String get summaryDecrease;
+
+  /// No description provided for @summaryIncrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar'**
+  String get summaryIncrease;
+
+  /// No description provided for @paymentTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento'**
+  String get paymentTitle;
+
+  /// No description provided for @paymentTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total a receber'**
+  String get paymentTotal;
+
+  /// No description provided for @paymentQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Como o cliente vai pagar?'**
+  String get paymentQuestion;
+
+  /// No description provided for @paymentHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Um toque na forma de pagamento conclui a venda e dá baixa no estoque.'**
+  String get paymentHint;
+
+  /// No description provided for @paymentCash.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dinheiro'**
+  String get paymentCash;
+
+  /// No description provided for @paymentCashDetail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em espécie'**
+  String get paymentCashDetail;
+
+  /// No description provided for @paymentPix.
+  ///
+  /// In pt, this message translates to:
+  /// **'PIX'**
+  String get paymentPix;
+
+  /// No description provided for @paymentPixDetail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Transferência na hora'**
+  String get paymentPixDetail;
+
+  /// No description provided for @paymentCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cartão'**
+  String get paymentCard;
+
+  /// No description provided for @paymentCardDetail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Débito ou crédito'**
+  String get paymentCardDetail;
+
+  /// No description provided for @saleDoneTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Venda registrada!'**
+  String get saleDoneTitle;
+
+  /// No description provided for @saleDoneBackHome.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar ao início'**
+  String get saleDoneBackHome;
+
+  /// No description provided for @saleDoneNewSale.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova venda'**
+  String get saleDoneNewSale;
+
+  /// No description provided for @saleDoneCountdown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltando ao início em {seconds}s'**
+  String saleDoneCountdown(int seconds);
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Histórico de vendas'**
+  String get historyTitle;
+
+  /// No description provided for @historySaleCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{Nenhuma venda} =1{1 venda} other{{count} vendas}}'**
+  String historySaleCount(int count);
+
+  /// No description provided for @historySummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} · {total}'**
+  String historySummary(String count, String total);
+
+  /// No description provided for @historyToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Hoje'**
+  String get historyToday;
+
+  /// No description provided for @historyYesterday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ontem'**
+  String get historyYesterday;
+
+  /// No description provided for @historyWeek.
+  ///
+  /// In pt, this message translates to:
+  /// **'7 dias'**
+  String get historyWeek;
+
+  /// No description provided for @historyMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'30 dias'**
+  String get historyMonth;
+
+  /// No description provided for @historyCustom.
+  ///
+  /// In pt, this message translates to:
+  /// **'Período'**
+  String get historyCustom;
+
+  /// No description provided for @historyFrom.
+  ///
+  /// In pt, this message translates to:
+  /// **'De'**
+  String get historyFrom;
+
+  /// No description provided for @historyTo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Até'**
+  String get historyTo;
+
+  /// No description provided for @historyInvalidRange.
+  ///
+  /// In pt, this message translates to:
+  /// **'A data inicial precisa ser antes da final.'**
+  String get historyInvalidRange;
+
+  /// No description provided for @historySearchHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar produto'**
+  String get historySearchHint;
+
+  /// No description provided for @historyAllMethods.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todas'**
+  String get historyAllMethods;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma venda encontrada.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyProductCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 produto} other{{count} produtos}}'**
+  String historyProductCount(int count);
+
+  /// No description provided for @saleDetailTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Detalhe da venda'**
+  String get saleDetailTitle;
+
+  /// No description provided for @saleDetailTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total da venda'**
+  String get saleDetailTotal;
+
+  /// No description provided for @saleDetailPayment.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento'**
+  String get saleDetailPayment;
+
+  /// No description provided for @saleDetailItems.
+  ///
+  /// In pt, this message translates to:
+  /// **'Itens'**
+  String get saleDetailItems;
+
+  /// No description provided for @saleDetailProducts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Produtos'**
+  String get saleDetailProducts;
+
+  /// No description provided for @saleDetailEdited.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editada em {date}'**
+  String saleDetailEdited(String date);
+
+  /// No description provided for @saleDetailEdit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar venda'**
+  String get saleDetailEdit;
+
+  /// No description provided for @saleLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quantity} × {price}'**
+  String saleLine(String quantity, String price);
+
+  /// No description provided for @saleLoadFailed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar a venda.'**
+  String get saleLoadFailed;
+
+  /// No description provided for @saleEditTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar venda'**
+  String get saleEditTitle;
+
+  /// No description provided for @saleEditMethod.
+  ///
+  /// In pt, this message translates to:
+  /// **'Forma de pagamento'**
+  String get saleEditMethod;
+
+  /// No description provided for @saleEditNewTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo total'**
+  String get saleEditNewTotal;
+
+  /// No description provided for @saleEditSave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar alterações'**
+  String get saleEditSave;
+
+  /// No description provided for @saleEditNoItems.
+  ///
+  /// In pt, this message translates to:
+  /// **'A venda precisa ter pelo menos um produto.'**
+  String get saleEditNoItems;
+
+  /// No description provided for @saleEditSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Venda atualizada.'**
+  String get saleEditSaved;
+
+  /// No description provided for @paymentCredit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fiado'**
+  String get paymentCredit;
+
+  /// No description provided for @paymentCreditDetail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cliente paga depois'**
+  String get paymentCreditDetail;
+
+  /// No description provided for @saleDoneCredit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fiado · {name}'**
+  String saleDoneCredit(String name);
+
+  /// No description provided for @creditPickerTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Venda no fiado'**
+  String get creditPickerTitle;
+
+  /// No description provided for @creditPickerAmount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Valor a anotar'**
+  String get creditPickerAmount;
+
+  /// No description provided for @creditPickerQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para qual cliente?'**
+  String get creditPickerQuestion;
+
+  /// No description provided for @creditPickerEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum cliente encontrado. Cadastre um novo.'**
+  String get creditPickerEmpty;
+
+  /// No description provided for @creditPickerConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Anotar para {name}'**
+  String creditPickerConfirm(String name);
+
+  /// No description provided for @creditPickerSelect.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione um cliente'**
+  String get creditPickerSelect;
+
+  /// No description provided for @creditPickerHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'A venda entra no caixa do dia e fica pendente na conta do cliente.'**
+  String get creditPickerHint;
+
+  /// No description provided for @customerSearchHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar por nome ou telefone'**
+  String get customerSearchHint;
+
+  /// No description provided for @customerNewButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cadastrar novo cliente'**
+  String get customerNewButton;
+
+  /// No description provided for @customerNewTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo cliente'**
+  String get customerNewTitle;
+
+  /// No description provided for @customerNameLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome'**
+  String get customerNameLabel;
+
+  /// No description provided for @customerNamePlaceholder.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ex.: Dona Maria'**
+  String get customerNamePlaceholder;
+
+  /// No description provided for @customerPhoneLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Telefone (WhatsApp)'**
+  String get customerPhoneLabel;
+
+  /// No description provided for @customerNameInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Use pelo menos 2 letras.'**
+  String get customerNameInvalid;
+
+  /// No description provided for @customerPhoneInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Telefone inválido. Use DDD + número.'**
+  String get customerPhoneInvalid;
+
+  /// No description provided for @customerSave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar cliente'**
+  String get customerSave;
+
+  /// No description provided for @customerSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cliente cadastrado.'**
+  String get customerSaved;
+
+  /// No description provided for @customerOwes.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deve {amount}'**
+  String customerOwes(String amount);
+
+  /// No description provided for @customerUpToDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em dia'**
+  String get customerUpToDate;
+
+  /// No description provided for @debtorsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fiado'**
+  String get debtorsTitle;
+
+  /// No description provided for @debtorsSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Clientes que compraram para pagar depois'**
+  String get debtorsSubtitle;
+
+  /// No description provided for @debtorsTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total a receber'**
+  String get debtorsTotal;
+
+  /// No description provided for @debtorsOwingCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{Ninguém devendo} =1{1 cliente devendo} other{{count} clientes devendo}}'**
+  String debtorsOwingCount(int count);
+
+  /// No description provided for @debtorsSearchHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar cliente'**
+  String get debtorsSearchHint;
+
+  /// No description provided for @debtorsFilterOwing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Devendo'**
+  String get debtorsFilterOwing;
+
+  /// No description provided for @debtorsFilterAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todos'**
+  String get debtorsFilterAll;
+
+  /// No description provided for @debtorsEmptyOwing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ninguém devendo.'**
+  String get debtorsEmptyOwing;
+
+  /// No description provided for @debtorsEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum cliente encontrado.'**
+  String get debtorsEmpty;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta do cliente'**
+  String get accountTitle;
+
+  /// No description provided for @accountBalance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Valor devendo'**
+  String get accountBalance;
+
+  /// No description provided for @accountClear.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma conta em aberto'**
+  String get accountClear;
+
+  /// No description provided for @accountReceivePart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receber parte'**
+  String get accountReceivePart;
+
+  /// No description provided for @accountReceiveAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receber tudo'**
+  String get accountReceiveAll;
+
+  /// No description provided for @receiveAmountQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quanto o cliente está pagando?'**
+  String get receiveAmountQuestion;
+
+  /// No description provided for @receiveHalf.
+  ///
+  /// In pt, this message translates to:
+  /// **'Metade'**
+  String get receiveHalf;
+
+  /// No description provided for @receiveCurrentDebt.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dívida atual: {amount}'**
+  String receiveCurrentDebt(String amount);
+
+  /// No description provided for @receiveRemaining.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restará {amount}'**
+  String receiveRemaining(String amount);
+
+  /// No description provided for @receiveSettles.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quita a dívida'**
+  String get receiveSettles;
+
+  /// No description provided for @receiveMethodQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Como o cliente pagou?'**
+  String get receiveMethodQuestion;
+
+  /// No description provided for @receiveConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmar pagamento'**
+  String get receiveConfirm;
+
+  /// No description provided for @receiveInvalidAmount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe um valor maior que zero.'**
+  String get receiveInvalidAmount;
+
+  /// No description provided for @receiveExceedsBalance.
+  ///
+  /// In pt, this message translates to:
+  /// **'O valor passa da dívida do cliente.'**
+  String get receiveExceedsBalance;
+
+  /// No description provided for @receiveDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento registrado.'**
+  String get receiveDone;
+
+  /// No description provided for @statementTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Movimentações'**
+  String get statementTitle;
+
+  /// No description provided for @statementSale.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compra no fiado'**
+  String get statementSale;
+
+  /// No description provided for @statementPayment.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento · {method}'**
+  String statementPayment(String method);
+
+  /// No description provided for @statementEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma movimentação ainda.'**
+  String get statementEmpty;
+
+  /// No description provided for @saleDetailCustomer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cliente'**
+  String get saleDetailCustomer;
+
+  /// No description provided for @saleEditCustomer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cliente do fiado'**
+  String get saleEditCustomer;
+
+  /// No description provided for @saleEditChooseCustomer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolher cliente'**
+  String get saleEditChooseCustomer;
+
+  /// No description provided for @saleEditChangeCustomer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trocar'**
+  String get saleEditChangeCustomer;
+
+  /// No description provided for @saleEditMissingCustomer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolha o cliente do fiado.'**
+  String get saleEditMissingCustomer;
+
+  /// No description provided for @saleEditDeletedProduct.
+  ///
+  /// In pt, this message translates to:
+  /// **'Um produto desta venda foi excluído do estoque. Remova-o para salvar.'**
+  String get saleEditDeletedProduct;
+
+  /// No description provided for @dashboardCreditTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fiado a receber'**
+  String get dashboardCreditTitle;
+
+  /// No description provided for @dashboardRevenueTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Faturamento do dia'**
+  String get dashboardRevenueTitle;
+
+  /// No description provided for @navReports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatórios'**
+  String get navReports;
+
+  /// No description provided for @reportsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatórios'**
+  String get reportsTitle;
+
+  /// No description provided for @reportsToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Hoje'**
+  String get reportsToday;
+
+  /// No description provided for @reportsWeek.
+  ///
+  /// In pt, this message translates to:
+  /// **'Semana'**
+  String get reportsWeek;
+
+  /// No description provided for @reportsMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mês'**
+  String get reportsMonth;
+
+  /// No description provided for @reportsCustom.
+  ///
+  /// In pt, this message translates to:
+  /// **'Período'**
+  String get reportsCustom;
+
+  /// No description provided for @reportsRangeToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Hoje, {date}'**
+  String reportsRangeToday(String date);
+
+  /// No description provided for @reportsRange.
+  ///
+  /// In pt, this message translates to:
+  /// **'{from} – {to}'**
+  String reportsRange(String from, String to);
+
+  /// No description provided for @reportsRangeSwapped.
+  ///
+  /// In pt, this message translates to:
+  /// **'A data inicial é depois da final: invertemos para calcular.'**
+  String get reportsRangeSwapped;
+
+  /// No description provided for @reportsProfit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lucro líquido real'**
+  String get reportsProfit;
+
+  /// No description provided for @reportsMargin.
+  ///
+  /// In pt, this message translates to:
+  /// **'Margem de {percent}% sobre o total vendido'**
+  String reportsMargin(int percent);
+
+  /// No description provided for @reportsNoSales.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem vendas no período'**
+  String get reportsNoSales;
+
+  /// No description provided for @reportsRevenue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total vendido'**
+  String get reportsRevenue;
+
+  /// No description provided for @reportsSaleCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{Nenhuma venda concluída} =1{1 venda concluída} other{{count} vendas concluídas}}'**
+  String reportsSaleCount(int count);
+
+  /// No description provided for @reportsCost.
+  ///
+  /// In pt, this message translates to:
+  /// **'Custo dos produtos'**
+  String get reportsCost;
+
+  /// No description provided for @reportsCostHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preço de custo no momento da venda'**
+  String get reportsCostHint;
+
+  /// No description provided for @reportsCostValue.
+  ///
+  /// In pt, this message translates to:
+  /// **'− {amount}'**
+  String reportsCostValue(String amount);
+
+  /// No description provided for @reportsProfitLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'= Lucro'**
+  String get reportsProfitLine;
+
+  /// No description provided for @reportsRankingTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Produtos que mais dão lucro'**
+  String get reportsRankingTitle;
+
+  /// No description provided for @reportsRankingHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ordenado pelo lucro gerado, não pela quantidade.'**
+  String get reportsRankingHint;
+
+  /// No description provided for @reportsRankingLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quantity} vendidos · {revenue}'**
+  String reportsRankingLine(String quantity, String revenue);
+
+  /// No description provided for @reportsRankingEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem vendas no período.'**
+  String get reportsRankingEmpty;
+
+  /// No description provided for @reportsFootnote.
+  ///
+  /// In pt, this message translates to:
+  /// **'Considera só vendas concluídas e o preço de custo registrado no momento de cada venda.'**
+  String get reportsFootnote;
+
+  /// No description provided for @dashboardTodaySalesTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vendas de hoje'**
+  String get dashboardTodaySalesTitle;
+
+  /// No description provided for @dashboardSeeHistory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver histórico'**
+  String get dashboardSeeHistory;
+
+  /// No description provided for @dashboardNoSalesToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma venda hoje ainda.'**
+  String get dashboardNoSalesToday;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

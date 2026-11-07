@@ -7,6 +7,20 @@ abstract final class AppRoutes {
   static const recoverPin = '/recover-pin';
 
   static const home = '/home';
+  static const sell = '/sell';
+  static const sellWeight = '/sell/weight';
+  static const sellSummary = '/sell/summary';
+  static const sellPayment = '/sell/payment';
+  static const sellDone = '/sell/done';
+  static const salesHistory = '/sales';
+  static String sale(String id) => '/sales/$id';
+  static String saleEdit(String id) => '/sales/$id/edit';
+  static const reports = '/reports';
+  static const customers = '/customers';
+  static String customer(String id) => '/customers/$id';
+
+  /// Escolha do cliente do fiado; recebe o valor por `extra` e devolve o cliente escolhido.
+  static const customerPicker = '/customers/pick';
   static const settings = '/settings';
   static const stock = '/stock';
 
@@ -20,3 +34,10 @@ abstract final class AppRoutes {
 
   static const authRoutes = {welcome, login, register, recoverPin};
 }
+
+/// O que a venda (ou a edição) manda para a escolha do cliente do fiado. Fica no núcleo porque
+/// liga duas features: a venda abre a tela e a feature de clientes a desenha.
+typedef CustomerPickerRequest = ({int amountCents, int? itemCount, String? initialCustomerId});
+
+/// Cliente escolhido para o fiado, devolvido pela tela de escolha.
+typedef PickedCustomer = ({String id, String name});
