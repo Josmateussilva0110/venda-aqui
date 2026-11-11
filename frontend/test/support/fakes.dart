@@ -107,6 +107,9 @@ class FakeProductsRepository implements ProductsRepository {
   Future<void> update(String id, ProductInput input) async {}
 
   @override
+  Future<void> delete(String id) async {}
+
+  @override
   Future<void> restock(String id, double quantity) async {}
 
   @override

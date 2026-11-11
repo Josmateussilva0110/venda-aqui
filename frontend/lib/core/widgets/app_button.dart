@@ -4,7 +4,7 @@ import '../theme/theme_context.dart';
 
 enum AppButtonShape { pill, rounded }
 
-enum AppButtonVariant { primary, outlined, light }
+enum AppButtonVariant { primary, outlined, light, danger }
 
 /// Botão de ação do app. [isActive] só muda a cor (o protótipo deixa tocar e explica o que falta).
 class AppButton extends StatelessWidget {
@@ -37,6 +37,7 @@ class AppButton extends StatelessWidget {
       AppButtonVariant.primary => (isActive ? colors.primary : colors.primaryDisabled, colors.onPrimary, null),
       AppButtonVariant.outlined => (colors.surface, colors.ink, BorderSide(color: colors.border, width: 2)),
       AppButtonVariant.light => (colors.surface, colors.ink, null),
+      AppButtonVariant.danger => (colors.danger, colors.onPrimary, null),
     };
     final textStyle = (compact ? context.text.titleSmall : context.text.labelLarge)?.copyWith(color: foreground);
 

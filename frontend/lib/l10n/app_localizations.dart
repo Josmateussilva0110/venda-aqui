@@ -907,6 +907,36 @@ abstract class AppLocalizations {
   /// **'Não foi possível carregar o produto.'**
   String get productLoadFailed;
 
+  /// No description provided for @productDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover produto'**
+  String get productDelete;
+
+  /// No description provided for @productDeleteConfirmTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover produto?'**
+  String get productDeleteConfirmTitle;
+
+  /// No description provided for @productDeleteConfirmMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'\"{name}\" sai do estoque. As vendas já feitas com ele continuam no histórico. Não dá para desfazer.'**
+  String productDeleteConfirmMessage(String name);
+
+  /// No description provided for @productDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover'**
+  String get productDeleteConfirm;
+
+  /// No description provided for @productDeleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Produto removido.'**
+  String get productDeleted;
+
   /// No description provided for @restockTitle.
   ///
   /// In pt, this message translates to:

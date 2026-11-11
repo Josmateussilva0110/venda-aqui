@@ -113,6 +113,21 @@ void main() {
     controller.dispose();
   });
 
+  test('produto removido sai da lista e das contagens, sem recarregar', () async {
+    await loadTwoPages(StockFilter.all);
+    final callsBefore = repository.listCalls;
+
+    changes.notify(const ProductDeleted('p3'));
+    await pumpEventQueue();
+
+    expect(repository.listCalls, callsBefore);
+    expect(controller.items.map((product) => product.id), isNot(contains('p3')));
+    expect(controller.counts, const StockCounts(all: 69, low: 0, out: 4));
+    // 69 no servidor e 59 carregados: ainda falta uma página, e ela não pode pular um produto
+    expect(controller.hasMore, isTrue);
+    controller.dispose();
+  });
+
   test('resposta que chega depois de a tela fechar não lança', () async {
     await loadTwoPages(StockFilter.all);
     repository.holdList = Completer<void>();

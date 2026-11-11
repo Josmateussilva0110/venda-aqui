@@ -93,6 +93,11 @@ class StockCounts {
     return StockCounts(all: all, low: low + delta(StockLevel.low), out: out + delta(StockLevel.out));
   }
 
+  /// Tira um produto das contagens.
+  StockCounts removed(StockLevel level) {
+    return StockCounts(all: all - 1, low: level == StockLevel.low ? low - 1 : low, out: level == StockLevel.out ? out - 1 : out);
+  }
+
   @override
   bool operator ==(Object other) => other is StockCounts && other.all == all && other.low == low && other.out == out;
 

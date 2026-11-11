@@ -29,6 +29,9 @@ class ProductsRepositoryImpl implements ProductsRepository {
   Future<void> update(String id, ProductInput input) => _remote.update(id, input);
 
   @override
+  Future<void> delete(String id) => _remote.delete(id);
+
+  @override
   Future<void> restock(String id, double quantity) => _remote.restock(id, quantity);
 
   @override

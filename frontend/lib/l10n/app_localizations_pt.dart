@@ -445,6 +445,23 @@ class AppLocalizationsPt extends AppLocalizations {
   String get productLoadFailed => 'Não foi possível carregar o produto.';
 
   @override
+  String get productDelete => 'Remover produto';
+
+  @override
+  String get productDeleteConfirmTitle => 'Remover produto?';
+
+  @override
+  String productDeleteConfirmMessage(String name) {
+    return '\"$name\" sai do estoque. As vendas já feitas com ele continuam no histórico. Não dá para desfazer.';
+  }
+
+  @override
+  String get productDeleteConfirm => 'Remover';
+
+  @override
+  String get productDeleted => 'Produto removido.';
+
+  @override
   String get restockTitle => 'Repor estoque';
 
   @override

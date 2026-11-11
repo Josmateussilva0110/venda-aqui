@@ -6,6 +6,7 @@ export const PRODUCT_LIST_FAILED_ERROR = { code: ProductErrorCode.PRODUCT_LIST_F
 export const PRODUCT_FETCH_FAILED_ERROR = { code: ProductErrorCode.PRODUCT_FETCH_FAILED, message: "Erro ao carregar o produto." }
 export const PRODUCT_CREATE_FAILED_ERROR = { code: ProductErrorCode.PRODUCT_CREATE_FAILED, message: "Erro ao cadastrar o produto." }
 export const PRODUCT_UPDATE_FAILED_ERROR = { code: ProductErrorCode.PRODUCT_UPDATE_FAILED, message: "Erro ao salvar o produto." }
+export const PRODUCT_DELETE_FAILED_ERROR = { code: ProductErrorCode.PRODUCT_DELETE_FAILED, message: "Erro ao remover o produto." }
 export const PRODUCT_RESTOCK_FAILED_ERROR = { code: ProductErrorCode.PRODUCT_RESTOCK_FAILED, message: "Erro ao repor o estoque." }
 export const PRODUCT_PHOTO_UPLOAD_URL_FAILED_ERROR = { code: ProductErrorCode.PHOTO_UPLOAD_URL_FAILED, message: "Erro ao preparar o envio da foto." }
 export const PRODUCT_PHOTO_UPDATE_FAILED_ERROR = { code: ProductErrorCode.PHOTO_UPDATE_FAILED, message: "Erro ao salvar a foto." }
@@ -21,6 +22,7 @@ export const productErrorHttpStatusMap: Record<ProductErrorCode, number> = {
   [ProductErrorCode.PRODUCT_LIST_FAILED]: 500,
   [ProductErrorCode.PRODUCT_FETCH_FAILED]: 500,
   [ProductErrorCode.PRODUCT_RESTOCK_FAILED]: 500,
+  [ProductErrorCode.PRODUCT_DELETE_FAILED]: 500,
   [ProductErrorCode.PHOTO_UPLOAD_URL_FAILED]: 500,
   [ProductErrorCode.PHOTO_UPDATE_FAILED]: 500,
 }

@@ -50,6 +50,16 @@ describe("contrato HTTP sem banco", () => {
     expect(response.body.errors[0].field).toBe("id")
   })
 
+  it("remoção de produto exige token e id válido antes de tocar no banco", async () => {
+    const anonymous = await request(app).delete("/api/products/6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11")
+    expect(anonymous.status).toBe(401)
+
+    const token = signAccessToken({ merchantId: "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11", sessionId: "s" })
+    const invalidId = await request(app).delete("/api/products/abc").set("Authorization", `Bearer ${token}`)
+    expect(invalidId.status).toBe(422)
+    expect(invalidId.body.errors[0].field).toBe("id")
+  })
+
   it("exige token nas rotas de cliente", async () => {
     const response = await request(app).get("/api/customers")
     expect(response.status).toBe(401)

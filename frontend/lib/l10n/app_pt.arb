@@ -242,6 +242,16 @@
   "productCreated": "Produto cadastrado.",
   "productUpdated": "Produto atualizado.",
   "productLoadFailed": "Não foi possível carregar o produto.",
+  "productDelete": "Remover produto",
+  "productDeleteConfirmTitle": "Remover produto?",
+  "productDeleteConfirmMessage": "\"{name}\" sai do estoque. As vendas já feitas com ele continuam no histórico. Não dá para desfazer.",
+  "@productDeleteConfirmMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "productDeleteConfirm": "Remover",
+  "productDeleted": "Produto removido.",
   "restockTitle": "Repor estoque",
   "restockCurrent": "Atual: {quantity}",
   "@restockCurrent": {

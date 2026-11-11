@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_feedback.dart';
+import '../../../../core/widgets/confirm_dialog.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -49,6 +50,29 @@ class _ProductEditView extends StatelessWidget {
     context.pop();
   }
 
+  Future<void> _delete(BuildContext context, Product product) async {
+    final l10n = AppLocalizations.of(context);
+    final controller = context.read<ProductEditorController>();
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.productDeleteConfirmTitle,
+      message: l10n.productDeleteConfirmMessage(product.name),
+      confirmLabel: l10n.productDeleteConfirm,
+      destructive: true,
+    );
+    if (!confirmed || !context.mounted) return;
+
+    final deleted = await controller.delete(product.id);
+    if (!context.mounted) return;
+    final failure = controller.deleteFailure;
+    if (!deleted) {
+      if (failure != null) showAppToast(context, failureMessage(l10n, failure), tone: ToastTone.error);
+      return;
+    }
+    showAppToast(context, l10n.productDeleted);
+    context.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -75,11 +99,47 @@ class _ProductEditView extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            ScreenHeader(title: l10n.productEditTitle, onBack: () => context.pop(), buttonBackground: context.colors.surface),
+            ScreenHeader(
+              title: l10n.productEditTitle,
+              onBack: () => context.pop(),
+              buttonBackground: context.colors.surface,
+              // Só aparece com o produto carregado: o modal mostra o nome dele
+              action: product == null ? null : _DeleteButton(isDeleting: controller.isDeleting, onPressed: () => _delete(context, product)),
+            ),
             Expanded(child: body),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DeleteButton extends StatelessWidget {
+  const _DeleteButton({required this.isDeleting, required this.onPressed});
+
+  final bool isDeleting;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    if (isDeleting) {
+      return SizedBox.square(
+        dimension: context.sizes.minTouchTarget,
+        child: Center(
+          child: SizedBox.square(
+            dimension: context.sizes.icon,
+            child: CircularProgressIndicator(strokeWidth: 2.5, color: colors.danger),
+          ),
+        ),
+      );
+    }
+    return CircleIconButton(
+      icon: Icons.delete_outline_rounded,
+      tooltip: AppLocalizations.of(context).productDelete,
+      onPressed: onPressed,
+      background: colors.surface,
+      iconColor: colors.danger,
     );
   }
 }

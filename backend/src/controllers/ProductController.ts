@@ -36,6 +36,12 @@ class ProductController {
     return sendSuccess(response, "Produto atualizado com sucesso.", result.data)
   }
 
+  async remove(request: Request<ProductParamsDTO>, response: Response): Promise<Response> {
+    const result = await ProductService.remove(requireAuthField(request, "merchantId"), request.params.id)
+    if (!result.status) return sendFailure(response, result.error, productErrorHttpStatusMap)
+    return sendSuccess(response, "Produto removido.", result.data)
+  }
+
   async restock(request: Request<ProductParamsDTO, unknown, RestockDTO>, response: Response): Promise<Response> {
     const result = await ProductService.restock(requireAuthField(request, "merchantId"), request.params.id, request.body.quantity)
     if (!result.status) return sendFailure(response, result.error, productErrorHttpStatusMap)
