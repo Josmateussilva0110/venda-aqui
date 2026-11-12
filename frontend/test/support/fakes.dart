@@ -1,4 +1,5 @@
 import 'package:vendaqui/core/network/cancel_signal.dart';
+import 'package:vendaqui/core/notifications/reminder_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:vendaqui/core/stock/stock_level.dart';
 import 'package:vendaqui/core/theme/theme_controller.dart';
@@ -293,7 +294,26 @@ class FakeReportsRepository implements ReportsRepository {
 }
 
 /// Nome longo de propósito: os testes de layout conferem que não estoura em tela pequena.
-const testCustomer = Customer(id: 'c1', name: 'Maria das Graças Oliveira Santos', phone: '+5586999990000', balanceCents: 10345);
+final testCustomer = Customer(
+  id: 'c1',
+  name: 'Maria das Graças Oliveira Santos',
+  phone: '+5586999990000',
+  balanceCents: 10345,
+  creditDueDate: DateTime(2026, 11, 20),
+);
+
+/// Aviso dos lembretes que só guarda a última agenda recebida.
+class FakeReminderNotifier implements ReminderNotifier {
+  final List<ReminderSchedule?> synced = [];
+
+  int permissionRequests = 0;
+
+  @override
+  Future<void> sync(ReminderSchedule? schedule) async => synced.add(schedule);
+
+  @override
+  Future<void> requestPermission() async => permissionRequests++;
+}
 
 /// Clientes em memória, com saldo do fiado e extrato como o servidor faria.
 class FakeCustomersRepository implements CustomersRepository {
@@ -301,7 +321,28 @@ class FakeCustomersRepository implements CustomersRepository {
 
   final List<Customer> customers;
   final Map<String, List<StatementEntry>> statements = {};
+  final Set<String> remindedIds = {};
+  CreditSettings settings = const CreditSettings(
+    creditTermDays: 30,
+    remindersEnabled: true,
+    remindDaysBefore: 3,
+    remindOnDue: true,
+    remindOverdueEveryDays: 7,
+    reminderHour: 9,
+  );
   int _nextId = 1;
+
+  // Simplificação do servidor: todo cliente devendo e ainda não lembrado tem lembrete pendente
+  List<Customer> get _pending => customers.where((customer) => customer.owes && !remindedIds.contains(customer.id)).toList();
+
+  CreditSummary _summary() {
+    final owing = customers.where((customer) => customer.owes);
+    return CreditSummary(
+      owingCount: owing.length,
+      owedCents: owing.fold(0, (sum, customer) => sum + customer.balanceCents),
+      reminders: settings.remindersEnabled ? ReminderSchedule(dueCount: _pending.length, nextOn: null, hour: settings.reminderHour) : null,
+    );
+  }
 
   @override
   Future<CustomerPage> list({
@@ -318,13 +359,36 @@ class FakeCustomersRepository implements CustomersRepository {
             .where((customer) => customer.name.toLowerCase().contains(query) || customer.phone.contains(query))
             .toList()
           ..sort((a, b) => a.name.compareTo(b.name));
-    final owing = customers.where((customer) => customer.owes);
-    return CustomerPage(
-      items: matching.skip(offset).take(limit).toList(),
-      total: matching.length,
-      summary: CreditSummary(owingCount: owing.length, owedCents: owing.fold(0, (sum, customer) => sum + customer.balanceCents)),
+    return CustomerPage(items: matching.skip(offset).take(limit).toList(), total: matching.length, summary: _summary());
+  }
+
+  @override
+  Future<CreditSummary> summary() async => _summary();
+
+  @override
+  Future<DateTime> setDueDate(String customerId, DateTime dueDate) async {
+    final index = customers.indexWhere((customer) => customer.id == customerId);
+    customers[index] = customers[index].copyWith(creditDueDate: dueDate);
+    return dueDate;
+  }
+
+  @override
+  Future<CreditReminderPage> reminders({required int offset, required int limit}) async {
+    final pending = _pending;
+    return CreditReminderPage(
+      items: pending.skip(offset).take(limit).map((customer) => CreditReminder(customer: customer, status: DueStatus.upcoming)).toList(),
+      total: pending.length,
     );
   }
+
+  @override
+  Future<void> markReminded(String customerId) async => remindedIds.add(customerId);
+
+  @override
+  Future<CreditSettings> creditSettings() async => settings;
+
+  @override
+  Future<void> saveCreditSettings(CreditSettings settings) async => this.settings = settings;
 
   @override
   Future<Customer> get(String id) async => customers.firstWhere((customer) => customer.id == id);

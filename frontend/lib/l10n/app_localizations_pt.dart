@@ -921,6 +921,157 @@ class AppLocalizationsPt extends AppLocalizations {
   String get receiveDone => 'Pagamento registrado.';
 
   @override
+  String get whatsAppChat => 'Conversar no WhatsApp';
+
+  @override
+  String get whatsAppCharge => 'Cobrar no WhatsApp';
+
+  @override
+  String reminderMessageUpcoming(String name, String amount, String date, String signature) {
+    return 'Olá, $name. Tudo bem?\nGostaria de lembrar que o seu saldo em aberto conosco é de *$amount*, com vencimento em *$date*.\nEm caso de dúvida, estou à disposição.\n$signature';
+  }
+
+  @override
+  String reminderMessageDue(String name, String amount, String signature) {
+    return 'Olá, $name. Tudo bem?\nLembramos que hoje vence o seu saldo de *$amount*.\nEm caso de dúvida, estou à disposição.\n$signature';
+  }
+
+  @override
+  String reminderMessageOverdue(String name, String amount, String date, String signature) {
+    return 'Olá, $name. Tudo bem?\nIdentificamos que o saldo de *$amount*, vencido em *$date*, ainda está em aberto. Caso precise de um novo prazo, é só responder esta mensagem.\n$signature';
+  }
+
+  @override
+  String reminderSignature(String merchant) {
+    return 'Atenciosamente, $merchant.';
+  }
+
+  @override
+  String get reminderSignatureAnonymous => 'Atenciosamente.';
+
+  @override
+  String get reminderAlertTitle => 'Lembretes do fiado';
+
+  @override
+  String get reminderAlertBody => 'Há clientes para lembrar hoje. Abra o Vendaqui para enviar pelo WhatsApp.';
+
+  @override
+  String get reminderChannelName => 'Lembretes do fiado';
+
+  @override
+  String get reminderChannelDescription => 'Avisa no dia de lembrar os clientes do fiado.';
+
+  @override
+  String dueDateLabel(String date) {
+    return 'Vence em $date';
+  }
+
+  @override
+  String get dueDateToday => 'Vence hoje';
+
+  @override
+  String dueDateOverdue(String date) {
+    return 'Venceu em $date';
+  }
+
+  @override
+  String get dueDateExtend => 'Prolongar';
+
+  @override
+  String get dueDateHelp => 'Novo vencimento';
+
+  @override
+  String get dueDateSaved => 'Vencimento alterado.';
+
+  @override
+  String get remindersTitle => 'Lembretes de hoje';
+
+  @override
+  String get remindersSubtitle => 'Toque em enviar para abrir o WhatsApp com a mensagem pronta.';
+
+  @override
+  String get remindersEmpty => 'Nenhum lembrete para enviar agora.';
+
+  @override
+  String get remindersSend => 'Enviar lembrete';
+
+  @override
+  String get remindersSendAgain => 'Enviar de novo';
+
+  @override
+  String get remindersSent => 'Lembrete enviado';
+
+  @override
+  String remindersBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lembretes de fiado para enviar',
+      one: '1 lembrete de fiado para enviar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditSettingsTitle => 'Prazo e lembretes';
+
+  @override
+  String get creditSettingsSection => 'Fiado';
+
+  @override
+  String get creditSettingsTerm => 'Prazo para pagar';
+
+  @override
+  String get creditSettingsTermHint => 'Contado a partir da primeira compra no fiado.';
+
+  @override
+  String get creditSettingsReminders => 'Lembretes pelo WhatsApp';
+
+  @override
+  String get creditSettingsRemindersHint => 'O app avisa no dia e você envia a mensagem pelo seu WhatsApp.';
+
+  @override
+  String get creditSettingsBefore => 'Antes do vencimento';
+
+  @override
+  String get creditSettingsOnDue => 'No dia do vencimento';
+
+  @override
+  String get creditSettingsOverdue => 'Depois de vencido, a cada';
+
+  @override
+  String get creditSettingsHour => 'Horário do aviso';
+
+  @override
+  String get creditSettingsSave => 'Salvar';
+
+  @override
+  String get creditSettingsSaved => 'Configurações salvas.';
+
+  @override
+  String get creditSettingsOff => 'Não lembrar';
+
+  @override
+  String creditSettingsHourValue(int hour) {
+    return '${hour}h';
+  }
+
+  @override
+  String daysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count dias', one: '1 dia');
+    return '$_temp0';
+  }
+
+  @override
+  String get stepperDecrease => 'Diminuir';
+
+  @override
+  String get stepperIncrease => 'Aumentar';
+
+  @override
+  String get whatsAppUnavailable => 'Não foi possível abrir o WhatsApp.';
+
+  @override
   String get statementTitle => 'Movimentações';
 
   @override

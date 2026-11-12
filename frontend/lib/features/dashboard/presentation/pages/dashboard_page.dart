@@ -3,11 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/notifications/reminder_notifier.dart';
 import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_feedback.dart';
+import '../../../../core/widgets/reminder_banner.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -30,7 +32,8 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DashboardController(context.read<DashboardRepository>(), context.read<StockChanges>())..load(),
+      create: (context) =>
+          DashboardController(context.read<DashboardRepository>(), context.read<StockChanges>(), context.read<ReminderNotifier>())..load(),
       child: _DashboardView(merchantName: merchantName),
     );
   }
@@ -49,6 +52,12 @@ class _DashboardView extends StatelessWidget {
     final controller = context.read<DashboardController>();
     final changed = await context.push<bool>(AppRoutes.customers);
     if (changed == true) await controller.loadCredit();
+  }
+
+  Future<void> _openReminders(BuildContext context) async {
+    final controller = context.read<DashboardController>();
+    final sent = await context.push<bool>(AppRoutes.creditReminders);
+    if (sent == true) await controller.loadCredit();
   }
 
   void _openStock(BuildContext context, {String? filter}) {
@@ -95,6 +104,10 @@ class _DashboardView extends StatelessWidget {
                     if (controller.credit case final credit?) ...[
                       SizedBox(height: spacing.md),
                       CreditSummaryCard(credit: credit, onTap: () => _openCredit(context)),
+                      if (credit.reminders?.dueCount case final count? when count > 0) ...[
+                        SizedBox(height: spacing.sm),
+                        ReminderBanner(count: count, onTap: () => _openReminders(context)),
+                      ],
                     ],
                     SizedBox(height: spacing.xxl - 2),
                     SectionHeader(title: l10n.shortcutsTitle),

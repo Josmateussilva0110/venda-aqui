@@ -27,6 +27,7 @@ class CustomerAccountController extends ChangeNotifier with DisposeAwareNotifier
   bool _isLoadingMore = false;
   AppFailure? _loadMoreFailure;
   bool _isPaying = false;
+  bool _isSavingDueDate = false;
   bool _changed = false;
   int _version = 0;
 
@@ -37,6 +38,7 @@ class CustomerAccountController extends ChangeNotifier with DisposeAwareNotifier
   AppFailure? get failure => _failure;
   AppFailure? get loadMoreFailure => _loadMoreFailure;
   bool get isPaying => _isPaying;
+  bool get isSavingDueDate => _isSavingDueDate;
 
   /// Avisa quem abriu a conta (a lista de devedores) se precisa buscar de novo.
   bool get changed => _changed;
@@ -108,6 +110,22 @@ class CustomerAccountController extends ChangeNotifier with DisposeAwareNotifier
     }
     // O saldo já veio na resposta; só o extrato precisa vir de novo, com o pagamento no topo
     await _reloadStatement();
+  }
+
+  /// Prolonga o vencimento. Lança [AppFailure] quando o servidor recusa (data fora do intervalo, já quitou).
+  Future<void> setDueDate(DateTime dueDate) async {
+    final customer = _customer;
+    if (_isSavingDueDate || customer == null) return;
+    _isSavingDueDate = true;
+    notifyListeners();
+    try {
+      final saved = await _repository.setDueDate(customerId, dueDate);
+      _customer = customer.copyWith(creditDueDate: saved);
+      _changed = true;
+    } finally {
+      _isSavingDueDate = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _reloadStatement() async {

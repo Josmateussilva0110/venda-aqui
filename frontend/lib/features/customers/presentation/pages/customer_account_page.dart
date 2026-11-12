@@ -21,26 +21,33 @@ import '../../../../l10n/app_localizations.dart';
 import '../../domain/customer.dart';
 import '../../domain/customers_repository.dart';
 import '../controllers/customer_account_controller.dart';
+import '../widgets/customer_whatsapp_button.dart';
+import '../widgets/due_date_row.dart';
 import '../widgets/receive_payment_panel.dart';
 import '../widgets/statement_entry_tile.dart';
 
 /// Conta do cliente: quanto deve, receber o fiado e as movimentações.
 class CustomerAccountPage extends StatelessWidget {
-  const CustomerAccountPage({super.key, required this.customerId});
+  const CustomerAccountPage({super.key, required this.customerId, this.merchantName});
 
   final String customerId;
+
+  /// Assina a cobrança pelo WhatsApp; vem da sessão, pelo app.
+  final String? merchantName;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => CustomerAccountController(context.read<CustomersRepository>(), customerId)..load(),
-      child: const _AccountView(),
+      child: _AccountView(merchantName: merchantName),
     );
   }
 }
 
 class _AccountView extends StatefulWidget {
-  const _AccountView();
+  const _AccountView({required this.merchantName});
+
+  final String? merchantName;
 
   @override
   State<_AccountView> createState() => _AccountViewState();
@@ -93,7 +100,7 @@ class _AccountViewState extends State<_AccountView> {
     final header = customer == null
         ? const <Widget>[]
         : [
-            _BalanceCard(customer: customer),
+            _BalanceCard(customer: customer, merchantName: widget.merchantName),
             SizedBox(height: spacing.xl),
             SectionHeader(title: l10n.statementTitle),
             SizedBox(height: spacing.md),
@@ -194,9 +201,10 @@ class _StatementCell extends StatelessWidget {
 
 /// Nome, telefone, dívida e o recebimento (parte ou tudo).
 class _BalanceCard extends StatefulWidget {
-  const _BalanceCard({required this.customer});
+  const _BalanceCard({required this.customer, required this.merchantName});
 
   final Customer customer;
+  final String? merchantName;
 
   @override
   State<_BalanceCard> createState() => _BalanceCardState();
@@ -219,6 +227,16 @@ class _BalanceCardState extends State<_BalanceCard> {
     }
   }
 
+  Future<void> _extendDueDate(DateTime dueDate) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      await context.read<CustomerAccountController>().setDueDate(dueDate);
+      if (mounted) showAppToast(context, l10n.dueDateSaved);
+    } on AppFailure catch (failure) {
+      if (mounted) showAppToast(context, failureMessage(l10n, failure), tone: ToastTone.error);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -227,6 +245,7 @@ class _BalanceCardState extends State<_BalanceCard> {
     final customer = widget.customer;
     final controller = context.read<CustomerAccountController>();
     final isPaying = context.select<CustomerAccountController, bool>((account) => account.isPaying);
+    final isSavingDueDate = context.select<CustomerAccountController, bool>((account) => account.isSavingDueDate);
     final panelAmount = _panelAmount;
 
     return AppCard(
@@ -247,6 +266,8 @@ class _BalanceCardState extends State<_BalanceCard> {
                   ],
                 ),
               ),
+              SizedBox(width: spacing.sm),
+              CustomerWhatsAppButton(customer: customer),
             ],
           ),
           SizedBox(height: spacing.lg),
@@ -261,8 +282,10 @@ class _BalanceCardState extends State<_BalanceCard> {
           ),
           if (!customer.owes) Text(l10n.accountClear, style: context.text.bodySmall),
           if (customer.owes) ...[
-            SizedBox(height: spacing.md),
-            if (panelAmount == null)
+            SizedBox(height: spacing.xs),
+            DueDateRow(customer: customer, isSaving: isSavingDueDate, onExtend: _extendDueDate),
+            SizedBox(height: spacing.sm),
+            if (panelAmount == null) ...[
               Row(
                 children: [
                   Expanded(
@@ -282,8 +305,16 @@ class _BalanceCardState extends State<_BalanceCard> {
                     ),
                   ),
                 ],
-              )
-            else
+              ),
+              SizedBox(height: spacing.sm),
+              AppButton(
+                label: l10n.whatsAppCharge,
+                icon: Icons.chat_rounded,
+                variant: AppButtonVariant.outlined,
+                compact: true,
+                onPressed: () => openCustomerWhatsApp(context, customer, charge: true, merchantName: widget.merchantName),
+              ),
+            ] else
               ReceivePaymentPanel(
                 // Trocar entre parte e tudo recria o painel com o valor certo
                 key: ValueKey(panelAmount),

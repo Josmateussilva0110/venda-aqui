@@ -9,6 +9,8 @@ import '../features/auth/presentation/pages/register_page.dart';
 import '../features/auth/presentation/pages/splash_page.dart';
 import '../features/auth/presentation/pages/welcome_page.dart';
 import '../features/customers/presentation/pages/customer_account_page.dart';
+import '../features/customers/presentation/pages/credit_reminders_page.dart';
+import '../features/customers/presentation/pages/credit_settings_page.dart';
 import '../features/customers/presentation/pages/customer_picker_page.dart';
 import '../features/customers/presentation/pages/debtors_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
@@ -102,8 +104,15 @@ GoRouter buildRouter(SessionController session) {
         redirect: (_, state) => state.extra is Sale ? null : AppRoutes.sale(state.pathParameters['id']!),
         builder: (_, state) => SaleEditPage(sale: state.extra! as Sale),
       ),
-      GoRoute(path: AppRoutes.customers, builder: (_, _) => const DebtorsPage()),
-      // Antes de /customers/:id, senão "pick" seria lido como id
+      GoRoute(
+        path: AppRoutes.customers,
+        builder: (_, _) => DebtorsPage(merchantName: session.merchant?.name),
+      ),
+      // Antes de /customers/:id, senão "pick" e "reminders" seriam lidos como id
+      GoRoute(
+        path: AppRoutes.creditReminders,
+        builder: (_, _) => CreditRemindersPage(merchantName: session.merchant?.name),
+      ),
       GoRoute(
         path: AppRoutes.customerPicker,
         redirect: (_, state) => state.extra is CustomerPickerRequest ? null : AppRoutes.customers,
@@ -118,13 +127,14 @@ GoRouter buildRouter(SessionController session) {
       ),
       GoRoute(
         path: '/customers/:id',
-        builder: (_, state) => CustomerAccountPage(customerId: state.pathParameters['id']!),
+        builder: (_, state) => CustomerAccountPage(customerId: state.pathParameters['id']!, merchantName: session.merchant?.name),
       ),
       // Sair é decidido pela sessão (app), por isso chega como callback
       GoRoute(
         path: AppRoutes.settings,
         builder: (_, _) => SettingsPage(onLogout: session.logout),
       ),
+      GoRoute(path: AppRoutes.creditSettings, builder: (_, _) => const CreditSettingsPage()),
       GoRoute(
         path: '/stock/:id/edit',
         builder: (_, state) => ProductEditPage(productId: state.pathParameters['id']!),

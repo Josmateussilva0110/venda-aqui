@@ -1747,6 +1747,258 @@ abstract class AppLocalizations {
   /// **'Pagamento registrado.'**
   String get receiveDone;
 
+  /// No description provided for @whatsAppChat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conversar no WhatsApp'**
+  String get whatsAppChat;
+
+  /// No description provided for @whatsAppCharge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cobrar no WhatsApp'**
+  String get whatsAppCharge;
+
+  /// No description provided for @reminderMessageUpcoming.
+  ///
+  /// In pt, this message translates to:
+  /// **'Olá, {name}. Tudo bem?\nGostaria de lembrar que o seu saldo em aberto conosco é de *{amount}*, com vencimento em *{date}*.\nEm caso de dúvida, estou à disposição.\n{signature}'**
+  String reminderMessageUpcoming(String name, String amount, String date, String signature);
+
+  /// No description provided for @reminderMessageDue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Olá, {name}. Tudo bem?\nLembramos que hoje vence o seu saldo de *{amount}*.\nEm caso de dúvida, estou à disposição.\n{signature}'**
+  String reminderMessageDue(String name, String amount, String signature);
+
+  /// No description provided for @reminderMessageOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Olá, {name}. Tudo bem?\nIdentificamos que o saldo de *{amount}*, vencido em *{date}*, ainda está em aberto. Caso precise de um novo prazo, é só responder esta mensagem.\n{signature}'**
+  String reminderMessageOverdue(String name, String amount, String date, String signature);
+
+  /// No description provided for @reminderSignature.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atenciosamente, {merchant}.'**
+  String reminderSignature(String merchant);
+
+  /// No description provided for @reminderSignatureAnonymous.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atenciosamente.'**
+  String get reminderSignatureAnonymous;
+
+  /// No description provided for @reminderAlertTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembretes do fiado'**
+  String get reminderAlertTitle;
+
+  /// No description provided for @reminderAlertBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Há clientes para lembrar hoje. Abra o Vendaqui para enviar pelo WhatsApp.'**
+  String get reminderAlertBody;
+
+  /// No description provided for @reminderChannelName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembretes do fiado'**
+  String get reminderChannelName;
+
+  /// No description provided for @reminderChannelDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avisa no dia de lembrar os clientes do fiado.'**
+  String get reminderChannelDescription;
+
+  /// No description provided for @dueDateLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vence em {date}'**
+  String dueDateLabel(String date);
+
+  /// No description provided for @dueDateToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vence hoje'**
+  String get dueDateToday;
+
+  /// No description provided for @dueDateOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Venceu em {date}'**
+  String dueDateOverdue(String date);
+
+  /// No description provided for @dueDateExtend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prolongar'**
+  String get dueDateExtend;
+
+  /// No description provided for @dueDateHelp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo vencimento'**
+  String get dueDateHelp;
+
+  /// No description provided for @dueDateSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vencimento alterado.'**
+  String get dueDateSaved;
+
+  /// No description provided for @remindersTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembretes de hoje'**
+  String get remindersTitle;
+
+  /// No description provided for @remindersSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toque em enviar para abrir o WhatsApp com a mensagem pronta.'**
+  String get remindersSubtitle;
+
+  /// No description provided for @remindersEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum lembrete para enviar agora.'**
+  String get remindersEmpty;
+
+  /// No description provided for @remindersSend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviar lembrete'**
+  String get remindersSend;
+
+  /// No description provided for @remindersSendAgain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviar de novo'**
+  String get remindersSendAgain;
+
+  /// No description provided for @remindersSent.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembrete enviado'**
+  String get remindersSent;
+
+  /// No description provided for @remindersBanner.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 lembrete de fiado para enviar} other{{count} lembretes de fiado para enviar}}'**
+  String remindersBanner(int count);
+
+  /// No description provided for @creditSettingsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prazo e lembretes'**
+  String get creditSettingsTitle;
+
+  /// No description provided for @creditSettingsSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fiado'**
+  String get creditSettingsSection;
+
+  /// No description provided for @creditSettingsTerm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prazo para pagar'**
+  String get creditSettingsTerm;
+
+  /// No description provided for @creditSettingsTermHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contado a partir da primeira compra no fiado.'**
+  String get creditSettingsTermHint;
+
+  /// No description provided for @creditSettingsReminders.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembretes pelo WhatsApp'**
+  String get creditSettingsReminders;
+
+  /// No description provided for @creditSettingsRemindersHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'O app avisa no dia e você envia a mensagem pelo seu WhatsApp.'**
+  String get creditSettingsRemindersHint;
+
+  /// No description provided for @creditSettingsBefore.
+  ///
+  /// In pt, this message translates to:
+  /// **'Antes do vencimento'**
+  String get creditSettingsBefore;
+
+  /// No description provided for @creditSettingsOnDue.
+  ///
+  /// In pt, this message translates to:
+  /// **'No dia do vencimento'**
+  String get creditSettingsOnDue;
+
+  /// No description provided for @creditSettingsOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Depois de vencido, a cada'**
+  String get creditSettingsOverdue;
+
+  /// No description provided for @creditSettingsHour.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horário do aviso'**
+  String get creditSettingsHour;
+
+  /// No description provided for @creditSettingsSave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar'**
+  String get creditSettingsSave;
+
+  /// No description provided for @creditSettingsSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Configurações salvas.'**
+  String get creditSettingsSaved;
+
+  /// No description provided for @creditSettingsOff.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não lembrar'**
+  String get creditSettingsOff;
+
+  /// No description provided for @creditSettingsHourValue.
+  ///
+  /// In pt, this message translates to:
+  /// **'{hour}h'**
+  String creditSettingsHourValue(int hour);
+
+  /// No description provided for @daysCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 dia} other{{count} dias}}'**
+  String daysCount(int count);
+
+  /// No description provided for @stepperDecrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diminuir'**
+  String get stepperDecrease;
+
+  /// No description provided for @stepperIncrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar'**
+  String get stepperIncrease;
+
+  /// No description provided for @whatsAppUnavailable.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível abrir o WhatsApp.'**
+  String get whatsAppUnavailable;
+
   /// No description provided for @statementTitle.
   ///
   /// In pt, this message translates to:

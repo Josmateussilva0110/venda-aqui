@@ -550,6 +550,135 @@
   "receiveInvalidAmount": "Informe um valor maior que zero.",
   "receiveExceedsBalance": "O valor passa da dívida do cliente.",
   "receiveDone": "Pagamento registrado.",
+  "whatsAppChat": "Conversar no WhatsApp",
+  "whatsAppCharge": "Cobrar no WhatsApp",
+  "reminderMessageUpcoming": "Olá, {name}. Tudo bem?\nGostaria de lembrar que o seu saldo em aberto conosco é de *{amount}*, com vencimento em *{date}*.\nEm caso de dúvida, estou à disposição.\n{signature}",
+  "@reminderMessageUpcoming": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "signature": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMessageDue": "Olá, {name}. Tudo bem?\nLembramos que hoje vence o seu saldo de *{amount}*.\nEm caso de dúvida, estou à disposição.\n{signature}",
+  "@reminderMessageDue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "signature": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMessageOverdue": "Olá, {name}. Tudo bem?\nIdentificamos que o saldo de *{amount}*, vencido em *{date}*, ainda está em aberto. Caso precise de um novo prazo, é só responder esta mensagem.\n{signature}",
+  "@reminderMessageOverdue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "signature": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSignature": "Atenciosamente, {merchant}.",
+  "@reminderSignature": {
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSignatureAnonymous": "Atenciosamente.",
+  "reminderAlertTitle": "Lembretes do fiado",
+  "reminderAlertBody": "Há clientes para lembrar hoje. Abra o Vendaqui para enviar pelo WhatsApp.",
+  "reminderChannelName": "Lembretes do fiado",
+  "reminderChannelDescription": "Avisa no dia de lembrar os clientes do fiado.",
+  "dueDateLabel": "Vence em {date}",
+  "@dueDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dueDateToday": "Vence hoje",
+  "dueDateOverdue": "Venceu em {date}",
+  "@dueDateOverdue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dueDateExtend": "Prolongar",
+  "dueDateHelp": "Novo vencimento",
+  "dueDateSaved": "Vencimento alterado.",
+  "remindersTitle": "Lembretes de hoje",
+  "remindersSubtitle": "Toque em enviar para abrir o WhatsApp com a mensagem pronta.",
+  "remindersEmpty": "Nenhum lembrete para enviar agora.",
+  "remindersSend": "Enviar lembrete",
+  "remindersSendAgain": "Enviar de novo",
+  "remindersSent": "Lembrete enviado",
+  "remindersBanner": "{count, plural, =1{1 lembrete de fiado para enviar} other{{count} lembretes de fiado para enviar}}",
+  "@remindersBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "creditSettingsTitle": "Prazo e lembretes",
+  "creditSettingsSection": "Fiado",
+  "creditSettingsTerm": "Prazo para pagar",
+  "creditSettingsTermHint": "Contado a partir da primeira compra no fiado.",
+  "creditSettingsReminders": "Lembretes pelo WhatsApp",
+  "creditSettingsRemindersHint": "O app avisa no dia e você envia a mensagem pelo seu WhatsApp.",
+  "creditSettingsBefore": "Antes do vencimento",
+  "creditSettingsOnDue": "No dia do vencimento",
+  "creditSettingsOverdue": "Depois de vencido, a cada",
+  "creditSettingsHour": "Horário do aviso",
+  "creditSettingsSave": "Salvar",
+  "creditSettingsSaved": "Configurações salvas.",
+  "creditSettingsOff": "Não lembrar",
+  "creditSettingsHourValue": "{hour}h",
+  "@creditSettingsHourValue": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "daysCount": "{count, plural, =1{1 dia} other{{count} dias}}",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stepperDecrease": "Diminuir",
+  "stepperIncrease": "Aumentar",
+  "whatsAppUnavailable": "Não foi possível abrir o WhatsApp.",
   "statementTitle": "Movimentações",
   "statementSale": "Compra no fiado",
   "statementPayment": "Pagamento · {method}",

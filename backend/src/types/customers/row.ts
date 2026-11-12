@@ -4,6 +4,7 @@ export interface CustomerRow {
   name: string
   phone: string
   balance_cents: number
+  credit_due_date: string | null
   created_at: string
   updated_at: string
 }
@@ -26,4 +27,23 @@ export interface StatementRow {
 export interface CreditSummaryRow {
   owing_count: number
   owed_cents: number | string
+  reminders_enabled: boolean
+  reminder_hour: number
+  reminders_due: number
+  next_reminder_on: string | null
+}
+
+// Cliente com lembrete pendente, como sai da função list_credit_reminders
+export interface CreditReminderRow {
+  id: string
+  name: string
+  phone: string
+  balance_cents: number
+  credit_due_date: string
+  reminder_kind: "upcoming" | "due" | "overdue"
+}
+
+export interface CreditReminderListRow {
+  total: number
+  items: CreditReminderRow[]
 }

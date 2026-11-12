@@ -84,7 +84,9 @@ class AppTextLink extends StatelessWidget {
   const AppTextLink({super.key, required this.label, required this.onPressed, this.color});
 
   final String label;
-  final VoidCallback onPressed;
+
+  /// Nulo desabilita (ex.: enquanto salva).
+  final VoidCallback? onPressed;
   final Color? color;
 
   @override

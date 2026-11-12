@@ -35,6 +35,10 @@ abstract final class ApiPaths {
   static String customer(String id) => '/customers/$id';
   static String customerStatement(String id) => '/customers/$id/statement';
   static String customerPayments(String id) => '/customers/$id/payments';
+  static String customerDueDate(String id) => '/customers/$id/due-date';
+  static String customerReminder(String id) => '/customers/$id/reminders';
+  static const creditReminders = '/customers/reminders';
+  static const creditSettings = '/settings/credit';
 
   static const salesReport = '/reports/sales';
 }

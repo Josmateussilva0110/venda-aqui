@@ -6,4 +6,7 @@ export const SESSION_COLUMNS = "id, merchant_id, device_id, expires_at, revoked_
 export const PRODUCT_COLUMNS =
   "id, name, photo_path, thumb_path, sale_price_cents, cost_price_cents, quantity, sold_by_weight, created_at, updated_at"
 
-export const CUSTOMER_COLUMNS = "id, name, phone, balance_cents, created_at, updated_at"
+export const CUSTOMER_COLUMNS = "id, name, phone, balance_cents, credit_due_date, created_at, updated_at"
+
+export const CREDIT_SETTINGS_COLUMNS =
+  "credit_term_days, reminders_enabled, remind_days_before, remind_on_due, remind_overdue_every_days, reminder_hour"

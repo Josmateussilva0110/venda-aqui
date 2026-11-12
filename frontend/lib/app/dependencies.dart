@@ -7,6 +7,8 @@ import '../core/config/app_config.dart';
 import '../core/network/api_client.dart';
 import '../core/network/auth_interceptor.dart';
 import '../core/network/http_client_factory.dart';
+import '../core/notifications/local_reminder_notifier.dart';
+import '../core/notifications/reminder_notifier.dart';
 import '../core/security/session_refresher.dart';
 import '../core/security/token_store.dart';
 import '../core/stock/stock_changes.dart';
@@ -47,6 +49,7 @@ class AppDependencies {
     required this.saleCart,
     required this.customersRepository,
     required this.reportsRepository,
+    required this.reminderNotifier,
   });
 
   final AuthRepository authRepository;
@@ -62,6 +65,9 @@ class AppDependencies {
   final SaleCartController saleCart;
   final CustomersRepository customersRepository;
   final ReportsRepository reportsRepository;
+
+  /// Aviso no aparelho do dia de lembrar os clientes do fiado.
+  final ReminderNotifier reminderNotifier;
 
   factory AppDependencies.create(AppConfig config, {required ThemeController themeController}) {
     final tokenStore = TokenStore(const FlutterSecureStorage());
@@ -106,6 +112,7 @@ class AppDependencies {
       saleCart: saleCart,
       customersRepository: const CustomersRepositoryImpl(),
       reportsRepository: const ReportsRepositoryImpl(),
+      reminderNotifier: LocalReminderNotifier(),
     );
   }
 
@@ -121,5 +128,6 @@ class AppDependencies {
     ChangeNotifierProvider<SaleCartController>.value(value: saleCart),
     Provider<CustomersRepository>.value(value: customersRepository),
     Provider<ReportsRepository>.value(value: reportsRepository),
+    Provider<ReminderNotifier>.value(value: reminderNotifier),
   ];
 }

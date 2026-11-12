@@ -3,6 +3,8 @@ import '../../../core/network/cancel_signal.dart';
 import '../../../core/network/json_map.dart';
 import '../../../core/network/json_reader.dart';
 import '../../../core/network/request_data.dart';
+import '../../../core/notifications/reminder_notifier.dart';
+import '../../../core/utils/date_only.dart';
 import '../domain/customer.dart';
 import '../domain/customers_repository.dart';
 
@@ -81,8 +83,92 @@ class CustomersRepositoryImpl implements CustomersRepository {
     return response.requireData();
   }
 
+  @override
+  Future<DateTime> setDueDate(String customerId, DateTime dueDate) async {
+    final response = await requestData<DateTime>(
+      endpoint: ApiPaths.customerDueDate(customerId),
+      method: 'PUT',
+      data: {'dueDate': DateOnly.toApi(dueDate)},
+      parse: (json) => _requireDate(jsonMap(json), 'creditDueDate'),
+    );
+    return response.requireData();
+  }
+
+  @override
+  Future<CreditReminderPage> reminders({required int offset, required int limit}) async {
+    final response = await requestData<CreditReminderPage>(
+      endpoint: ApiPaths.creditReminders,
+      params: {'offset': offset, 'limit': limit},
+      parse: (json) {
+        final data = jsonMap(json);
+        return CreditReminderPage(
+          items: data.requireMapList('items').map(_reminderFromJson).toList(growable: false),
+          total: data.requireInt('total'),
+        );
+      },
+    );
+    return response.requireData();
+  }
+
+  @override
+  Future<void> markReminded(String customerId) async {
+    final response = await requestData<void>(endpoint: ApiPaths.customerReminder(customerId), method: 'POST');
+    response.ensureSuccess();
+  }
+
+  // O resumo vem junto da lista; uma linha só basta para lê-lo
+  @override
+  Future<CreditSummary> summary() async {
+    final response = await requestData<CreditSummary>(
+      endpoint: ApiPaths.customers,
+      params: {'balance': CustomerBalanceFilter.owing.apiValue, 'limit': 1, 'offset': 0},
+      parse: (json) => _summaryFromJson(jsonMap(json).requireMap('summary')),
+    );
+    return response.requireData();
+  }
+
+  @override
+  Future<CreditSettings> creditSettings() async {
+    final response = await requestData<CreditSettings>(
+      endpoint: ApiPaths.creditSettings,
+      parse: (json) {
+        final data = jsonMap(json);
+        return CreditSettings(
+          creditTermDays: data.requireInt('creditTermDays'),
+          remindersEnabled: data.optionalBool('remindersEnabled'),
+          remindDaysBefore: data.requireInt('remindDaysBefore'),
+          remindOnDue: data.optionalBool('remindOnDue'),
+          remindOverdueEveryDays: data.requireInt('remindOverdueEveryDays'),
+          reminderHour: data.requireInt('reminderHour'),
+        );
+      },
+    );
+    return response.requireData();
+  }
+
+  @override
+  Future<void> saveCreditSettings(CreditSettings settings) async {
+    final response = await requestData<void>(
+      endpoint: ApiPaths.creditSettings,
+      method: 'PUT',
+      data: {
+        'creditTermDays': settings.creditTermDays,
+        'remindersEnabled': settings.remindersEnabled,
+        'remindDaysBefore': settings.remindDaysBefore,
+        'remindOnDue': settings.remindOnDue,
+        'remindOverdueEveryDays': settings.remindOverdueEveryDays,
+        'reminderHour': settings.reminderHour,
+      },
+    );
+    response.ensureSuccess();
+  }
+
   CreditSummary _summaryFromJson(Map<String, dynamic> json) {
-    return CreditSummary(owingCount: json.requireInt('owingCount'), owedCents: json.requireInt('owedCents'));
+    return CreditSummary(
+      owingCount: json.requireInt('owingCount'),
+      owedCents: json.requireInt('owedCents'),
+      reminders: ReminderSchedule.fromSummaryJson(json['reminders']),
+    );
   }
 
   Customer _customerFromJson(Map<String, dynamic> json) {
@@ -91,7 +177,20 @@ class CustomersRepositoryImpl implements CustomersRepository {
       name: json.requireString('name'),
       phone: json.requireString('phone'),
       balanceCents: json.requireInt('balanceCents'),
+      creditDueDate: DateOnly.tryParse(json.optionalString('creditDueDate')),
     );
+  }
+
+  CreditReminder _reminderFromJson(Map<String, dynamic> json) {
+    final status = DueStatus.fromApi(json.optionalString('kind'));
+    if (status == null) throw const FormatException('Tipo de lembrete desconhecido');
+    return CreditReminder(customer: _customerFromJson(json), status: status);
+  }
+
+  DateTime _requireDate(Map<String, dynamic> json, String key) {
+    final date = DateOnly.tryParse(json.requireString(key));
+    if (date == null) throw FormatException('Data inválida em $key');
+    return date;
   }
 
   StatementEntry _entryFromJson(Map<String, dynamic> json) {

@@ -92,4 +92,30 @@ describe("contrato HTTP sem banco", () => {
     expect(response.status).toBe(422)
     expect(response.body.errors[0].field).toBe("id")
   })
+
+  // Se /reminders ficar depois de /:id, "reminders" vira id inválido e a tela de lembretes quebra
+  it("lista de lembretes não é confundida com o id de um cliente", async () => {
+    const token = signAccessToken({ merchantId: "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11", sessionId: "s" })
+    const response = await request(app).get("/api/customers/reminders").query({ limit: 0 }).set("Authorization", `Bearer ${token}`)
+    expect(response.status).toBe(422)
+    expect(response.body.errors[0].field).toBe("limit")
+  })
+
+  it("vencimento, lembrete e configuração do fiado exigem token e validam antes do banco", async () => {
+    const id = "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11"
+    const anonymous = await Promise.all([
+      request(app).put(`/api/customers/${id}/due-date`).send({ dueDate: "2026-12-01" }),
+      request(app).post(`/api/customers/${id}/reminders`),
+      request(app).get("/api/settings/credit"),
+    ])
+    expect(anonymous.map((response) => response.status)).toEqual([401, 401, 401])
+
+    const token = signAccessToken({ merchantId: id, sessionId: "s" })
+    const dueDate = await request(app).put(`/api/customers/${id}/due-date`).set("Authorization", `Bearer ${token}`).send({ dueDate: "01/12/2026" })
+    const reminder = await request(app).post("/api/customers/abc/reminders").set("Authorization", `Bearer ${token}`)
+    const settings = await request(app).put("/api/settings/credit").set("Authorization", `Bearer ${token}`).send({})
+    expect([dueDate.status, reminder.status, settings.status]).toEqual([422, 422, 422])
+    expect(dueDate.body.errors[0].field).toBe("dueDate")
+    expect(reminder.body.errors[0].field).toBe("id")
+  })
 })
