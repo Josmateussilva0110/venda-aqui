@@ -11,7 +11,7 @@ String formatDueDate(DateTime date, {required String locale, DateTime? now}) {
   return (sameYear ? DateFormat('dd/MM', locale) : DateFormat('dd/MM/yyyy', locale)).format(date);
 }
 
-/// Itens mostrados por compra; o resto vira "e mais N", para a mensagem não virar um extrato.
+/// Itens mostrados por compra; o resto vira "Mais N itens" com a soma, para a mensagem não virar um extrato.
 const _maxItemsPerPurchase = 5;
 
 /// Mensagem de cobrança no tom formal escolhido pelo comerciante, conforme a situação do vencimento,
@@ -41,32 +41,32 @@ String reminderMessage(
   return ['${l10n.reminderGreeting(firstName)}\n$opening', ?purchases, '$closing\n$signature'].join('\n\n');
 }
 
-/// "*Compras:*" com uma linha por compra e o já pago; nulo sem compras (não deveria acontecer com quem deve).
+/// "*Compras:*" com a data de cada compra e os itens embaixo, cada um com o valor; nulo sem compras.
+/// O já pago vem em parágrafo separado, para o cliente fechar a conta: itens - pago = saldo.
 String? _purchasesBlock(AppLocalizations l10n, OpenAccount account, {required String locale}) {
   if (account.purchases.isEmpty && account.earlierCount == 0) return null;
   final lines = [
     l10n.reminderPurchasesTitle,
     if (account.earlierCount > 0) l10n.reminderPurchasesEarlier(account.earlierCount, MoneyFormat.format(account.earlierCents)),
-    for (final purchase in account.purchases)
-      l10n.reminderPurchaseLine(
-        formatDueDate(purchase.createdAt, locale: locale),
-        _itemsText(l10n, purchase.items),
-        MoneyFormat.format(purchase.totalCents),
-      ),
-    if (account.paidCents > 0) l10n.reminderPaid(MoneyFormat.format(account.paidCents)),
+    for (final purchase in account.purchases) ...[
+      l10n.reminderPurchaseDate(formatDueDate(purchase.createdAt, locale: locale)),
+      ..._itemLines(l10n, purchase.items),
+    ],
   ];
-  return lines.join('\n');
+  final purchases = lines.join('\n');
+  if (account.paidCents <= 0) return purchases;
+  return '$purchases\n\n${l10n.reminderPaid(MoneyFormat.format(account.paidCents))}';
 }
 
-String _itemsText(AppLocalizations l10n, List<PurchasedItem> items) {
-  final shown = items
-      .take(_maxItemsPerPurchase)
-      .map((item) {
-        final quantity = QuantityFormat.format(item.quantity, soldByWeight: item.soldByWeight);
-        final unit = item.soldByWeight ? l10n.unitKg : l10n.unitPiece;
-        return '${l10n.quantityWithUnit(quantity, unit)} ${item.name}';
-      })
-      .join(', ');
-  final hidden = items.length - _maxItemsPerPurchase;
-  return hidden > 0 ? l10n.reminderPurchaseMoreItems(shown, hidden) : shown;
+List<String> _itemLines(AppLocalizations l10n, List<PurchasedItem> items) {
+  final shown = items.take(_maxItemsPerPurchase).map((item) {
+    final quantity = QuantityFormat.format(item.quantity, soldByWeight: item.soldByWeight);
+    final unit = item.soldByWeight ? l10n.unitKg : l10n.unitPiece;
+    return l10n.reminderPurchaseItem('${l10n.quantityWithUnit(quantity, unit)} ${item.name}', MoneyFormat.format(item.subtotalCents));
+  });
+  final hidden = items.skip(_maxItemsPerPurchase).toList();
+  if (hidden.isEmpty) return shown.toList();
+  // Os itens que não aparecem entram somados, para a conta continuar fechando
+  final hiddenCents = hidden.fold(0, (sum, item) => sum + item.subtotalCents);
+  return [...shown, l10n.reminderPurchaseMoreItems(hidden.length, MoneyFormat.format(hiddenCents))];
 }

@@ -1004,13 +1004,24 @@ class AppLocalizationsPt extends AppLocalizations {
   String get reminderPurchasesTitle => '*Compras:*';
 
   @override
-  String reminderPurchaseLine(String date, String items, String amount) {
-    return '• $date: $items — $amount';
+  String reminderPurchaseDate(String date) {
+    return '*$date*';
   }
 
   @override
-  String reminderPurchaseMoreItems(String items, int count) {
-    return '$items e mais $count';
+  String reminderPurchaseItem(String item, String amount) {
+    return '  • $item — $amount';
+  }
+
+  @override
+  String reminderPurchaseMoreItems(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '  • Mais $count itens — $amount',
+      one: '  • Mais 1 item — $amount',
+    );
+    return '$_temp0';
   }
 
   @override

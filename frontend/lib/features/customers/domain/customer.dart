@@ -66,11 +66,14 @@ enum DueStatus {
 /// Item de uma compra fiado, como foi vendido.
 @immutable
 class PurchasedItem {
-  const PurchasedItem({required this.name, required this.quantity, required this.soldByWeight});
+  const PurchasedItem({required this.name, required this.quantity, required this.soldByWeight, required this.subtotalCents});
 
   final String name;
   final double quantity;
   final bool soldByWeight;
+
+  /// Valor do item como ficou gravado na venda (preço da época).
+  final int subtotalCents;
 }
 
 @immutable

@@ -38,3 +38,7 @@
   `/:id`) lista os pendentes; `POST /customers/:id/reminders` grava `last_reminded_on`. O resumo do fiado traz
   `reminders: { dueCount, nextOn, hour } | null`, que o app usa para agendar o aviso local. O envio ao cliente é
   sempre pelo WhatsApp do comerciante (link wa.me); a API nunca manda mensagem.
+- Conta em aberto (`GET /customers/:id/open-account`, função `customer_open_account`, migrations `20261112000000` e
+  `20261113000000`): compras fiado desde a última vez que o saldo zerou (janela sobre vendas + pagamentos, sem coluna
+  nova), até `OPEN_ACCOUNT_PURCHASE_LIMIT` compras com itens (`subtotal_cents` gravado na venda) e o já pago no período;
+  compras listadas + anteriores − pago = saldo. Migration já aplicada não se edita: mudança de função vai em arquivo novo.

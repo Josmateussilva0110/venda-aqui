@@ -1873,17 +1873,23 @@ abstract class AppLocalizations {
   /// **'*Compras:*'**
   String get reminderPurchasesTitle;
 
-  /// No description provided for @reminderPurchaseLine.
+  /// No description provided for @reminderPurchaseDate.
   ///
   /// In pt, this message translates to:
-  /// **'• {date}: {items} — {amount}'**
-  String reminderPurchaseLine(String date, String items, String amount);
+  /// **'*{date}*'**
+  String reminderPurchaseDate(String date);
+
+  /// No description provided for @reminderPurchaseItem.
+  ///
+  /// In pt, this message translates to:
+  /// **'  • {item} — {amount}'**
+  String reminderPurchaseItem(String item, String amount);
 
   /// No description provided for @reminderPurchaseMoreItems.
   ///
   /// In pt, this message translates to:
-  /// **'{items} e mais {count}'**
-  String reminderPurchaseMoreItems(String items, int count);
+  /// **'{count, plural, =1{  • Mais 1 item — {amount}} other{  • Mais {count} itens — {amount}}}'**
+  String reminderPurchaseMoreItems(int count, String amount);
 
   /// No description provided for @reminderPurchasesEarlier.
   ///

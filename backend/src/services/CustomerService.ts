@@ -405,7 +405,12 @@ class CustomerService {
         id: purchase.id,
         createdAt: purchase.created_at,
         totalCents: purchase.total_cents,
-        items: purchase.items.map((item) => ({ name: item.name, quantity: Number(item.quantity), soldByWeight: item.sold_by_weight })),
+        items: purchase.items.map((item) => ({
+          name: item.name,
+          quantity: Number(item.quantity),
+          soldByWeight: item.sold_by_weight,
+          subtotalCents: item.subtotal_cents,
+        })),
       })),
       earlierCount: Number(row.earlier_count),
       earlierCents: Number(row.earlier_cents),

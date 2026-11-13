@@ -130,6 +130,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
               name: item.requireString('name'),
               quantity: item.requireDouble('quantity'),
               soldByWeight: item.optionalBool('soldByWeight'),
+              subtotalCents: item.requireInt('subtotalCents'),
             ),
           )
           .toList(growable: false),

@@ -42,7 +42,7 @@ export interface OpenAccountRow {
     id: string
     created_at: string
     total_cents: number
-    items: Array<{ name: string; quantity: number | string; sold_by_weight: boolean }>
+    items: Array<{ name: string; quantity: number | string; sold_by_weight: boolean; subtotal_cents: number }>
   }>
   earlier_count: number | string
   earlier_cents: number | string

@@ -404,7 +404,7 @@ class FakeCustomersRepository implements CustomersRepository {
             OpenPurchase(
               createdAt: DateTime(2026, 11, 3, 10),
               totalCents: customer.balanceCents,
-              items: const [PurchasedItem(name: 'Arroz', quantity: 2, soldByWeight: false)],
+              items: [PurchasedItem(name: 'Arroz', quantity: 2, soldByWeight: false, subtotalCents: customer.balanceCents)],
             ),
           ],
           earlierCount: 0,

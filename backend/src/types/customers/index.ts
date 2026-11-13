@@ -58,6 +58,8 @@ export interface OpenPurchaseItem {
   name: string
   quantity: number
   soldByWeight: boolean
+  // Valor do item na venda (preço da época), como ficou gravado
+  subtotalCents: number
 }
 
 export interface OpenPurchase {

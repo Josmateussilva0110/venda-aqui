@@ -628,13 +628,18 @@
   "reminderClosingHelp": "Em caso de dúvida, estou à disposição.",
   "reminderClosingNewTerm": "Caso precise de um novo prazo, é só responder esta mensagem.",
   "reminderPurchasesTitle": "*Compras:*",
-  "reminderPurchaseLine": "• {date}: {items} — {amount}",
-  "@reminderPurchaseLine": {
+  "reminderPurchaseDate": "*{date}*",
+  "@reminderPurchaseDate": {
     "placeholders": {
       "date": {
         "type": "String"
-      },
-      "items": {
+      }
+    }
+  },
+  "reminderPurchaseItem": "  • {item} — {amount}",
+  "@reminderPurchaseItem": {
+    "placeholders": {
+      "item": {
         "type": "String"
       },
       "amount": {
@@ -642,14 +647,14 @@
       }
     }
   },
-  "reminderPurchaseMoreItems": "{items} e mais {count}",
+  "reminderPurchaseMoreItems": "{count, plural, =1{  • Mais 1 item — {amount}} other{  • Mais {count} itens — {amount}}}",
   "@reminderPurchaseMoreItems": {
     "placeholders": {
-      "items": {
-        "type": "String"
-      },
       "count": {
         "type": "int"
+      },
+      "amount": {
+        "type": "String"
       }
     }
   },
