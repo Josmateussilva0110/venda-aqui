@@ -2,6 +2,8 @@ import type { Request, Response } from "express"
 import { customerErrorHttpStatusMap } from "../errors/customers"
 import type { CustomerDTO } from "../schemas/customers/customer"
 import type { CustomerParamsDTO } from "../schemas/customers/customerParams"
+import type { DueDateDTO } from "../schemas/customers/dueDate"
+import type { ListRemindersDTO } from "../schemas/customers/listReminders"
 import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
 import type { PaymentDTO } from "../schemas/customers/payment"
 import type { StatementDTO } from "../schemas/customers/statement"
@@ -53,6 +55,31 @@ class CustomerController {
     const result = await CustomerService.registerPayment(requireAuthField(request, "merchantId"), request.params.id, request.body)
     if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
     return sendSuccess(response, "Pagamento registrado com sucesso.", result.data, 201)
+  }
+
+  async setDueDate(request: Request<CustomerParamsDTO, unknown, DueDateDTO>, response: Response): Promise<Response> {
+    const result = await CustomerService.setDueDate(requireAuthField(request, "merchantId"), request.params.id, request.body)
+    if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
+    return sendSuccess(response, "Vencimento atualizado com sucesso.", result.data)
+  }
+
+  async listReminders(request: Request, response: Response): Promise<Response> {
+    const filters = request.query as unknown as ListRemindersDTO
+    const result = await CustomerService.listReminders(requireAuthField(request, "merchantId"), filters)
+    if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
+    return sendSuccess(response, "Lembretes carregados.", result.data)
+  }
+
+  async openAccount(request: Request<CustomerParamsDTO>, response: Response): Promise<Response> {
+    const result = await CustomerService.openAccount(requireAuthField(request, "merchantId"), request.params.id)
+    if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
+    return sendSuccess(response, "Conta em aberto carregada.", result.data)
+  }
+
+  async markReminded(request: Request<CustomerParamsDTO>, response: Response): Promise<Response> {
+    const result = await CustomerService.markReminded(requireAuthField(request, "merchantId"), request.params.id)
+    if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
+    return sendSuccess(response, "Lembrete registrado.", result.data, 201)
   }
 
 }

@@ -3,22 +3,35 @@ import { CUSTOMER_COLUMNS } from "../constants/columns"
 import {
   CUSTOMER_CREATE_FAILED_ERROR,
   CUSTOMER_DELETE_FAILED_ERROR,
+  CUSTOMER_DUE_DATE_FAILED_ERROR,
+  CUSTOMER_DUE_DATE_INVALID_ERROR,
   CUSTOMER_FETCH_FAILED_ERROR,
   CUSTOMER_HAS_HISTORY_ERROR,
   CUSTOMER_LIST_FAILED_ERROR,
   CUSTOMER_NOT_FOUND_ERROR,
+  CUSTOMER_NOT_OWING_ERROR,
+  CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR,
   CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR,
   CUSTOMER_PAYMENT_FAILED_ERROR,
   CUSTOMER_PHONE_TAKEN_ERROR,
+  CUSTOMER_REMINDER_FAILED_ERROR,
+  CUSTOMER_REMINDERS_FAILED_ERROR,
   CUSTOMER_STATEMENT_FAILED_ERROR,
   CUSTOMER_UPDATE_FAILED_ERROR,
 } from "../errors/customers"
+import { OPEN_ACCOUNT_PURCHASE_LIMIT } from "../constants/customers"
 import { SALE_DB_ERRORS } from "../constants/sales"
 import type { CustomerDTO } from "../schemas/customers/customer"
+import type { DueDateDTO } from "../schemas/customers/dueDate"
+import type { ListRemindersDTO } from "../schemas/customers/listReminders"
 import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
 import type { PaymentDTO } from "../schemas/customers/payment"
 import type { StatementDTO } from "../schemas/customers/statement"
 import type {
+  CreditReminder,
+  CreditReminderList,
+  CreditReminderListRow,
+  CreditReminderRow,
   CreditSummary,
   CreditSummaryRow,
   Customer,
@@ -26,6 +39,9 @@ import type {
   CustomerResult,
   CustomerRow,
   CustomerStatement,
+  DueDateSaved,
+  OpenAccount,
+  OpenAccountRow,
   PaymentSaved,
   StatementEntry,
   StatementEntryRow,
@@ -242,6 +258,96 @@ class CustomerService {
     }
   }
 
+  async setDueDate(merchantId: string, customerId: string, input: DueDateDTO): CustomerResult<DueDateSaved> {
+    try {
+      const { data, error } = await supabase.rpc("set_customer_due_date", {
+        p_merchant_id: merchantId,
+        p_customer_id: customerId,
+        p_due_date: input.dueDate,
+      })
+
+      if (error?.code === SALE_DB_ERRORS.customerNotFound) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+      if (error?.code === SALE_DB_ERRORS.customerNotOwing) return { status: false, error: CUSTOMER_NOT_OWING_ERROR }
+      if (error?.code === SALE_DB_ERRORS.invalidDueDate) return { status: false, error: CUSTOMER_DUE_DATE_INVALID_ERROR }
+      if (error || typeof data !== "string") {
+        console.error("[CustomerService.setDueDate]", error)
+        return { status: false, error: CUSTOMER_DUE_DATE_FAILED_ERROR }
+      }
+
+      return { status: true, data: { id: customerId, creditDueDate: data } }
+    } catch (error) {
+      console.error("[CustomerService.setDueDate] error:", error)
+      return { status: false, error: CUSTOMER_DUE_DATE_FAILED_ERROR }
+    }
+  }
+
+  async listReminders(merchantId: string, filters: ListRemindersDTO): CustomerResult<CreditReminderList> {
+    try {
+      const { data, error } = await supabase
+        .rpc("list_credit_reminders", { p_merchant_id: merchantId, p_limit: filters.limit, p_offset: filters.offset })
+        .single<CreditReminderListRow>()
+
+      if (error || !data) {
+        console.error("[CustomerService.listReminders]", error)
+        return { status: false, error: CUSTOMER_REMINDERS_FAILED_ERROR }
+      }
+
+      return {
+        status: true,
+        data: {
+          items: data.items.map((row) => this.toCreditReminder(row)),
+          total: data.total,
+          limit: filters.limit,
+          offset: filters.offset,
+        },
+      }
+    } catch (error) {
+      console.error("[CustomerService.listReminders] error:", error)
+      return { status: false, error: CUSTOMER_REMINDERS_FAILED_ERROR }
+    }
+  }
+
+  // O app chama depois de abrir o WhatsApp; o lembrete sai da lista até a próxima data de lembrete
+  async markReminded(merchantId: string, customerId: string): CustomerResult<{ id: string }> {
+    try {
+      const { data, error } = await supabase.rpc("mark_customer_reminded", { p_merchant_id: merchantId, p_customer_id: customerId })
+
+      if (error) {
+        console.error("[CustomerService.markReminded]", error)
+        return { status: false, error: CUSTOMER_REMINDER_FAILED_ERROR }
+      }
+      // Nulo: o cliente não existe ou já quitou; para o app, nos dois casos não há o que lembrar
+      if (typeof data !== "string") return { status: false, error: CUSTOMER_NOT_OWING_ERROR }
+
+      return { status: true, data: { id: data } }
+    } catch (error) {
+      console.error("[CustomerService.markReminded] error:", error)
+      return { status: false, error: CUSTOMER_REMINDER_FAILED_ERROR }
+    }
+  }
+
+  async openAccount(merchantId: string, customerId: string): CustomerResult<OpenAccount> {
+    try {
+      const { data, error } = await supabase.rpc("customer_open_account", {
+        p_merchant_id: merchantId,
+        p_customer_id: customerId,
+        p_limit: OPEN_ACCOUNT_PURCHASE_LIMIT,
+      })
+
+      if (error) {
+        console.error("[CustomerService.openAccount]", error)
+        return { status: false, error: CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR }
+      }
+      // Nulo: o cliente não existe ou é de outro comerciante
+      if (!data) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+
+      return { status: true, data: this.toOpenAccount(data as OpenAccountRow) }
+    } catch (error) {
+      console.error("[CustomerService.openAccount] error:", error)
+      return { status: false, error: CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR }
+    }
+  }
+
   private async belongsToMerchant(merchantId: string, customerId: string): Promise<boolean> {
     const { count, error } = await supabase
       .from("customers")
@@ -273,6 +379,7 @@ class CustomerService {
       name: row.name,
       phone: row.phone,
       balanceCents: row.balance_cents,
+      creditDueDate: row.credit_due_date,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }
@@ -280,7 +387,45 @@ class CustomerService {
 
   // bigint chega como texto ou número conforme o tamanho; o saldo somado cabe com folga num number
   private toCreditSummary(row: CreditSummaryRow): CreditSummary {
-    return { owingCount: row.owing_count, owedCents: Number(row.owed_cents) }
+    return {
+      owingCount: row.owing_count,
+      owedCents: Number(row.owed_cents),
+      reminders: row.reminders_enabled
+        ? { dueCount: row.reminders_due, nextOn: row.next_reminder_on, hour: row.reminder_hour }
+        : null,
+    }
+  }
+
+  private toOpenAccount(row: OpenAccountRow): OpenAccount {
+    return {
+      balanceCents: row.balance_cents,
+      creditDueDate: row.credit_due_date,
+      paidCents: Number(row.paid_cents),
+      purchases: row.purchases.map((purchase) => ({
+        id: purchase.id,
+        createdAt: purchase.created_at,
+        totalCents: purchase.total_cents,
+        items: purchase.items.map((item) => ({
+          name: item.name,
+          quantity: Number(item.quantity),
+          soldByWeight: item.sold_by_weight,
+          subtotalCents: item.subtotal_cents,
+        })),
+      })),
+      earlierCount: Number(row.earlier_count),
+      earlierCents: Number(row.earlier_cents),
+    }
+  }
+
+  private toCreditReminder(row: CreditReminderRow): CreditReminder {
+    return {
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      balanceCents: row.balance_cents,
+      creditDueDate: row.credit_due_date,
+      kind: row.reminder_kind,
+    }
   }
 
   private toStatementEntry(row: StatementEntryRow): StatementEntry {

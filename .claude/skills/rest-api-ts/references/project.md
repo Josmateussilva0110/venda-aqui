@@ -30,3 +30,15 @@
   como o preço; a edição mantém preço e custo dos itens que continuam (mapa `{price, cost}` em `_sale_apply_items`).
   `GET /reports/sales?from&to` chama `sales_report` (lucro = total vendido − custo; ranking pelo lucro, até 6).
   Regras de período compartilhadas com o histórico em `schemas/fields/period.ts`.
+- Vencimento do fiado e lembretes (`20261111000000_credit_due_dates_and_reminders.sql`): um vencimento por cliente
+  (`customers.credit_due_date`), mantido pelo trigger `customers_track_due_date` quando o saldo sai do zero ou zera
+  (constraint: deve ⇔ tem vencimento). "Hoje" é `_local_today()` (horário de Brasília), nunca a data do app.
+  Configuração em colunas de `merchants` (`GET/PUT /settings/credit`). `PUT /customers/:id/due-date` chama
+  `set_customer_due_date` (VQ007 não deve, VQ008 data fora de hoje..+365). `GET /customers/reminders` (rota antes de
+  `/:id`) lista os pendentes; `POST /customers/:id/reminders` grava `last_reminded_on`. O resumo do fiado traz
+  `reminders: { dueCount, nextOn, hour } | null`, que o app usa para agendar o aviso local. O envio ao cliente é
+  sempre pelo WhatsApp do comerciante (link wa.me); a API nunca manda mensagem.
+- Conta em aberto (`GET /customers/:id/open-account`, função `customer_open_account`, migrations `20261112000000` e
+  `20261113000000`): compras fiado desde a última vez que o saldo zerou (janela sobre vendas + pagamentos, sem coluna
+  nova), até `OPEN_ACCOUNT_PURCHASE_LIMIT` compras com itens (`subtotal_cents` gravado na venda) e o já pago no período;
+  compras listadas + anteriores − pago = saldo. Migration já aplicada não se edita: mudança de função vai em arquivo novo.

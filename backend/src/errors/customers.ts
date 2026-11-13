@@ -17,6 +17,18 @@ export const CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR = {
 export const CUSTOMER_PAYMENT_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_PAYMENT_FAILED, message: "Erro ao registrar o pagamento." }
 export const CUSTOMER_STATEMENT_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_STATEMENT_FAILED, message: "Erro ao carregar o extrato." }
 export const CUSTOMER_DELETE_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_DELETE_FAILED, message: "Erro ao excluir o cliente." }
+export const CUSTOMER_NOT_OWING_ERROR = { code: CustomerErrorCode.CUSTOMER_NOT_OWING, message: "Este cliente não tem fiado em aberto." }
+export const CUSTOMER_DUE_DATE_INVALID_ERROR = {
+  code: CustomerErrorCode.CUSTOMER_DUE_DATE_INVALID,
+  message: "Escolha um vencimento entre hoje e daqui a um ano.",
+}
+export const CUSTOMER_DUE_DATE_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_DUE_DATE_FAILED, message: "Erro ao mudar o vencimento." }
+export const CUSTOMER_REMINDERS_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_REMINDERS_FAILED, message: "Erro ao carregar os lembretes." }
+export const CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR = {
+  code: CustomerErrorCode.CUSTOMER_OPEN_ACCOUNT_FAILED,
+  message: "Erro ao carregar as compras do cliente.",
+}
+export const CUSTOMER_REMINDER_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_REMINDER_FAILED, message: "Erro ao registrar o lembrete." }
 
 export const customerErrorHttpStatusMap: Record<CustomerErrorCode, number> = {
   [CustomerErrorCode.CUSTOMER_NOT_FOUND]: 404,
@@ -30,4 +42,10 @@ export const customerErrorHttpStatusMap: Record<CustomerErrorCode, number> = {
   [CustomerErrorCode.CUSTOMER_PAYMENT_EXCEEDS_BALANCE]: 409,
   [CustomerErrorCode.CUSTOMER_PAYMENT_FAILED]: 500,
   [CustomerErrorCode.CUSTOMER_STATEMENT_FAILED]: 500,
+  [CustomerErrorCode.CUSTOMER_NOT_OWING]: 409,
+  [CustomerErrorCode.CUSTOMER_DUE_DATE_INVALID]: 422,
+  [CustomerErrorCode.CUSTOMER_DUE_DATE_FAILED]: 500,
+  [CustomerErrorCode.CUSTOMER_REMINDERS_FAILED]: 500,
+  [CustomerErrorCode.CUSTOMER_REMINDER_FAILED]: 500,
+  [CustomerErrorCode.CUSTOMER_OPEN_ACCOUNT_FAILED]: 500,
 }
