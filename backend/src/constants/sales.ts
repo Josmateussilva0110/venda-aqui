@@ -17,4 +17,7 @@ export const SALE_DB_ERRORS = {
   customerNotFound: "VQ004",
   saleNotFound: "VQ005",
   negativeBalance: "VQ006",
+  // Vencimento do fiado (migration 20261111000000_credit_due_dates_and_reminders.sql)
+  customerNotOwing: "VQ007",
+  invalidDueDate: "VQ008",
 } as const

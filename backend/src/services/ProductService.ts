@@ -5,6 +5,7 @@ import { LOW_STOCK_THRESHOLD, STOCK_COUNT_KEYS } from "../constants/products"
 import { PHOTO_EXTENSIONS, PHOTO_THUMB_SUFFIX, PRODUCT_PHOTOS_BUCKET, type PhotoContentType } from "../constants/storage"
 import {
   PRODUCT_CREATE_FAILED_ERROR,
+  PRODUCT_DELETE_FAILED_ERROR,
   PRODUCT_FETCH_FAILED_ERROR,
   PRODUCT_LIST_FAILED_ERROR,
   PRODUCT_NAME_TAKEN_ERROR,
@@ -148,6 +149,30 @@ class ProductService {
     } catch (error) {
       console.error("[ProductService.update] error:", error)
       return { status: false, error: PRODUCT_UPDATE_FAILED_ERROR }
+    }
+  }
+
+  async remove(merchantId: string, productId: string): ProductResult<{ id: string }> {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", productId)
+        .eq("merchant_id", merchantId)
+        .select("photo_path, thumb_path")
+        .maybeSingle<Pick<ProductRow, "photo_path" | "thumb_path">>()
+
+      if (error) {
+        console.error("[ProductService.remove]", error)
+        return { status: false, error: PRODUCT_DELETE_FAILED_ERROR }
+      }
+      if (!data) return { status: false, error: PRODUCT_NOT_FOUND_ERROR }
+
+      await this.removePhotos([data.photo_path, data.thumb_path])
+      return { status: true, data: { id: productId } }
+    } catch (error) {
+      console.error("[ProductService.remove] error:", error)
+      return { status: false, error: PRODUCT_DELETE_FAILED_ERROR }
     }
   }
 
@@ -313,12 +338,16 @@ class ProductService {
     return { path: data.path, signedUrl: data.signedUrl, token: data.token }
   }
 
-  // Falhar aqui só deixa arquivos órfãos no bucket; não vale desfazer a troca por isso
   private async removeReplacedPhoto(previousPaths: Array<string | null>, newPath: string): Promise<void> {
-    const stale = previousPaths.filter((path): path is string => path !== null && path !== newPath)
-    if (stale.length === 0) return
-    const { error } = await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove(stale)
-    if (error) console.error("[ProductService.removeReplacedPhoto]", error)
+    await this.removePhotos(previousPaths.filter((path) => path !== newPath))
+  }
+
+  // Falhar aqui só deixa arquivos órfãos no bucket; não vale desfazer a troca ou a remoção por isso
+  private async removePhotos(paths: Array<string | null>): Promise<void> {
+    const existing = paths.filter((path): path is string => path !== null)
+    if (existing.length === 0) return
+    const { error } = await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove(existing)
+    if (error) console.error("[ProductService.removePhotos]", error)
   }
 
   private publicUrlOf(path: string | null): string | null {

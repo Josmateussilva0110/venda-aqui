@@ -7,9 +7,11 @@ import { ListProductsSchema } from "../src/schemas/products/listProducts"
 import { RestockSchema } from "../src/schemas/products/restock"
 import { CustomerSchema } from "../src/schemas/customers/customer"
 import { ListCustomersSchema } from "../src/schemas/customers/listCustomers"
+import { DueDateSchema } from "../src/schemas/customers/dueDate"
 import { PaymentSchema } from "../src/schemas/customers/payment"
 import { ListSalesSchema } from "../src/schemas/sales/listSales"
 import { SaleSchema } from "../src/schemas/sales/sale"
+import { CreditSettingsSchema } from "../src/schemas/settings/creditSettings"
 
 describe("phoneField", () => {
   it.each([
@@ -175,5 +177,35 @@ describe("PaymentSchema", () => {
     expect(PaymentSchema.safeParse({ amountCents: 0, paymentMethod: "pix" }).success).toBe(false)
     expect(PaymentSchema.safeParse({ amountCents: 500, paymentMethod: "credit" }).success).toBe(false)
     expect(PaymentSchema.safeParse({ amountCents: 500, paymentMethod: "cash" }).success).toBe(true)
+  })
+})
+
+describe("DueDateSchema", () => {
+  it("aceita só data AAAA-MM-DD válida", () => {
+    expect(DueDateSchema.safeParse({ dueDate: "2026-12-01" }).success).toBe(true)
+    expect(DueDateSchema.safeParse({ dueDate: "2026-02-30" }).success).toBe(false)
+    expect(DueDateSchema.safeParse({ dueDate: "2026-12-01T00:00:00Z" }).success).toBe(false)
+  })
+})
+
+// Os limites espelham as constraints do banco: passar daqui viraria erro 500 em vez de 422
+describe("CreditSettingsSchema", () => {
+  const valid = { creditTermDays: 30, remindersEnabled: true, remindDaysBefore: 3, remindOnDue: true, remindOverdueEveryDays: 7, reminderHour: 9 }
+
+  it("aceita zero para desligar o lembrete antes e o de vencido", () => {
+    expect(CreditSettingsSchema.safeParse({ ...valid, remindDaysBefore: 0, remindOverdueEveryDays: 0 }).success).toBe(true)
+  })
+
+  it.each([
+    ["creditTermDays", 0],
+    ["creditTermDays", 181],
+    ["remindDaysBefore", 31],
+    ["remindOverdueEveryDays", -1],
+    ["reminderHour", 24],
+    ["reminderHour", 8.5],
+  ])("recusa %s = %s", (field, value) => {
+    const result = CreditSettingsSchema.safeParse({ ...valid, [field]: value })
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.path).toEqual([field])
   })
 })
