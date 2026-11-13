@@ -113,6 +113,8 @@ describe("contrato HTTP sem banco", () => {
     const token = signAccessToken({ merchantId: id, sessionId: "s" })
     const dueDate = await request(app).put(`/api/customers/${id}/due-date`).set("Authorization", `Bearer ${token}`).send({ dueDate: "01/12/2026" })
     const reminder = await request(app).post("/api/customers/abc/reminders").set("Authorization", `Bearer ${token}`)
+    const openAccount = await request(app).get("/api/customers/abc/open-account").set("Authorization", `Bearer ${token}`)
+    expect(openAccount.status).toBe(422)
     const settings = await request(app).put("/api/settings/credit").set("Authorization", `Bearer ${token}`).send({})
     expect([dueDate.status, reminder.status, settings.status]).toEqual([422, 422, 422])
     expect(dueDate.body.errors[0].field).toBe("dueDate")

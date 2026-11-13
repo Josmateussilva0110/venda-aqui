@@ -5,12 +5,23 @@ import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/brand_logo.dart';
 import '../../../../l10n/app_localizations.dart';
 
-/// Topo do início: marca, data, configurações e saudação.
+/// Topo do início: marca, data, lembretes do fiado, configurações e saudação.
 class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({super.key, required this.now, required this.merchantName, required this.onSettings});
+  const DashboardHeader({
+    super.key,
+    required this.now,
+    required this.merchantName,
+    required this.pendingReminders,
+    required this.onReminders,
+    required this.onSettings,
+  });
 
   final DateTime now;
   final String? merchantName;
+
+  /// Lembretes do fiado para enviar; zero esconde a bolinha do sino.
+  final int pendingReminders;
+  final VoidCallback onReminders;
   final VoidCallback onSettings;
 
   static const _afternoonStartsAt = 12;
@@ -59,6 +70,13 @@ class DashboardHeader extends StatelessWidget {
                 style: context.text.labelSmall?.copyWith(color: colors.subtle, fontWeight: FontWeight.w500),
               ),
             ),
+            _HeaderButton(
+              icon: pendingReminders > 0 ? Icons.notifications_active_outlined : Icons.notifications_none_rounded,
+              tooltip: pendingReminders > 0 ? l10n.dashboardRemindersPending(pendingReminders) : l10n.dashboardReminders,
+              badgeCount: pendingReminders,
+              onPressed: onReminders,
+            ),
+            SizedBox(width: spacing.sm),
             _HeaderButton(icon: Icons.settings_outlined, tooltip: l10n.dashboardSettings, onPressed: onSettings),
           ],
         ),
@@ -84,19 +102,32 @@ class DashboardHeader extends StatelessWidget {
 }
 
 class _HeaderButton extends StatelessWidget {
-  const _HeaderButton({required this.icon, required this.tooltip, required this.onPressed});
+  const _HeaderButton({required this.icon, required this.tooltip, required this.onPressed, this.badgeCount = 0});
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
 
+  /// Número na bolinha do canto; zero não mostra a bolinha.
+  final int badgeCount;
+
+  // Acima disso a bolinha mostra "99+" para não crescer
+  static const _maxBadgeCount = 99;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = AppLocalizations.of(context);
     return IconButton(
       onPressed: onPressed,
       tooltip: tooltip,
-      icon: Icon(icon, color: colors.ink, size: context.sizes.icon),
+      icon: Badge(
+        isLabelVisible: badgeCount > 0,
+        backgroundColor: colors.danger,
+        textColor: colors.onPrimary,
+        label: Text(badgeCount > _maxBadgeCount ? l10n.badgeOverflow(_maxBadgeCount) : '$badgeCount'),
+        child: Icon(icon, color: colors.ink, size: context.sizes.icon),
+      ),
       style: IconButton.styleFrom(
         backgroundColor: colors.surface,
         minimumSize: Size.square(context.sizes.minTouchTarget),

@@ -23,12 +23,7 @@ class Customer {
   bool get owes => balanceCents > 0;
 
   /// Situação do vencimento hoje; nula quando não deve.
-  DueStatus? dueStatusOn(DateTime today) {
-    final due = creditDueDate;
-    if (!owes || due == null) return null;
-    final days = DateOnly.daysBetween(today, due);
-    return days > 0 ? DueStatus.upcoming : (days == 0 ? DueStatus.due : DueStatus.overdue);
-  }
+  DueStatus? dueStatusOn(DateTime today) => DueStatus.of(balanceCents: balanceCents, dueDate: creditDueDate, today: today);
 
   // Quitou: o servidor apaga o vencimento na mesma transação, então aqui some também
   Customer copyWith({int? balanceCents, DateTime? creditDueDate}) {
@@ -59,6 +54,55 @@ enum DueStatus {
     }
     return null;
   }
+
+  /// Nula quando não deve (não há vencimento).
+  static DueStatus? of({required int balanceCents, required DateTime? dueDate, required DateTime today}) {
+    if (balanceCents <= 0 || dueDate == null) return null;
+    final days = DateOnly.daysBetween(today, dueDate);
+    return days > 0 ? DueStatus.upcoming : (days == 0 ? DueStatus.due : DueStatus.overdue);
+  }
+}
+
+/// Item de uma compra fiado, como foi vendido.
+@immutable
+class PurchasedItem {
+  const PurchasedItem({required this.name, required this.quantity, required this.soldByWeight});
+
+  final String name;
+  final double quantity;
+  final bool soldByWeight;
+}
+
+@immutable
+class OpenPurchase {
+  const OpenPurchase({required this.createdAt, required this.totalCents, required this.items});
+
+  final DateTime createdAt;
+  final int totalCents;
+  final List<PurchasedItem> items;
+}
+
+/// Dívida atual do cliente, calculada pelo servidor: compras desde a última vez que o saldo zerou
+/// e o que já foi pago nelas. Compras listadas + anteriores - pago = saldo.
+@immutable
+class OpenAccount {
+  const OpenAccount({
+    required this.balanceCents,
+    required this.creditDueDate,
+    required this.paidCents,
+    required this.purchases,
+    required this.earlierCount,
+    required this.earlierCents,
+  });
+
+  final int balanceCents;
+  final DateTime? creditDueDate;
+  final int paidCents;
+
+  /// As mais recentes, em ordem de data; as mais antigas vêm só como contagem e soma.
+  final List<OpenPurchase> purchases;
+  final int earlierCount;
+  final int earlierCents;
 }
 
 /// Cliente com lembrete pendente. [status] vem do servidor, com o "hoje" dele.

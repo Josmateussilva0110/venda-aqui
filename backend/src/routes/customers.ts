@@ -21,6 +21,7 @@ router.get("/reminders", validate(ListRemindersSchema, "query"), CustomerControl
 router.get("/:id", validate(CustomerParamsSchema, "params"), CustomerController.get)
 router.put("/:id", validate(CustomerParamsSchema, "params"), validate(CustomerSchema), CustomerController.update)
 router.delete("/:id", validate(CustomerParamsSchema, "params"), CustomerController.delete)
+router.get("/:id/open-account", validate(CustomerParamsSchema, "params"), CustomerController.openAccount)
 router.get("/:id/statement", validate(CustomerParamsSchema, "params"), validate(StatementSchema, "query"), CustomerController.statement)
 router.post("/:id/payments", validate(CustomerParamsSchema, "params"), validate(PaymentSchema), CustomerController.registerPayment)
 router.put("/:id/due-date", validate(CustomerParamsSchema, "params"), validate(DueDateSchema), CustomerController.setDueDate)

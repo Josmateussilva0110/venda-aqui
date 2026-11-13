@@ -5,16 +5,20 @@ import '../../../../core/utils/money_format.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/product_avatar.dart';
+import '../../../../core/widgets/whatsapp_icon.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/customer.dart';
 import 'due_date_label.dart';
 
 /// Cliente a lembrar: quanto deve, o vencimento e o botão que abre o WhatsApp com a mensagem.
 class ReminderTile extends StatelessWidget {
-  const ReminderTile({super.key, required this.reminder, required this.sent, required this.onSend});
+  const ReminderTile({super.key, required this.reminder, required this.sent, required this.onSend, this.isSending = false});
 
   final CreditReminder reminder;
   final bool sent;
+
+  /// Buscando as compras para montar a mensagem.
+  final bool isSending;
   final VoidCallback onSend;
 
   @override
@@ -66,11 +70,11 @@ class ReminderTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                AppTextLink(label: l10n.remindersSendAgain, onPressed: onSend),
+                AppTextLink(label: l10n.remindersSendAgain, onPressed: isSending ? null : onSend),
               ],
             )
           else
-            AppButton(label: l10n.remindersSend, icon: Icons.chat_rounded, compact: true, onPressed: onSend),
+            AppButton(label: l10n.remindersSend, leading: const WhatsAppIcon(), compact: true, isLoading: isSending, onPressed: onSend),
         ],
       ),
     );

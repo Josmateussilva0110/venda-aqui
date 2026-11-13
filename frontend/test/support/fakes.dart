@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:vendaqui/core/network/cancel_signal.dart';
 import 'package:vendaqui/core/notifications/reminder_notifier.dart';
 import 'package:flutter/material.dart';
@@ -118,6 +120,10 @@ class FakeProductsRepository implements ProductsRepository {
 }
 
 class FakeDashboardRepository implements DashboardRepository {
+  FakeDashboardRepository({this.credit = const CreditOverview(owingCount: 0, owedCents: 0)});
+
+  final CreditOverview credit;
+
   @override
   Future<TodaySales> todaySales(DateTime now, {required int recentLimit}) async => TodaySales(
     count: 2,
@@ -142,7 +148,7 @@ class FakeDashboardRepository implements DashboardRepository {
   );
 
   @override
-  Future<CreditOverview> creditOverview() async => const CreditOverview(owingCount: 0, owedCents: 0);
+  Future<CreditOverview> creditOverview() async => credit;
 
   @override
   Future<StockOverview> stockOverview({required int alertLimit}) async {
@@ -304,9 +310,27 @@ final testCustomer = Customer(
 
 /// Aviso dos lembretes que só guarda a última agenda recebida.
 class FakeReminderNotifier implements ReminderNotifier {
-  final List<ReminderSchedule?> synced = [];
+  FakeReminderNotifier({this.launchedFromAlert = false});
 
+  final List<ReminderSchedule?> synced = [];
   int permissionRequests = 0;
+
+  /// Simula o app aberto pelo toque no aviso.
+  bool launchedFromAlert;
+  final _taps = StreamController<void>.broadcast();
+
+  /// Simula um toque no aviso com o app aberto.
+  void tapAlert() => _taps.add(null);
+
+  @override
+  Stream<void> get alertTaps => _taps.stream;
+
+  @override
+  Future<bool> consumeLaunchTap() async {
+    final launched = launchedFromAlert;
+    launchedFromAlert = false;
+    return launched;
+  }
 
   @override
   Future<void> sync(ReminderSchedule? schedule) async => synced.add(schedule);
@@ -365,6 +389,29 @@ class FakeCustomersRepository implements CustomersRepository {
   @override
   Future<CreditSummary> summary() async => _summary();
 
+  /// Conta em aberto por cliente; sem entrada, vira uma compra só com o saldo inteiro.
+  final Map<String, OpenAccount> openAccounts = {};
+
+  @override
+  Future<OpenAccount> openAccount(String customerId) async {
+    final customer = customers.firstWhere((customer) => customer.id == customerId);
+    return openAccounts[customerId] ??
+        OpenAccount(
+          balanceCents: customer.balanceCents,
+          creditDueDate: customer.creditDueDate,
+          paidCents: 0,
+          purchases: [
+            OpenPurchase(
+              createdAt: DateTime(2026, 11, 3, 10),
+              totalCents: customer.balanceCents,
+              items: const [PurchasedItem(name: 'Arroz', quantity: 2, soldByWeight: false)],
+            ),
+          ],
+          earlierCount: 0,
+          earlierCents: 0,
+        );
+  }
+
   @override
   Future<DateTime> setDueDate(String customerId, DateTime dueDate) async {
     final index = customers.indexWhere((customer) => customer.id == customerId);
@@ -398,6 +445,36 @@ class FakeCustomersRepository implements CustomersRepository {
     final customer = Customer(id: 'customer-${_nextId++}', name: input.name, phone: input.phone, balanceCents: 0);
     customers.add(customer);
     return customer;
+  }
+
+  // Como o servidor: cliente com fiado ou pagamento no histórico não sai (chave estrangeira restrict)
+  @override
+  Future<void> delete(String id) async {
+    final customer = customers.firstWhere((customer) => customer.id == id);
+    if (customer.owes || (statements[id]?.isNotEmpty ?? false)) {
+      throw const RequestFailure(
+        statusCode: 409,
+        message: 'Este cliente tem fiado no histórico e não pode ser excluído.',
+        code: 'CUSTOMER_HAS_HISTORY',
+      );
+    }
+    customers.remove(customer);
+  }
+
+  @override
+  Future<void> update(String id, CustomerInput input) async {
+    if (customers.any((customer) => customer.id != id && customer.phone.endsWith(input.phone))) {
+      throw const RequestFailure(statusCode: 409, message: 'Você já tem um cliente com esse telefone.', code: 'CUSTOMER_PHONE_TAKEN');
+    }
+    final index = customers.indexWhere((customer) => customer.id == id);
+    final current = customers[index];
+    customers[index] = Customer(
+      id: id,
+      name: input.name,
+      phone: '+55${input.phone}',
+      balanceCents: current.balanceCents,
+      creditDueDate: current.creditDueDate,
+    );
   }
 
   @override

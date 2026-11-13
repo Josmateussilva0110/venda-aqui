@@ -56,6 +56,23 @@ class CustomersRepositoryImpl implements CustomersRepository {
     return Customer(id: id, name: input.name.trim(), phone: input.phone, balanceCents: 0);
   }
 
+  // A API devolve só o id; quem chamou busca o cliente de novo para ver o telefone já normalizado
+  @override
+  Future<void> update(String id, CustomerInput input) async {
+    final response = await requestData<void>(
+      endpoint: ApiPaths.customer(id),
+      method: 'PUT',
+      data: {'name': input.name, 'phone': input.phone},
+    );
+    response.ensureSuccess();
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    final response = await requestData<void>(endpoint: ApiPaths.customer(id), method: 'DELETE');
+    response.ensureSuccess();
+  }
+
   @override
   Future<StatementPage> statement(String customerId, {required int offset, required int limit}) async {
     final response = await requestData<StatementPage>(
@@ -81,6 +98,42 @@ class CustomersRepositoryImpl implements CustomersRepository {
       parse: (json) => jsonMap(json).requireInt('balanceCents'),
     );
     return response.requireData();
+  }
+
+  @override
+  Future<OpenAccount> openAccount(String customerId) async {
+    final response = await requestData<OpenAccount>(
+      endpoint: ApiPaths.customerOpenAccount(customerId),
+      parse: (json) {
+        final data = jsonMap(json);
+        return OpenAccount(
+          balanceCents: data.requireInt('balanceCents'),
+          creditDueDate: DateOnly.tryParse(data.optionalString('creditDueDate')),
+          paidCents: data.requireInt('paidCents'),
+          purchases: data.requireMapList('purchases').map(_purchaseFromJson).toList(growable: false),
+          earlierCount: data.requireInt('earlierCount'),
+          earlierCents: data.requireInt('earlierCents'),
+        );
+      },
+    );
+    return response.requireData();
+  }
+
+  OpenPurchase _purchaseFromJson(Map<String, dynamic> json) {
+    return OpenPurchase(
+      createdAt: DateTime.parse(json.requireString('createdAt')).toLocal(),
+      totalCents: json.requireInt('totalCents'),
+      items: json
+          .requireMapList('items')
+          .map(
+            (item) => PurchasedItem(
+              name: item.requireString('name'),
+              quantity: item.requireDouble('quantity'),
+              soldByWeight: item.optionalBool('soldByWeight'),
+            ),
+          )
+          .toList(growable: false),
+    );
   }
 
   @override

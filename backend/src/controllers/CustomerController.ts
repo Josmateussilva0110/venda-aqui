@@ -70,6 +70,12 @@ class CustomerController {
     return sendSuccess(response, "Lembretes carregados.", result.data)
   }
 
+  async openAccount(request: Request<CustomerParamsDTO>, response: Response): Promise<Response> {
+    const result = await CustomerService.openAccount(requireAuthField(request, "merchantId"), request.params.id)
+    if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
+    return sendSuccess(response, "Conta em aberto carregada.", result.data)
+  }
+
   async markReminded(request: Request<CustomerParamsDTO>, response: Response): Promise<Response> {
     const result = await CustomerService.markReminded(requireAuthField(request, "merchantId"), request.params.id)
     if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)

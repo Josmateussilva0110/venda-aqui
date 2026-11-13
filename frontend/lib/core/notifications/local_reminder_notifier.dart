@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -16,6 +17,9 @@ class LocalReminderNotifier implements ReminderNotifier {
   final FlutterLocalNotificationsPlugin _plugin;
   Future<void>? _initializing;
 
+  final _taps = StreamController<void>.broadcast();
+  bool _launchTapConsumed = false;
+
   // O resumo do fiado recarrega a cada venda: sem mudança no horário, não mexe no aviso
   DateTime? _scheduledFor;
   bool _synced = false;
@@ -32,7 +36,7 @@ class LocalReminderNotifier implements ReminderNotifier {
     try {
       final when = schedule?.nextAlertAfter(DateTime.now());
       if (_synced && when == _scheduledFor) return;
-      await (_initializing ??= _initialize());
+      await _ensureInitialized();
       await _plugin.cancel(id: _notificationId);
       _scheduledFor = null;
       _synced = true;
@@ -58,19 +62,47 @@ class LocalReminderNotifier implements ReminderNotifier {
   }
 
   @override
+  Stream<void> get alertTaps {
+    // Escutar os toques exige o plugin inicializado; quem escuta é o início, que abre com o app
+    unawaited(_ensureInitialized());
+    return _taps.stream;
+  }
+
+  @override
+  Future<bool> consumeLaunchTap() async {
+    if (_launchTapConsumed) return false;
+    _launchTapConsumed = true;
+    try {
+      await _ensureInitialized();
+      final launch = await _plugin.getNotificationAppLaunchDetails();
+      return (launch?.didNotificationLaunchApp ?? false) && launch?.notificationResponse?.id == _notificationId;
+    } catch (error) {
+      if (kDebugMode) debugPrint('[LocalReminderNotifier] ${error.runtimeType}');
+      return false;
+    }
+  }
+
+  @override
   Future<void> requestPermission() async {
     try {
-      await (_initializing ??= _initialize());
+      await _ensureInitialized();
       await _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
     } catch (error) {
       if (kDebugMode) debugPrint('[LocalReminderNotifier] ${error.runtimeType}');
     }
   }
 
+  Future<void> _ensureInitialized() => _initializing ??= _initialize();
+
   Future<void> _initialize() async {
     tz_data.initializeTimeZones();
     final timezone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timezone.identifier));
-    await _plugin.initialize(settings: const InitializationSettings(android: AndroidInitializationSettings(_icon)));
+    await _plugin.initialize(
+      settings: const InitializationSettings(android: AndroidInitializationSettings(_icon)),
+      onDidReceiveNotificationResponse: (response) {
+        if (response.id == _notificationId) _taps.add(null);
+      },
+    );
   }
 }

@@ -24,6 +24,10 @@ export const CUSTOMER_DUE_DATE_INVALID_ERROR = {
 }
 export const CUSTOMER_DUE_DATE_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_DUE_DATE_FAILED, message: "Erro ao mudar o vencimento." }
 export const CUSTOMER_REMINDERS_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_REMINDERS_FAILED, message: "Erro ao carregar os lembretes." }
+export const CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR = {
+  code: CustomerErrorCode.CUSTOMER_OPEN_ACCOUNT_FAILED,
+  message: "Erro ao carregar as compras do cliente.",
+}
 export const CUSTOMER_REMINDER_FAILED_ERROR = { code: CustomerErrorCode.CUSTOMER_REMINDER_FAILED, message: "Erro ao registrar o lembrete." }
 
 export const customerErrorHttpStatusMap: Record<CustomerErrorCode, number> = {
@@ -43,4 +47,5 @@ export const customerErrorHttpStatusMap: Record<CustomerErrorCode, number> = {
   [CustomerErrorCode.CUSTOMER_DUE_DATE_FAILED]: 500,
   [CustomerErrorCode.CUSTOMER_REMINDERS_FAILED]: 500,
   [CustomerErrorCode.CUSTOMER_REMINDER_FAILED]: 500,
+  [CustomerErrorCode.CUSTOMER_OPEN_ACCOUNT_FAILED]: 500,
 }

@@ -106,6 +106,7 @@ void main() {
         }
         const CustomerPickerRequest pickerRequest = (amountCents: 4590, itemCount: 3, initialCustomerId: null);
         await visit(tester, AppRoutes.customerPicker, extra: pickerRequest);
+        await visit(tester, AppRoutes.customerEdit(testCustomer.id), extra: testCustomer);
       });
     }
   }

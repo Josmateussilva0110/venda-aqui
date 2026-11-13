@@ -48,6 +48,9 @@ class _RemindersViewState extends State<_RemindersView> {
 
   final _scrollController = ScrollController();
 
+  // Lembrete sendo montado (busca as compras); um por vez, contra toque duplo
+  String? _sendingId;
+
   @override
   void initState() {
     super.initState();
@@ -70,16 +73,23 @@ class _RemindersViewState extends State<_RemindersView> {
 
   // Só conta como enviado se o WhatsApp abriu; não dá para saber se a mensagem saiu de lá
   Future<void> _send(CreditReminder reminder) async {
+    if (_sendingId != null) return;
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final controller = context.read<CreditRemindersController>();
-    final opened = await openCustomerWhatsApp(
-      context,
-      reminder.customer,
-      charge: true,
-      status: reminder.status,
-      merchantName: widget.merchantName,
-    );
+    setState(() => _sendingId = reminder.customer.id);
+    final bool opened;
+    try {
+      opened = await openCustomerWhatsApp(
+        context,
+        reminder.customer,
+        charge: true,
+        status: reminder.status,
+        merchantName: widget.merchantName,
+      );
+    } finally {
+      if (mounted) setState(() => _sendingId = null);
+    }
     if (!opened) return;
     try {
       await controller.markSent(reminder.customer.id);
@@ -152,6 +162,7 @@ class _RemindersViewState extends State<_RemindersView> {
                             child: ReminderTile(
                               reminder: reminder,
                               sent: controller.isSent(reminder.customer.id),
+                              isSending: _sendingId == reminder.customer.id,
                               onSend: () => _send(reminder),
                             ),
                           );

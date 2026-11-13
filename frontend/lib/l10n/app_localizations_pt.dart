@@ -209,6 +209,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dashboardSettings => 'Configurações';
 
   @override
+  String get dashboardReminders => 'Lembretes do fiado';
+
+  @override
+  String dashboardRemindersPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Lembretes do fiado: $count para enviar',
+      one: 'Lembretes do fiado: 1 para enviar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String badgeOverflow(int max) {
+    return '$max+';
+  }
+
+  @override
   String get settingsTitle => 'Configurações';
 
   @override
@@ -828,6 +847,35 @@ class AppLocalizationsPt extends AppLocalizations {
   String get customerSaved => 'Cliente cadastrado.';
 
   @override
+  String get customerEditTitle => 'Editar cliente';
+
+  @override
+  String get customerUpdate => 'Salvar alterações';
+
+  @override
+  String get customerUpdated => 'Cliente atualizado.';
+
+  @override
+  String get customerEditHint => 'Saldo, vencimento e histórico continuam com o cliente.';
+
+  @override
+  String get customerDelete => 'Excluir cliente';
+
+  @override
+  String get customerDeleteConfirmTitle => 'Excluir cliente?';
+
+  @override
+  String customerDeleteConfirmMessage(String name) {
+    return '\"$name\" sai da sua lista de clientes. Não dá para desfazer.';
+  }
+
+  @override
+  String get customerDeleteConfirm => 'Excluir';
+
+  @override
+  String get customerDeleted => 'Cliente excluído.';
+
+  @override
   String customerOwes(String amount) {
     return 'Deve $amount';
   }
@@ -927,19 +975,62 @@ class AppLocalizationsPt extends AppLocalizations {
   String get whatsAppCharge => 'Cobrar no WhatsApp';
 
   @override
-  String reminderMessageUpcoming(String name, String amount, String date, String signature) {
-    return 'Olá, $name. Tudo bem?\nGostaria de lembrar que o seu saldo em aberto conosco é de *$amount*, com vencimento em *$date*.\nEm caso de dúvida, estou à disposição.\n$signature';
+  String reminderGreeting(String name) {
+    return 'Olá, $name. Tudo bem?';
   }
 
   @override
-  String reminderMessageDue(String name, String amount, String signature) {
-    return 'Olá, $name. Tudo bem?\nLembramos que hoje vence o seu saldo de *$amount*.\nEm caso de dúvida, estou à disposição.\n$signature';
+  String reminderOpeningUpcoming(String amount, String date) {
+    return 'Gostaria de lembrar que o seu saldo em aberto conosco é de *$amount*, com vencimento em *$date*.';
   }
 
   @override
-  String reminderMessageOverdue(String name, String amount, String date, String signature) {
-    return 'Olá, $name. Tudo bem?\nIdentificamos que o saldo de *$amount*, vencido em *$date*, ainda está em aberto. Caso precise de um novo prazo, é só responder esta mensagem.\n$signature';
+  String reminderOpeningDue(String amount) {
+    return 'Lembramos que hoje vence o seu saldo de *$amount*.';
   }
+
+  @override
+  String reminderOpeningOverdue(String amount, String date) {
+    return 'Identificamos que o saldo de *$amount*, vencido em *$date*, ainda está em aberto.';
+  }
+
+  @override
+  String get reminderClosingHelp => 'Em caso de dúvida, estou à disposição.';
+
+  @override
+  String get reminderClosingNewTerm => 'Caso precise de um novo prazo, é só responder esta mensagem.';
+
+  @override
+  String get reminderPurchasesTitle => '*Compras:*';
+
+  @override
+  String reminderPurchaseLine(String date, String items, String amount) {
+    return '• $date: $items — $amount';
+  }
+
+  @override
+  String reminderPurchaseMoreItems(String items, int count) {
+    return '$items e mais $count';
+  }
+
+  @override
+  String reminderPurchasesEarlier(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '• $count compras anteriores — $amount',
+      one: '• 1 compra anterior — $amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reminderPaid(String amount) {
+    return '*Já pago:* $amount';
+  }
+
+  @override
+  String get reminderLoadFailed => 'Não foi possível carregar as compras do cliente. Tente de novo.';
 
   @override
   String reminderSignature(String merchant) {

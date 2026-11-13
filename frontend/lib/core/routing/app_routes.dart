@@ -19,6 +19,9 @@ abstract final class AppRoutes {
   static const customers = '/customers';
   static String customer(String id) => '/customers/$id';
 
+  /// Recebe o [Customer] atual por `extra` para preencher o formulário; devolve se salvou ou excluiu.
+  static String customerEdit(String id) => '/customers/$id/edit';
+
   /// Escolha do cliente do fiado; recebe o valor por `extra` e devolve o cliente escolhido.
   static const customerPicker = '/customers/pick';
 

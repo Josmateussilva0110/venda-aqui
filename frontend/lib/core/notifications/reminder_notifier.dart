@@ -47,6 +47,13 @@ abstract interface class ReminderNotifier {
   /// Não pede permissão. Nunca lança: aviso que falha não pode atrapalhar a tela que chamou.
   Future<void> sync(ReminderSchedule? schedule);
 
+  /// Toques no aviso com o app já aberto (em primeiro plano ou em segundo plano).
+  Stream<void> get alertTaps;
+
+  /// Se o app foi aberto (estava fechado) por um toque no aviso. Responde `true` só uma vez,
+  /// para a lista de lembretes não abrir de novo a cada vez que o início é montado.
+  Future<bool> consumeLaunchTap();
+
   /// Pede ao sistema permissão para avisar. Só em resposta a uma ação do comerciante com os lembretes
   /// (salvar a configuração, abrir a lista), para o pedido não aparecer do nada a cada venda.
   Future<void> requestPermission();

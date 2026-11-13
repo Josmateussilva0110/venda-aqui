@@ -10,6 +10,7 @@ import {
   CUSTOMER_LIST_FAILED_ERROR,
   CUSTOMER_NOT_FOUND_ERROR,
   CUSTOMER_NOT_OWING_ERROR,
+  CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR,
   CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR,
   CUSTOMER_PAYMENT_FAILED_ERROR,
   CUSTOMER_PHONE_TAKEN_ERROR,
@@ -18,6 +19,7 @@ import {
   CUSTOMER_STATEMENT_FAILED_ERROR,
   CUSTOMER_UPDATE_FAILED_ERROR,
 } from "../errors/customers"
+import { OPEN_ACCOUNT_PURCHASE_LIMIT } from "../constants/customers"
 import { SALE_DB_ERRORS } from "../constants/sales"
 import type { CustomerDTO } from "../schemas/customers/customer"
 import type { DueDateDTO } from "../schemas/customers/dueDate"
@@ -38,6 +40,8 @@ import type {
   CustomerRow,
   CustomerStatement,
   DueDateSaved,
+  OpenAccount,
+  OpenAccountRow,
   PaymentSaved,
   StatementEntry,
   StatementEntryRow,
@@ -322,6 +326,28 @@ class CustomerService {
     }
   }
 
+  async openAccount(merchantId: string, customerId: string): CustomerResult<OpenAccount> {
+    try {
+      const { data, error } = await supabase.rpc("customer_open_account", {
+        p_merchant_id: merchantId,
+        p_customer_id: customerId,
+        p_limit: OPEN_ACCOUNT_PURCHASE_LIMIT,
+      })
+
+      if (error) {
+        console.error("[CustomerService.openAccount]", error)
+        return { status: false, error: CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR }
+      }
+      // Nulo: o cliente não existe ou é de outro comerciante
+      if (!data) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
+
+      return { status: true, data: this.toOpenAccount(data as OpenAccountRow) }
+    } catch (error) {
+      console.error("[CustomerService.openAccount] error:", error)
+      return { status: false, error: CUSTOMER_OPEN_ACCOUNT_FAILED_ERROR }
+    }
+  }
+
   private async belongsToMerchant(merchantId: string, customerId: string): Promise<boolean> {
     const { count, error } = await supabase
       .from("customers")
@@ -367,6 +393,22 @@ class CustomerService {
       reminders: row.reminders_enabled
         ? { dueCount: row.reminders_due, nextOn: row.next_reminder_on, hour: row.reminder_hour }
         : null,
+    }
+  }
+
+  private toOpenAccount(row: OpenAccountRow): OpenAccount {
+    return {
+      balanceCents: row.balance_cents,
+      creditDueDate: row.credit_due_date,
+      paidCents: Number(row.paid_cents),
+      purchases: row.purchases.map((purchase) => ({
+        id: purchase.id,
+        createdAt: purchase.created_at,
+        totalCents: purchase.total_cents,
+        items: purchase.items.map((item) => ({ name: item.name, quantity: Number(item.quantity), soldByWeight: item.sold_by_weight })),
+      })),
+      earlierCount: Number(row.earlier_count),
+      earlierCents: Number(row.earlier_cents),
     }
   }
 

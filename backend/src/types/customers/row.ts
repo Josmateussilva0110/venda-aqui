@@ -33,6 +33,21 @@ export interface CreditSummaryRow {
   next_reminder_on: string | null
 }
 
+// Resultado da função customer_open_account; somas chegam como texto ou número conforme o tamanho
+export interface OpenAccountRow {
+  balance_cents: number
+  credit_due_date: string | null
+  paid_cents: number | string
+  purchases: Array<{
+    id: string
+    created_at: string
+    total_cents: number
+    items: Array<{ name: string; quantity: number | string; sold_by_weight: boolean }>
+  }>
+  earlier_count: number | string
+  earlier_cents: number | string
+}
+
 // Cliente com lembrete pendente, como sai da função list_credit_reminders
 export interface CreditReminderRow {
   id: string

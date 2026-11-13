@@ -17,11 +17,13 @@ import '../../../../core/widgets/product_avatar.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/state_views.dart';
+import '../../../../core/widgets/whatsapp_icon.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/customer.dart';
 import '../../domain/customers_repository.dart';
 import '../controllers/customer_account_controller.dart';
 import '../widgets/customer_whatsapp_button.dart';
+import 'customer_edit_page.dart';
 import '../widgets/due_date_row.dart';
 import '../widgets/receive_payment_panel.dart';
 import '../widgets/statement_entry_tile.dart';
@@ -83,6 +85,21 @@ class _AccountViewState extends State<_AccountView> {
     if (edited == true) await controller.load();
   }
 
+  Future<void> _edit(Customer customer) async {
+    final controller = context.read<CustomerAccountController>();
+    final result = await context.push<CustomerEditResult>(AppRoutes.customerEdit(customer.id), extra: customer);
+    if (!mounted) return;
+    switch (result) {
+      case CustomerEditResult.saved:
+        await controller.reloadAfterEdit();
+      // A conta não existe mais: sai junto, avisando a lista de devedores para buscar de novo
+      case CustomerEditResult.deleted:
+        context.pop(true);
+      case null:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -122,6 +139,15 @@ class _AccountViewState extends State<_AccountView> {
                 title: l10n.accountTitle,
                 onBack: () => context.pop(controller.changed),
                 buttonBackground: context.colors.surface,
+                // Só com o cliente carregado: o formulário precisa do nome e telefone atuais
+                action: customer == null
+                    ? null
+                    : CircleIconButton(
+                        icon: Icons.edit_rounded,
+                        tooltip: l10n.customerEditTitle,
+                        background: context.colors.surface,
+                        onPressed: () => _edit(customer),
+                      ),
               ),
               Expanded(
                 child: Align(
@@ -213,6 +239,18 @@ class _BalanceCard extends StatefulWidget {
 class _BalanceCardState extends State<_BalanceCard> {
   // Nulo: painel fechado. Zero: "Receber parte" (campo vazio). Positivo: "Receber tudo".
   int? _panelAmount;
+
+  // Buscando as compras para montar a cobrança; trava o botão contra toque duplo
+  bool _isCharging = false;
+
+  Future<void> _charge(Customer customer) async {
+    setState(() => _isCharging = true);
+    try {
+      await openCustomerWhatsApp(context, customer, charge: true, merchantName: widget.merchantName);
+    } finally {
+      if (mounted) setState(() => _isCharging = false);
+    }
+  }
 
   Future<void> _receive(int amountCents, SettlementMethod method) async {
     final l10n = AppLocalizations.of(context);
@@ -309,10 +347,11 @@ class _BalanceCardState extends State<_BalanceCard> {
               SizedBox(height: spacing.sm),
               AppButton(
                 label: l10n.whatsAppCharge,
-                icon: Icons.chat_rounded,
+                leading: const WhatsAppIcon(),
                 variant: AppButtonVariant.outlined,
                 compact: true,
-                onPressed: () => openCustomerWhatsApp(context, customer, charge: true, merchantName: widget.merchantName),
+                isLoading: _isCharging,
+                onPressed: () => _charge(customer),
               ),
             ] else
               ReceivePaymentPanel(

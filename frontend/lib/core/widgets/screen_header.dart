@@ -3,11 +3,21 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../theme/theme_context.dart';
 
-/// Botão redondo de ícone (voltar, sair, remover).
+/// Botão redondo de ícone (voltar, sair, remover). [iconWidget] substitui [icon] para ícones de
+/// outras fontes (ex.: logo do WhatsApp), com a mesma cor e tamanho.
 class CircleIconButton extends StatelessWidget {
-  const CircleIconButton({super.key, required this.icon, required this.tooltip, required this.onPressed, this.background, this.iconColor});
+  const CircleIconButton({
+    super.key,
+    this.icon,
+    this.iconWidget,
+    required this.tooltip,
+    required this.onPressed,
+    this.background,
+    this.iconColor,
+  }) : assert((icon == null) != (iconWidget == null), 'Informe icon ou iconWidget');
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? iconWidget;
   final String tooltip;
   final VoidCallback? onPressed;
   final Color? background;
@@ -18,7 +28,10 @@ class CircleIconButton extends StatelessWidget {
     return IconButton(
       onPressed: onPressed,
       tooltip: tooltip,
-      icon: Icon(icon, size: context.sizes.icon, color: iconColor ?? context.colors.ink),
+      icon: IconTheme(
+        data: IconThemeData(size: context.sizes.icon, color: iconColor ?? context.colors.ink),
+        child: iconWidget ?? Icon(icon),
+      ),
       style: IconButton.styleFrom(
         backgroundColor: background ?? context.colors.surfaceMuted,
         minimumSize: Size.square(context.sizes.minTouchTarget),

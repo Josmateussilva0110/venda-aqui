@@ -481,6 +481,24 @@ abstract class AppLocalizations {
   /// **'Configurações'**
   String get dashboardSettings;
 
+  /// No description provided for @dashboardReminders.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembretes do fiado'**
+  String get dashboardReminders;
+
+  /// No description provided for @dashboardRemindersPending.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{Lembretes do fiado: 1 para enviar} other{Lembretes do fiado: {count} para enviar}}'**
+  String dashboardRemindersPending(int count);
+
+  /// No description provided for @badgeOverflow.
+  ///
+  /// In pt, this message translates to:
+  /// **'{max}+'**
+  String badgeOverflow(int max);
+
   /// No description provided for @settingsTitle.
   ///
   /// In pt, this message translates to:
@@ -1591,6 +1609,60 @@ abstract class AppLocalizations {
   /// **'Cliente cadastrado.'**
   String get customerSaved;
 
+  /// No description provided for @customerEditTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar cliente'**
+  String get customerEditTitle;
+
+  /// No description provided for @customerUpdate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar alterações'**
+  String get customerUpdate;
+
+  /// No description provided for @customerUpdated.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cliente atualizado.'**
+  String get customerUpdated;
+
+  /// No description provided for @customerEditHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saldo, vencimento e histórico continuam com o cliente.'**
+  String get customerEditHint;
+
+  /// No description provided for @customerDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir cliente'**
+  String get customerDelete;
+
+  /// No description provided for @customerDeleteConfirmTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir cliente?'**
+  String get customerDeleteConfirmTitle;
+
+  /// No description provided for @customerDeleteConfirmMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'\"{name}\" sai da sua lista de clientes. Não dá para desfazer.'**
+  String customerDeleteConfirmMessage(String name);
+
+  /// No description provided for @customerDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir'**
+  String get customerDeleteConfirm;
+
+  /// No description provided for @customerDeleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cliente excluído.'**
+  String get customerDeleted;
+
   /// No description provided for @customerOwes.
   ///
   /// In pt, this message translates to:
@@ -1759,23 +1831,77 @@ abstract class AppLocalizations {
   /// **'Cobrar no WhatsApp'**
   String get whatsAppCharge;
 
-  /// No description provided for @reminderMessageUpcoming.
+  /// No description provided for @reminderGreeting.
   ///
   /// In pt, this message translates to:
-  /// **'Olá, {name}. Tudo bem?\nGostaria de lembrar que o seu saldo em aberto conosco é de *{amount}*, com vencimento em *{date}*.\nEm caso de dúvida, estou à disposição.\n{signature}'**
-  String reminderMessageUpcoming(String name, String amount, String date, String signature);
+  /// **'Olá, {name}. Tudo bem?'**
+  String reminderGreeting(String name);
 
-  /// No description provided for @reminderMessageDue.
+  /// No description provided for @reminderOpeningUpcoming.
   ///
   /// In pt, this message translates to:
-  /// **'Olá, {name}. Tudo bem?\nLembramos que hoje vence o seu saldo de *{amount}*.\nEm caso de dúvida, estou à disposição.\n{signature}'**
-  String reminderMessageDue(String name, String amount, String signature);
+  /// **'Gostaria de lembrar que o seu saldo em aberto conosco é de *{amount}*, com vencimento em *{date}*.'**
+  String reminderOpeningUpcoming(String amount, String date);
 
-  /// No description provided for @reminderMessageOverdue.
+  /// No description provided for @reminderOpeningDue.
   ///
   /// In pt, this message translates to:
-  /// **'Olá, {name}. Tudo bem?\nIdentificamos que o saldo de *{amount}*, vencido em *{date}*, ainda está em aberto. Caso precise de um novo prazo, é só responder esta mensagem.\n{signature}'**
-  String reminderMessageOverdue(String name, String amount, String date, String signature);
+  /// **'Lembramos que hoje vence o seu saldo de *{amount}*.'**
+  String reminderOpeningDue(String amount);
+
+  /// No description provided for @reminderOpeningOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Identificamos que o saldo de *{amount}*, vencido em *{date}*, ainda está em aberto.'**
+  String reminderOpeningOverdue(String amount, String date);
+
+  /// No description provided for @reminderClosingHelp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em caso de dúvida, estou à disposição.'**
+  String get reminderClosingHelp;
+
+  /// No description provided for @reminderClosingNewTerm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Caso precise de um novo prazo, é só responder esta mensagem.'**
+  String get reminderClosingNewTerm;
+
+  /// No description provided for @reminderPurchasesTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'*Compras:*'**
+  String get reminderPurchasesTitle;
+
+  /// No description provided for @reminderPurchaseLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'• {date}: {items} — {amount}'**
+  String reminderPurchaseLine(String date, String items, String amount);
+
+  /// No description provided for @reminderPurchaseMoreItems.
+  ///
+  /// In pt, this message translates to:
+  /// **'{items} e mais {count}'**
+  String reminderPurchaseMoreItems(String items, int count);
+
+  /// No description provided for @reminderPurchasesEarlier.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{• 1 compra anterior — {amount}} other{• {count} compras anteriores — {amount}}}'**
+  String reminderPurchasesEarlier(int count, String amount);
+
+  /// No description provided for @reminderPaid.
+  ///
+  /// In pt, this message translates to:
+  /// **'*Já pago:* {amount}'**
+  String reminderPaid(String amount);
+
+  /// No description provided for @reminderLoadFailed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar as compras do cliente. Tente de novo.'**
+  String get reminderLoadFailed;
 
   /// No description provided for @reminderSignature.
   ///

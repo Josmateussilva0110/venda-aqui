@@ -112,6 +112,12 @@ class CustomerAccountController extends ChangeNotifier with DisposeAwareNotifier
     await _reloadStatement();
   }
 
+  /// Nome ou telefone mudou: busca de novo e avisa a lista de devedores ao voltar.
+  Future<void> reloadAfterEdit() {
+    _changed = true;
+    return load();
+  }
+
   /// Prolonga o vencimento. Lança [AppFailure] quando o servidor recusa (data fora do intervalo, já quitou).
   Future<void> setDueDate(DateTime dueDate) async {
     final customer = _customer;

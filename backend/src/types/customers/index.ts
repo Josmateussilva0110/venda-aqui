@@ -54,6 +54,31 @@ export interface CreditReminderList {
   offset: number
 }
 
+export interface OpenPurchaseItem {
+  name: string
+  quantity: number
+  soldByWeight: boolean
+}
+
+export interface OpenPurchase {
+  id: string
+  createdAt: string
+  totalCents: number
+  items: OpenPurchaseItem[]
+}
+
+// Dívida atual: compras desde a última vez que o saldo zerou e o que já foi pago nelas.
+// Compras listadas + anteriores - pago = saldo
+export interface OpenAccount {
+  balanceCents: number
+  creditDueDate: string | null
+  paidCents: number
+  // As mais recentes (até OPEN_ACCOUNT_PURCHASE_LIMIT), em ordem de data
+  purchases: OpenPurchase[]
+  earlierCount: number
+  earlierCents: number
+}
+
 export interface DueDateSaved {
   id: string
   creditDueDate: string

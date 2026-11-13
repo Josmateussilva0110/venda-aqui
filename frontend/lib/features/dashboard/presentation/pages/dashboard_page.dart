@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +11,6 @@ import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_feedback.dart';
-import '../../../../core/widgets/reminder_banner.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -34,9 +35,65 @@ class DashboardPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) =>
           DashboardController(context.read<DashboardRepository>(), context.read<StockChanges>(), context.read<ReminderNotifier>())..load(),
-      child: _DashboardView(merchantName: merchantName),
+      child: _ReminderAlertListener(child: _DashboardView(merchantName: merchantName)),
     );
   }
+}
+
+/// Abre os lembretes de hoje e, se algum foi enviado, confere o fiado (o sino e o próximo aviso) ao voltar.
+Future<void> _openReminders(BuildContext context) async {
+  final router = GoRouter.of(context);
+  // Toque no aviso com a lista já aberta não empilha outra igual
+  // (state é a rota do topo da pilha, inclusive as abertas com push)
+  if (router.state.fullPath == AppRoutes.creditReminders) return;
+  final controller = context.read<DashboardController>();
+  final sent = await router.push<bool>(AppRoutes.creditReminders);
+  if (sent == true) await controller.loadCredit();
+}
+
+/// Toque no aviso dos lembretes abre a lista, com o app aberto ou fechado. Fica no início porque
+/// ele está sempre montado enquanto há sessão (aba mantida viva) e é quem mostra o fiado.
+class _ReminderAlertListener extends StatefulWidget {
+  const _ReminderAlertListener({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ReminderAlertListener> createState() => _ReminderAlertListenerState();
+}
+
+class _ReminderAlertListenerState extends State<_ReminderAlertListener> {
+  StreamSubscription<void>? _taps;
+
+  @override
+  void initState() {
+    super.initState();
+    final notifier = context.read<ReminderNotifier>();
+    _taps = notifier.alertTaps.listen((_) => _open());
+    notifier.consumeLaunchTap().then((launched) {
+      if (launched) _open();
+    });
+  }
+
+  // Espera o quadro atual: na abertura pelo aviso, o início ainda está saindo da tela de abertura.
+  // Com o app parado na tela não há quadro agendado, então pede um, senão a lista só abriria no próximo toque
+  void _open() {
+    if (!mounted) return;
+    WidgetsBinding.instance
+      ..addPostFrameCallback((_) {
+        if (mounted) _openReminders(context);
+      })
+      ..ensureVisualUpdate();
+  }
+
+  @override
+  void dispose() {
+    _taps?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class _DashboardView extends StatelessWidget {
@@ -52,12 +109,6 @@ class _DashboardView extends StatelessWidget {
     final controller = context.read<DashboardController>();
     final changed = await context.push<bool>(AppRoutes.customers);
     if (changed == true) await controller.loadCredit();
-  }
-
-  Future<void> _openReminders(BuildContext context) async {
-    final controller = context.read<DashboardController>();
-    final sent = await context.push<bool>(AppRoutes.creditReminders);
-    if (sent == true) await controller.loadCredit();
   }
 
   void _openStock(BuildContext context, {String? filter}) {
@@ -87,7 +138,13 @@ class _DashboardView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    DashboardHeader(now: DateTime.now(), merchantName: merchantName, onSettings: () => context.push(AppRoutes.settings)),
+                    DashboardHeader(
+                      now: DateTime.now(),
+                      merchantName: merchantName,
+                      pendingReminders: controller.credit?.reminders?.dueCount ?? 0,
+                      onReminders: () => _openReminders(context),
+                      onSettings: () => context.push(AppRoutes.settings),
+                    ),
                     SizedBox(height: spacing.xl),
                     if (controller.todaySales case final sales?)
                       RevenueCard(sales: sales, onTap: () => context.push(AppRoutes.salesHistory))
@@ -104,10 +161,6 @@ class _DashboardView extends StatelessWidget {
                     if (controller.credit case final credit?) ...[
                       SizedBox(height: spacing.md),
                       CreditSummaryCard(credit: credit, onTap: () => _openCredit(context)),
-                      if (credit.reminders?.dueCount case final count? when count > 0) ...[
-                        SizedBox(height: spacing.sm),
-                        ReminderBanner(count: count, onTap: () => _openReminders(context)),
-                      ],
                     ],
                     SizedBox(height: spacing.xxl - 2),
                     SectionHeader(title: l10n.shortcutsTitle),

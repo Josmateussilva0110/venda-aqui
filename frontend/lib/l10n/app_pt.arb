@@ -79,6 +79,23 @@
   "navHome": "Início",
   "navStock": "Estoque",
   "dashboardSettings": "Configurações",
+  "dashboardReminders": "Lembretes do fiado",
+  "dashboardRemindersPending": "{count, plural, =1{Lembretes do fiado: 1 para enviar} other{Lembretes do fiado: {count} para enviar}}",
+  "@dashboardRemindersPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeOverflow": "{max}+",
+  "@badgeOverflow": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "settingsTitle": "Configurações",
   "settingsAppearance": "Aparência",
   "settingsAccount": "Conta",
@@ -247,7 +264,9 @@
   "productDeleteConfirmMessage": "\"{name}\" sai do estoque. As vendas já feitas com ele continuam no histórico. Não dá para desfazer.",
   "@productDeleteConfirmMessage": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "productDeleteConfirm": "Remover",
@@ -496,6 +515,22 @@
   "customerPhoneInvalid": "Telefone inválido. Use DDD + número.",
   "customerSave": "Salvar cliente",
   "customerSaved": "Cliente cadastrado.",
+  "customerEditTitle": "Editar cliente",
+  "customerUpdate": "Salvar alterações",
+  "customerUpdated": "Cliente atualizado.",
+  "customerEditHint": "Saldo, vencimento e histórico continuam com o cliente.",
+  "customerDelete": "Excluir cliente",
+  "customerDeleteConfirmTitle": "Excluir cliente?",
+  "customerDeleteConfirmMessage": "\"{name}\" sai da sua lista de clientes. Não dá para desfazer.",
+  "@customerDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerDeleteConfirm": "Excluir",
+  "customerDeleted": "Cliente excluído.",
   "customerOwes": "Deve {amount}",
   "@customerOwes": {
     "placeholders": {
@@ -552,54 +587,92 @@
   "receiveDone": "Pagamento registrado.",
   "whatsAppChat": "Conversar no WhatsApp",
   "whatsAppCharge": "Cobrar no WhatsApp",
-  "reminderMessageUpcoming": "Olá, {name}. Tudo bem?\nGostaria de lembrar que o seu saldo em aberto conosco é de *{amount}*, com vencimento em *{date}*.\nEm caso de dúvida, estou à disposição.\n{signature}",
-  "@reminderMessageUpcoming": {
+  "reminderGreeting": "Olá, {name}. Tudo bem?",
+  "@reminderGreeting": {
     "placeholders": {
       "name": {
         "type": "String"
-      },
+      }
+    }
+  },
+  "reminderOpeningUpcoming": "Gostaria de lembrar que o seu saldo em aberto conosco é de *{amount}*, com vencimento em *{date}*.",
+  "@reminderOpeningUpcoming": {
+    "placeholders": {
       "amount": {
         "type": "String"
       },
       "date": {
         "type": "String"
-      },
-      "signature": {
-        "type": "String"
       }
     }
   },
-  "reminderMessageDue": "Olá, {name}. Tudo bem?\nLembramos que hoje vence o seu saldo de *{amount}*.\nEm caso de dúvida, estou à disposição.\n{signature}",
-  "@reminderMessageDue": {
+  "reminderOpeningDue": "Lembramos que hoje vence o seu saldo de *{amount}*.",
+  "@reminderOpeningDue": {
     "placeholders": {
-      "name": {
-        "type": "String"
-      },
       "amount": {
         "type": "String"
-      },
-      "signature": {
-        "type": "String"
       }
     }
   },
-  "reminderMessageOverdue": "Olá, {name}. Tudo bem?\nIdentificamos que o saldo de *{amount}*, vencido em *{date}*, ainda está em aberto. Caso precise de um novo prazo, é só responder esta mensagem.\n{signature}",
-  "@reminderMessageOverdue": {
+  "reminderOpeningOverdue": "Identificamos que o saldo de *{amount}*, vencido em *{date}*, ainda está em aberto.",
+  "@reminderOpeningOverdue": {
     "placeholders": {
-      "name": {
-        "type": "String"
-      },
       "amount": {
         "type": "String"
       },
       "date": {
         "type": "String"
+      }
+    }
+  },
+  "reminderClosingHelp": "Em caso de dúvida, estou à disposição.",
+  "reminderClosingNewTerm": "Caso precise de um novo prazo, é só responder esta mensagem.",
+  "reminderPurchasesTitle": "*Compras:*",
+  "reminderPurchaseLine": "• {date}: {items} — {amount}",
+  "@reminderPurchaseLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
       },
-      "signature": {
+      "items": {
+        "type": "String"
+      },
+      "amount": {
         "type": "String"
       }
     }
   },
+  "reminderPurchaseMoreItems": "{items} e mais {count}",
+  "@reminderPurchaseMoreItems": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderPurchasesEarlier": "{count, plural, =1{• 1 compra anterior — {amount}} other{• {count} compras anteriores — {amount}}}",
+  "@reminderPurchasesEarlier": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderPaid": "*Já pago:* {amount}",
+  "@reminderPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderLoadFailed": "Não foi possível carregar as compras do cliente. Tente de novo.",
   "reminderSignature": "Atenciosamente, {merchant}.",
   "@reminderSignature": {
     "placeholders": {
