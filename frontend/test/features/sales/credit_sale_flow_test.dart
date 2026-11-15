@@ -34,6 +34,7 @@ void main() {
           salesRepository: sales,
           saleCart: saleCartFor(sales),
           reportsRepository: FakeReportsRepository(),
+          reminderNotifier: FakeReminderNotifier(),
           customersRepository: customers,
         ),
       ),

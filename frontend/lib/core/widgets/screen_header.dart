@@ -3,21 +3,35 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../theme/theme_context.dart';
 
-/// Botão redondo de ícone (voltar, sair).
+/// Botão redondo de ícone (voltar, sair, remover). [iconWidget] substitui [icon] para ícones de
+/// outras fontes (ex.: logo do WhatsApp), com a mesma cor e tamanho.
 class CircleIconButton extends StatelessWidget {
-  const CircleIconButton({super.key, required this.icon, required this.tooltip, required this.onPressed, this.background});
+  const CircleIconButton({
+    super.key,
+    this.icon,
+    this.iconWidget,
+    required this.tooltip,
+    required this.onPressed,
+    this.background,
+    this.iconColor,
+  }) : assert((icon == null) != (iconWidget == null), 'Informe icon ou iconWidget');
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? iconWidget;
   final String tooltip;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Color? background;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
       tooltip: tooltip,
-      icon: Icon(icon, size: context.sizes.icon, color: context.colors.ink),
+      icon: IconTheme(
+        data: IconThemeData(size: context.sizes.icon, color: iconColor ?? context.colors.ink),
+        child: iconWidget ?? Icon(icon),
+      ),
       style: IconButton.styleFrom(
         backgroundColor: background ?? context.colors.surfaceMuted,
         minimumSize: Size.square(context.sizes.minTouchTarget),
@@ -26,13 +40,16 @@ class CircleIconButton extends StatelessWidget {
   }
 }
 
-/// Cabeçalho com voltar à esquerda e título centralizado.
+/// Cabeçalho com voltar à esquerda, título centralizado e uma ação opcional à direita.
 class ScreenHeader extends StatelessWidget {
-  const ScreenHeader({super.key, required this.title, required this.onBack, this.buttonBackground});
+  const ScreenHeader({super.key, required this.title, required this.onBack, this.buttonBackground, this.action});
 
   final String title;
   final VoidCallback onBack;
   final Color? buttonBackground;
+
+  /// Do tamanho de [CircleIconButton], para o título continuar no centro.
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +67,8 @@ class ScreenHeader extends StatelessWidget {
           Expanded(
             child: Text(title, textAlign: TextAlign.center, style: context.text.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
-          // Equilibra o botão da esquerda para o título ficar no centro
-          SizedBox(width: context.sizes.minTouchTarget),
+          // Sem ação, o espaço vazio equilibra o botão da esquerda para o título ficar no centro
+          action ?? SizedBox(width: context.sizes.minTouchTarget),
         ],
       ),
     );

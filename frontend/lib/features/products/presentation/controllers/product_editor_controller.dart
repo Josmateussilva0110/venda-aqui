@@ -18,14 +18,18 @@ class ProductEditorController extends ChangeNotifier with DisposeAwareNotifier {
   Product? _product;
   bool _isLoading = false;
   bool _isSaving = false;
+  bool _isDeleting = false;
   AppFailure? _loadFailure;
   AppFailure? _saveFailure;
+  AppFailure? _deleteFailure;
 
   Product? get product => _product;
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
+  bool get isDeleting => _isDeleting;
   AppFailure? get loadFailure => _loadFailure;
   AppFailure? get saveFailure => _saveFailure;
+  AppFailure? get deleteFailure => _deleteFailure;
 
   Future<void> load(String id) async {
     _isLoading = true;
@@ -56,8 +60,27 @@ class ProductEditorController extends ChangeNotifier with DisposeAwareNotifier {
     );
   }
 
+  /// Devolve se removeu; em caso de falha, o motivo fica em [deleteFailure].
+  Future<bool> delete(String id) async {
+    if (_isDeleting || _isSaving) return false;
+    _isDeleting = true;
+    _deleteFailure = null;
+    notifyListeners();
+    try {
+      await _repository.delete(id);
+      _changes.notify(ProductDeleted(id));
+      return true;
+    } on AppFailure catch (failure) {
+      _deleteFailure = failure;
+      return false;
+    } finally {
+      _isDeleting = false;
+      notifyListeners();
+    }
+  }
+
   Future<SaveOutcome> _save(Future<String> Function() persist, ProductPhoto? photo, StockChange Function(String id) change) async {
-    if (_isSaving) return SaveOutcome.failed;
+    if (_isSaving || _isDeleting) return SaveOutcome.failed;
     _isSaving = true;
     _saveFailure = null;
     notifyListeners();

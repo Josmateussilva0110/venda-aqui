@@ -38,6 +38,8 @@ void main() {
     AppRoutes.reports,
     AppRoutes.customers,
     AppRoutes.customer(testCustomer.id),
+    AppRoutes.creditReminders,
+    AppRoutes.creditSettings,
   ];
 
   Future<void> pumpApp(WidgetTester tester, {required bool signedIn}) async {
@@ -54,6 +56,7 @@ void main() {
       salesRepository: sales,
       saleCart: saleCartFor(sales),
       reportsRepository: FakeReportsRepository(),
+      reminderNotifier: FakeReminderNotifier(),
       customersRepository: FakeCustomersRepository(customers: [testCustomer])
         ..statements[testCustomer.id] = [
           StatementEntry(kind: StatementEntryKind.sale, id: 's1', amountCents: 12345, createdAt: DateTime(2026, 10, 30, 9)),
@@ -103,6 +106,7 @@ void main() {
         }
         const CustomerPickerRequest pickerRequest = (amountCents: 4590, itemCount: 3, initialCustomerId: null);
         await visit(tester, AppRoutes.customerPicker, extra: pickerRequest);
+        await visit(tester, AppRoutes.customerEdit(testCustomer.id), extra: testCustomer);
       });
     }
   }

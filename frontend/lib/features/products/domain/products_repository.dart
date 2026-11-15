@@ -17,6 +17,9 @@ abstract interface class ProductsRepository {
 
   Future<void> update(String id, ProductInput input);
 
+  /// Vendas já registradas guardam nome e preço do item e não são afetadas.
+  Future<void> delete(String id);
+
   /// Soma [quantity] ao estoque; o novo total é calculado no servidor.
   Future<void> restock(String id, double quantity);
 

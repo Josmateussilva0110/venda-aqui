@@ -10,6 +10,9 @@ abstract final class AppBreakpoints {
   /// Largura máxima de formulários e telas de leitura em telas largas.
   static const double formMaxWidth = 520;
 
+  /// Largura máxima de modais (confirmação), para não esticar em tablet.
+  static const double dialogMaxWidth = 400;
+
   /// Largura máxima de listas em telas largas.
   static const double listMaxWidth = 760;
 

@@ -2,6 +2,7 @@
 abstract final class PhoneFormat {
   static const minDigits = 10;
   static const maxDigits = 11;
+  static const countryCode = '55';
 
   static String digitsOnly(String value) => value.replaceAll(RegExp(r'\D'), '');
 
@@ -21,7 +22,13 @@ abstract final class PhoneFormat {
   /// A API devolve "+5586999990000"; na tela mostramos só o número nacional formatado.
   static String fromE164(String e164) {
     final digits = digitsOnly(e164);
-    final national = digits.startsWith('55') && digits.length > maxDigits ? digits.substring(2) : digits;
+    final national = digits.startsWith(countryCode) && digits.length > maxDigits ? digits.substring(countryCode.length) : digits;
     return display(national);
+  }
+
+  /// Só dígitos com o código do país ("5586999990000"), como os links internacionais pedem.
+  static String internationalDigits(String phone) {
+    final digits = digitsOnly(phone);
+    return digits.length > maxDigits ? digits : '$countryCode$digits';
   }
 }

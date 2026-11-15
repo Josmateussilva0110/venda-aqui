@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/notifications/reminder_notifier.dart';
+
 import '../../../core/stock/stock_level.dart';
 
 /// Produto que precisa de reposição, como mostrado no início.
@@ -37,10 +39,13 @@ class StockOverview {
 /// Fiado do comércio: quantos clientes devem e quanto há para receber.
 @immutable
 class CreditOverview {
-  const CreditOverview({required this.owingCount, required this.owedCents});
+  const CreditOverview({required this.owingCount, required this.owedCents, this.reminders});
 
   final int owingCount;
   final int owedCents;
+
+  /// Lembretes pendentes e o próximo aviso; nulo com os lembretes desligados.
+  final ReminderSchedule? reminders;
 }
 
 /// Venda recente como aparece no início: produtos, hora, forma de pagamento e total.

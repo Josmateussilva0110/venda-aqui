@@ -209,6 +209,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dashboardSettings => 'Configurações';
 
   @override
+  String get dashboardReminders => 'Lembretes do fiado';
+
+  @override
+  String dashboardRemindersPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Lembretes do fiado: $count para enviar',
+      one: 'Lembretes do fiado: 1 para enviar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String badgeOverflow(int max) {
+    return '$max+';
+  }
+
+  @override
   String get settingsTitle => 'Configurações';
 
   @override
@@ -443,6 +462,23 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get productLoadFailed => 'Não foi possível carregar o produto.';
+
+  @override
+  String get productDelete => 'Remover produto';
+
+  @override
+  String get productDeleteConfirmTitle => 'Remover produto?';
+
+  @override
+  String productDeleteConfirmMessage(String name) {
+    return '\"$name\" sai do estoque. As vendas já feitas com ele continuam no histórico. Não dá para desfazer.';
+  }
+
+  @override
+  String get productDeleteConfirm => 'Remover';
+
+  @override
+  String get productDeleted => 'Produto removido.';
 
   @override
   String get restockTitle => 'Repor estoque';
@@ -811,6 +847,35 @@ class AppLocalizationsPt extends AppLocalizations {
   String get customerSaved => 'Cliente cadastrado.';
 
   @override
+  String get customerEditTitle => 'Editar cliente';
+
+  @override
+  String get customerUpdate => 'Salvar alterações';
+
+  @override
+  String get customerUpdated => 'Cliente atualizado.';
+
+  @override
+  String get customerEditHint => 'Saldo, vencimento e histórico continuam com o cliente.';
+
+  @override
+  String get customerDelete => 'Excluir cliente';
+
+  @override
+  String get customerDeleteConfirmTitle => 'Excluir cliente?';
+
+  @override
+  String customerDeleteConfirmMessage(String name) {
+    return '\"$name\" sai da sua lista de clientes. Não dá para desfazer.';
+  }
+
+  @override
+  String get customerDeleteConfirm => 'Excluir';
+
+  @override
+  String get customerDeleted => 'Cliente excluído.';
+
+  @override
   String customerOwes(String amount) {
     return 'Deve $amount';
   }
@@ -902,6 +967,196 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get receiveDone => 'Pagamento registrado.';
+
+  @override
+  String get whatsAppChat => 'Conversar no WhatsApp';
+
+  @override
+  String get whatsAppCharge => 'Cobrar no WhatsApp';
+
+  @override
+  String reminderGreeting(String name) {
+    return 'Olá, $name. Tudo bem?';
+  }
+
+  @override
+  String reminderOpeningUpcoming(String amount, String date) {
+    return 'Gostaria de lembrar que o seu saldo em aberto conosco é de *$amount*, com vencimento em *$date*.';
+  }
+
+  @override
+  String reminderOpeningDue(String amount) {
+    return 'Lembramos que hoje vence o seu saldo de *$amount*.';
+  }
+
+  @override
+  String reminderOpeningOverdue(String amount, String date) {
+    return 'Identificamos que o saldo de *$amount*, vencido em *$date*, ainda está em aberto.';
+  }
+
+  @override
+  String get reminderClosingHelp => 'Em caso de dúvida, estou à disposição.';
+
+  @override
+  String get reminderClosingNewTerm => 'Caso precise de um novo prazo, é só responder esta mensagem.';
+
+  @override
+  String get reminderPurchasesTitle => '*Compras:*';
+
+  @override
+  String reminderPurchaseItem(String item) {
+    return '• $item';
+  }
+
+  @override
+  String reminderPurchaseMoreItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '• Mais $count itens', one: '• Mais 1 item');
+    return '$_temp0';
+  }
+
+  @override
+  String reminderPurchasesEarlier(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '• +$count compras', one: '• +1 compra');
+    return '$_temp0';
+  }
+
+  @override
+  String reminderPaid(String amount) {
+    return '*Já pago:* $amount';
+  }
+
+  @override
+  String get reminderLoadFailed => 'Não foi possível carregar as compras do cliente. Tente de novo.';
+
+  @override
+  String reminderSignature(String merchant) {
+    return 'Atenciosamente, $merchant.';
+  }
+
+  @override
+  String get reminderSignatureAnonymous => 'Atenciosamente.';
+
+  @override
+  String get reminderAlertTitle => 'Lembretes do fiado';
+
+  @override
+  String get reminderAlertBody => 'Há clientes para lembrar hoje. Abra o Vendaqui para enviar pelo WhatsApp.';
+
+  @override
+  String get reminderChannelName => 'Lembretes do fiado';
+
+  @override
+  String get reminderChannelDescription => 'Avisa no dia de lembrar os clientes do fiado.';
+
+  @override
+  String dueDateLabel(String date) {
+    return 'Vence em $date';
+  }
+
+  @override
+  String get dueDateToday => 'Vence hoje';
+
+  @override
+  String dueDateOverdue(String date) {
+    return 'Venceu em $date';
+  }
+
+  @override
+  String get dueDateExtend => 'Prolongar';
+
+  @override
+  String get dueDateHelp => 'Novo vencimento';
+
+  @override
+  String get dueDateSaved => 'Vencimento alterado.';
+
+  @override
+  String get remindersTitle => 'Lembretes de hoje';
+
+  @override
+  String get remindersSubtitle => 'Toque em enviar para abrir o WhatsApp com a mensagem pronta.';
+
+  @override
+  String get remindersEmpty => 'Nenhum lembrete para enviar agora.';
+
+  @override
+  String get remindersSend => 'Enviar lembrete';
+
+  @override
+  String get remindersSendAgain => 'Enviar de novo';
+
+  @override
+  String get remindersSent => 'Lembrete enviado';
+
+  @override
+  String remindersBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lembretes de fiado para enviar',
+      one: '1 lembrete de fiado para enviar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditSettingsTitle => 'Prazo e lembretes';
+
+  @override
+  String get creditSettingsSection => 'Fiado';
+
+  @override
+  String get creditSettingsTerm => 'Prazo para pagar';
+
+  @override
+  String get creditSettingsTermHint => 'Contado a partir da primeira compra no fiado.';
+
+  @override
+  String get creditSettingsReminders => 'Lembretes pelo WhatsApp';
+
+  @override
+  String get creditSettingsRemindersHint => 'O app avisa no dia e você envia a mensagem pelo seu WhatsApp.';
+
+  @override
+  String get creditSettingsBefore => 'Antes do vencimento';
+
+  @override
+  String get creditSettingsOnDue => 'No dia do vencimento';
+
+  @override
+  String get creditSettingsOverdue => 'Depois de vencido, a cada';
+
+  @override
+  String get creditSettingsHour => 'Horário do aviso';
+
+  @override
+  String get creditSettingsSave => 'Salvar';
+
+  @override
+  String get creditSettingsSaved => 'Configurações salvas.';
+
+  @override
+  String get creditSettingsOff => 'Não lembrar';
+
+  @override
+  String creditSettingsHourValue(int hour) {
+    return '${hour}h';
+  }
+
+  @override
+  String daysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count dias', one: '1 dia');
+    return '$_temp0';
+  }
+
+  @override
+  String get stepperDecrease => 'Diminuir';
+
+  @override
+  String get stepperIncrease => 'Aumentar';
+
+  @override
+  String get whatsAppUnavailable => 'Não foi possível abrir o WhatsApp.';
 
   @override
   String get statementTitle => 'Movimentações';

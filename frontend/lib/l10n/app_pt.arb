@@ -79,6 +79,23 @@
   "navHome": "Início",
   "navStock": "Estoque",
   "dashboardSettings": "Configurações",
+  "dashboardReminders": "Lembretes do fiado",
+  "dashboardRemindersPending": "{count, plural, =1{Lembretes do fiado: 1 para enviar} other{Lembretes do fiado: {count} para enviar}}",
+  "@dashboardRemindersPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeOverflow": "{max}+",
+  "@badgeOverflow": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "settingsTitle": "Configurações",
   "settingsAppearance": "Aparência",
   "settingsAccount": "Conta",
@@ -242,6 +259,18 @@
   "productCreated": "Produto cadastrado.",
   "productUpdated": "Produto atualizado.",
   "productLoadFailed": "Não foi possível carregar o produto.",
+  "productDelete": "Remover produto",
+  "productDeleteConfirmTitle": "Remover produto?",
+  "productDeleteConfirmMessage": "\"{name}\" sai do estoque. As vendas já feitas com ele continuam no histórico. Não dá para desfazer.",
+  "@productDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productDeleteConfirm": "Remover",
+  "productDeleted": "Produto removido.",
   "restockTitle": "Repor estoque",
   "restockCurrent": "Atual: {quantity}",
   "@restockCurrent": {
@@ -486,6 +515,22 @@
   "customerPhoneInvalid": "Telefone inválido. Use DDD + número.",
   "customerSave": "Salvar cliente",
   "customerSaved": "Cliente cadastrado.",
+  "customerEditTitle": "Editar cliente",
+  "customerUpdate": "Salvar alterações",
+  "customerUpdated": "Cliente atualizado.",
+  "customerEditHint": "Saldo, vencimento e histórico continuam com o cliente.",
+  "customerDelete": "Excluir cliente",
+  "customerDeleteConfirmTitle": "Excluir cliente?",
+  "customerDeleteConfirmMessage": "\"{name}\" sai da sua lista de clientes. Não dá para desfazer.",
+  "@customerDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerDeleteConfirm": "Excluir",
+  "customerDeleted": "Cliente excluído.",
   "customerOwes": "Deve {amount}",
   "@customerOwes": {
     "placeholders": {
@@ -540,6 +585,161 @@
   "receiveInvalidAmount": "Informe um valor maior que zero.",
   "receiveExceedsBalance": "O valor passa da dívida do cliente.",
   "receiveDone": "Pagamento registrado.",
+  "whatsAppChat": "Conversar no WhatsApp",
+  "whatsAppCharge": "Cobrar no WhatsApp",
+  "reminderGreeting": "Olá, {name}. Tudo bem?",
+  "@reminderGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOpeningUpcoming": "Gostaria de lembrar que o seu saldo em aberto conosco é de *{amount}*, com vencimento em *{date}*.",
+  "@reminderOpeningUpcoming": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOpeningDue": "Lembramos que hoje vence o seu saldo de *{amount}*.",
+  "@reminderOpeningDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOpeningOverdue": "Identificamos que o saldo de *{amount}*, vencido em *{date}*, ainda está em aberto.",
+  "@reminderOpeningOverdue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderClosingHelp": "Em caso de dúvida, estou à disposição.",
+  "reminderClosingNewTerm": "Caso precise de um novo prazo, é só responder esta mensagem.",
+  "reminderPurchasesTitle": "*Compras:*",
+  "reminderPurchaseItem": "• {item}",
+  "@reminderPurchaseItem": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderPurchaseMoreItems": "{count, plural, =1{• Mais 1 item} other{• Mais {count} itens}}",
+  "@reminderPurchaseMoreItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderPurchasesEarlier": "{count, plural, =1{• +1 compra} other{• +{count} compras}}",
+  "@reminderPurchasesEarlier": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderPaid": "*Já pago:* {amount}",
+  "@reminderPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderLoadFailed": "Não foi possível carregar as compras do cliente. Tente de novo.",
+  "reminderSignature": "Atenciosamente, {merchant}.",
+  "@reminderSignature": {
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSignatureAnonymous": "Atenciosamente.",
+  "reminderAlertTitle": "Lembretes do fiado",
+  "reminderAlertBody": "Há clientes para lembrar hoje. Abra o Vendaqui para enviar pelo WhatsApp.",
+  "reminderChannelName": "Lembretes do fiado",
+  "reminderChannelDescription": "Avisa no dia de lembrar os clientes do fiado.",
+  "dueDateLabel": "Vence em {date}",
+  "@dueDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dueDateToday": "Vence hoje",
+  "dueDateOverdue": "Venceu em {date}",
+  "@dueDateOverdue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dueDateExtend": "Prolongar",
+  "dueDateHelp": "Novo vencimento",
+  "dueDateSaved": "Vencimento alterado.",
+  "remindersTitle": "Lembretes de hoje",
+  "remindersSubtitle": "Toque em enviar para abrir o WhatsApp com a mensagem pronta.",
+  "remindersEmpty": "Nenhum lembrete para enviar agora.",
+  "remindersSend": "Enviar lembrete",
+  "remindersSendAgain": "Enviar de novo",
+  "remindersSent": "Lembrete enviado",
+  "remindersBanner": "{count, plural, =1{1 lembrete de fiado para enviar} other{{count} lembretes de fiado para enviar}}",
+  "@remindersBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "creditSettingsTitle": "Prazo e lembretes",
+  "creditSettingsSection": "Fiado",
+  "creditSettingsTerm": "Prazo para pagar",
+  "creditSettingsTermHint": "Contado a partir da primeira compra no fiado.",
+  "creditSettingsReminders": "Lembretes pelo WhatsApp",
+  "creditSettingsRemindersHint": "O app avisa no dia e você envia a mensagem pelo seu WhatsApp.",
+  "creditSettingsBefore": "Antes do vencimento",
+  "creditSettingsOnDue": "No dia do vencimento",
+  "creditSettingsOverdue": "Depois de vencido, a cada",
+  "creditSettingsHour": "Horário do aviso",
+  "creditSettingsSave": "Salvar",
+  "creditSettingsSaved": "Configurações salvas.",
+  "creditSettingsOff": "Não lembrar",
+  "creditSettingsHourValue": "{hour}h",
+  "@creditSettingsHourValue": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "daysCount": "{count, plural, =1{1 dia} other{{count} dias}}",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stepperDecrease": "Diminuir",
+  "stepperIncrease": "Aumentar",
+  "whatsAppUnavailable": "Não foi possível abrir o WhatsApp.",
   "statementTitle": "Movimentações",
   "statementSale": "Compra no fiado",
   "statementPayment": "Pagamento · {method}",

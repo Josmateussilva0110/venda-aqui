@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:vendaqui/core/network/cancel_signal.dart';
+import 'package:vendaqui/core/notifications/reminder_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:vendaqui/core/stock/stock_level.dart';
 import 'package:vendaqui/core/theme/theme_controller.dart';
@@ -107,6 +110,9 @@ class FakeProductsRepository implements ProductsRepository {
   Future<void> update(String id, ProductInput input) async {}
 
   @override
+  Future<void> delete(String id) async {}
+
+  @override
   Future<void> restock(String id, double quantity) async {}
 
   @override
@@ -114,6 +120,10 @@ class FakeProductsRepository implements ProductsRepository {
 }
 
 class FakeDashboardRepository implements DashboardRepository {
+  FakeDashboardRepository({this.credit = const CreditOverview(owingCount: 0, owedCents: 0)});
+
+  final CreditOverview credit;
+
   @override
   Future<TodaySales> todaySales(DateTime now, {required int recentLimit}) async => TodaySales(
     count: 2,
@@ -138,7 +148,7 @@ class FakeDashboardRepository implements DashboardRepository {
   );
 
   @override
-  Future<CreditOverview> creditOverview() async => const CreditOverview(owingCount: 0, owedCents: 0);
+  Future<CreditOverview> creditOverview() async => credit;
 
   @override
   Future<StockOverview> stockOverview({required int alertLimit}) async {
@@ -290,7 +300,44 @@ class FakeReportsRepository implements ReportsRepository {
 }
 
 /// Nome longo de propósito: os testes de layout conferem que não estoura em tela pequena.
-const testCustomer = Customer(id: 'c1', name: 'Maria das Graças Oliveira Santos', phone: '+5586999990000', balanceCents: 10345);
+final testCustomer = Customer(
+  id: 'c1',
+  name: 'Maria das Graças Oliveira Santos',
+  phone: '+5586999990000',
+  balanceCents: 10345,
+  creditDueDate: DateTime(2026, 11, 20),
+);
+
+/// Aviso dos lembretes que só guarda a última agenda recebida.
+class FakeReminderNotifier implements ReminderNotifier {
+  FakeReminderNotifier({this.launchedFromAlert = false});
+
+  final List<ReminderSchedule?> synced = [];
+  int permissionRequests = 0;
+
+  /// Simula o app aberto pelo toque no aviso.
+  bool launchedFromAlert;
+  final _taps = StreamController<void>.broadcast();
+
+  /// Simula um toque no aviso com o app aberto.
+  void tapAlert() => _taps.add(null);
+
+  @override
+  Stream<void> get alertTaps => _taps.stream;
+
+  @override
+  Future<bool> consumeLaunchTap() async {
+    final launched = launchedFromAlert;
+    launchedFromAlert = false;
+    return launched;
+  }
+
+  @override
+  Future<void> sync(ReminderSchedule? schedule) async => synced.add(schedule);
+
+  @override
+  Future<void> requestPermission() async => permissionRequests++;
+}
 
 /// Clientes em memória, com saldo do fiado e extrato como o servidor faria.
 class FakeCustomersRepository implements CustomersRepository {
@@ -298,7 +345,28 @@ class FakeCustomersRepository implements CustomersRepository {
 
   final List<Customer> customers;
   final Map<String, List<StatementEntry>> statements = {};
+  final Set<String> remindedIds = {};
+  CreditSettings settings = const CreditSettings(
+    creditTermDays: 30,
+    remindersEnabled: true,
+    remindDaysBefore: 3,
+    remindOnDue: true,
+    remindOverdueEveryDays: 7,
+    reminderHour: 9,
+  );
   int _nextId = 1;
+
+  // Simplificação do servidor: todo cliente devendo e ainda não lembrado tem lembrete pendente
+  List<Customer> get _pending => customers.where((customer) => customer.owes && !remindedIds.contains(customer.id)).toList();
+
+  CreditSummary _summary() {
+    final owing = customers.where((customer) => customer.owes);
+    return CreditSummary(
+      owingCount: owing.length,
+      owedCents: owing.fold(0, (sum, customer) => sum + customer.balanceCents),
+      reminders: settings.remindersEnabled ? ReminderSchedule(dueCount: _pending.length, nextOn: null, hour: settings.reminderHour) : null,
+    );
+  }
 
   @override
   Future<CustomerPage> list({
@@ -315,13 +383,59 @@ class FakeCustomersRepository implements CustomersRepository {
             .where((customer) => customer.name.toLowerCase().contains(query) || customer.phone.contains(query))
             .toList()
           ..sort((a, b) => a.name.compareTo(b.name));
-    final owing = customers.where((customer) => customer.owes);
-    return CustomerPage(
-      items: matching.skip(offset).take(limit).toList(),
-      total: matching.length,
-      summary: CreditSummary(owingCount: owing.length, owedCents: owing.fold(0, (sum, customer) => sum + customer.balanceCents)),
+    return CustomerPage(items: matching.skip(offset).take(limit).toList(), total: matching.length, summary: _summary());
+  }
+
+  @override
+  Future<CreditSummary> summary() async => _summary();
+
+  /// Conta em aberto por cliente; sem entrada, vira uma compra só com o saldo inteiro.
+  final Map<String, OpenAccount> openAccounts = {};
+
+  @override
+  Future<OpenAccount> openAccount(String customerId) async {
+    final customer = customers.firstWhere((customer) => customer.id == customerId);
+    return openAccounts[customerId] ??
+        OpenAccount(
+          balanceCents: customer.balanceCents,
+          creditDueDate: customer.creditDueDate,
+          paidCents: 0,
+          purchases: [
+            OpenPurchase(
+              createdAt: DateTime(2026, 11, 3, 10),
+              totalCents: customer.balanceCents,
+              items: [PurchasedItem(name: 'Arroz', quantity: 2, soldByWeight: false, subtotalCents: customer.balanceCents)],
+            ),
+          ],
+          earlierCount: 0,
+          earlierCents: 0,
+        );
+  }
+
+  @override
+  Future<DateTime> setDueDate(String customerId, DateTime dueDate) async {
+    final index = customers.indexWhere((customer) => customer.id == customerId);
+    customers[index] = customers[index].copyWith(creditDueDate: dueDate);
+    return dueDate;
+  }
+
+  @override
+  Future<CreditReminderPage> reminders({required int offset, required int limit}) async {
+    final pending = _pending;
+    return CreditReminderPage(
+      items: pending.skip(offset).take(limit).map((customer) => CreditReminder(customer: customer, status: DueStatus.upcoming)).toList(),
+      total: pending.length,
     );
   }
+
+  @override
+  Future<void> markReminded(String customerId) async => remindedIds.add(customerId);
+
+  @override
+  Future<CreditSettings> creditSettings() async => settings;
+
+  @override
+  Future<void> saveCreditSettings(CreditSettings settings) async => this.settings = settings;
 
   @override
   Future<Customer> get(String id) async => customers.firstWhere((customer) => customer.id == id);
@@ -331,6 +445,36 @@ class FakeCustomersRepository implements CustomersRepository {
     final customer = Customer(id: 'customer-${_nextId++}', name: input.name, phone: input.phone, balanceCents: 0);
     customers.add(customer);
     return customer;
+  }
+
+  // Como o servidor: cliente com fiado ou pagamento no histórico não sai (chave estrangeira restrict)
+  @override
+  Future<void> delete(String id) async {
+    final customer = customers.firstWhere((customer) => customer.id == id);
+    if (customer.owes || (statements[id]?.isNotEmpty ?? false)) {
+      throw const RequestFailure(
+        statusCode: 409,
+        message: 'Este cliente tem fiado no histórico e não pode ser excluído.',
+        code: 'CUSTOMER_HAS_HISTORY',
+      );
+    }
+    customers.remove(customer);
+  }
+
+  @override
+  Future<void> update(String id, CustomerInput input) async {
+    if (customers.any((customer) => customer.id != id && customer.phone.endsWith(input.phone))) {
+      throw const RequestFailure(statusCode: 409, message: 'Você já tem um cliente com esse telefone.', code: 'CUSTOMER_PHONE_TAKEN');
+    }
+    final index = customers.indexWhere((customer) => customer.id == id);
+    final current = customers[index];
+    customers[index] = Customer(
+      id: id,
+      name: input.name,
+      phone: '+55${input.phone}',
+      balanceCents: current.balanceCents,
+      creditDueDate: current.creditDueDate,
+    );
   }
 
   @override

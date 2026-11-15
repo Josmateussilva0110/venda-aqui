@@ -3,17 +3,20 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/app_failure.dart';
+import '../../../../core/notifications/reminder_notifier.dart';
 import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/utils/dispose_aware_notifier.dart';
 import '../../domain/stock_overview.dart';
 
 class DashboardController extends ChangeNotifier with DisposeAwareNotifier {
-  DashboardController(this._repository, StockChanges changes, {DateTime Function()? clock}) : _clock = clock ?? DateTime.now {
+  DashboardController(this._repository, StockChanges changes, this._notifier, {DateTime Function()? clock})
+    : _clock = clock ?? DateTime.now {
     // Qualquer mudança pode mexer nos alertas; só a venda mexe também no faturamento e no fiado
     _changesSubscription = changes.stream.listen((change) => change is StockSold ? load() : loadStock());
   }
 
   final DashboardRepository _repository;
+  final ReminderNotifier _notifier;
   final DateTime Function() _clock;
   late final StreamSubscription<StockChange> _changesSubscription;
 
@@ -84,6 +87,8 @@ class DashboardController extends ChangeNotifier with DisposeAwareNotifier {
       final credit = await _repository.creditOverview();
       if (request != _lastCreditRequest) return;
       _credit = credit;
+      // O início abre sempre que o app abre: é daqui que o aviso dos lembretes se mantém em dia
+      unawaited(_notifier.sync(credit.reminders));
     } on AppFailure {
       if (request != _lastCreditRequest) return;
       _credit = null;
