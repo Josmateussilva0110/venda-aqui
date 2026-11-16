@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/theme_controller.dart';
@@ -72,6 +73,17 @@ class SettingsPage extends StatelessWidget {
                         ),
                         SizedBox(height: spacing.sm),
                         Text(l10n.themeHint, style: context.text.bodySmall),
+                        SizedBox(height: spacing.xl),
+                        SectionHeader(title: l10n.creditSettingsSection),
+                        SizedBox(height: spacing.md),
+                        AppCard(
+                          padding: EdgeInsets.symmetric(vertical: spacing.xs),
+                          child: _SettingsTile(
+                            label: l10n.creditSettingsTitle,
+                            icon: Icons.event_repeat_rounded,
+                            onTap: () => context.push(AppRoutes.creditSettings),
+                          ),
+                        ),
                         SizedBox(height: spacing.xl),
                         SectionHeader(title: l10n.settingsAccount),
                         SizedBox(height: spacing.md),

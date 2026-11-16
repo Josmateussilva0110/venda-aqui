@@ -4,7 +4,7 @@ import '../theme/theme_context.dart';
 
 enum AppButtonShape { pill, rounded }
 
-enum AppButtonVariant { primary, outlined, light }
+enum AppButtonVariant { primary, outlined, light, danger }
 
 /// Botão de ação do app. [isActive] só muda a cor (o protótipo deixa tocar e explica o que falta).
 class AppButton extends StatelessWidget {
@@ -13,6 +13,7 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.leading,
     this.isActive = true,
     this.isLoading = false,
     this.shape = AppButtonShape.pill,
@@ -23,6 +24,9 @@ class AppButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+
+  /// Ícone de outra fonte (ex.: logo do WhatsApp) no lugar de [icon], com a mesma cor e tamanho.
+  final Widget? leading;
   final bool isActive;
   final bool isLoading;
   final AppButtonShape shape;
@@ -37,6 +41,7 @@ class AppButton extends StatelessWidget {
       AppButtonVariant.primary => (isActive ? colors.primary : colors.primaryDisabled, colors.onPrimary, null),
       AppButtonVariant.outlined => (colors.surface, colors.ink, BorderSide(color: colors.border, width: 2)),
       AppButtonVariant.light => (colors.surface, colors.ink, null),
+      AppButtonVariant.danger => (colors.danger, colors.onPrimary, null),
     };
     final textStyle = (compact ? context.text.titleSmall : context.text.labelLarge)?.copyWith(color: foreground);
 
@@ -64,7 +69,13 @@ class AppButton extends StatelessWidget {
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (icon != null) ...[Icon(icon, color: foreground, size: context.sizes.icon), SizedBox(width: context.spacing.sm)],
+                        if (leading ?? (icon == null ? null : Icon(icon)) case final iconWidget?) ...[
+                          IconTheme(
+                            data: IconThemeData(color: foreground, size: context.sizes.icon),
+                            child: iconWidget,
+                          ),
+                          SizedBox(width: context.spacing.sm),
+                        ],
                         Flexible(
                           child: Text(label, style: textStyle, textAlign: TextAlign.center),
                         ),
@@ -83,7 +94,9 @@ class AppTextLink extends StatelessWidget {
   const AppTextLink({super.key, required this.label, required this.onPressed, this.color});
 
   final String label;
-  final VoidCallback onPressed;
+
+  /// Nulo desabilita (ex.: enquanto salva).
+  final VoidCallback? onPressed;
   final Color? color;
 
   @override

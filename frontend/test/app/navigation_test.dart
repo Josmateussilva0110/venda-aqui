@@ -84,6 +84,7 @@ void main() {
       salesRepository: sales,
       saleCart: saleCartFor(sales),
       reportsRepository: FakeReportsRepository(),
+      reminderNotifier: FakeReminderNotifier(),
       customersRepository: FakeCustomersRepository(),
     );
     await tester.pumpWidget(VendaquiApp(dependencies: dependencies));

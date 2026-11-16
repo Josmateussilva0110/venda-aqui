@@ -119,7 +119,28 @@ class StockController extends ChangeNotifier with DisposeAwareNotifier {
         loadFirstPage();
       case ProductUpdated(:final productId):
         _refreshProduct(productId);
+      case ProductDeleted(:final productId):
+        _removeProduct(productId);
     }
+  }
+
+  void _removeProduct(String productId) {
+    final index = _items.indexWhere((product) => product.id == productId);
+    // Fora do que está carregado não dá para saber a situação dele e corrigir as contagens
+    if (index < 0 || _status != StockListStatus.ready) {
+      loadFirstPage();
+      return;
+    }
+    _counts = _counts.removed(_items[index].stockLevel);
+    _removeAt(index);
+    notifyListeners();
+  }
+
+  void _removeAt(int index) {
+    _items = [..._items]..removeAt(index);
+    _total -= 1;
+    // A página pedida antes da remoção usaria um offset adiantado em um; o rodapé pede de novo
+    if (_isLoadingMore) _inFlight?.cancel();
   }
 
   /// Atualiza só o produto alterado, mantendo as páginas carregadas e a posição da rolagem.
@@ -147,10 +168,7 @@ class StockController extends ChangeNotifier with DisposeAwareNotifier {
     if (_filter.includes(updated.stockLevel)) {
       _items = [..._items]..[current] = updated;
     } else {
-      _items = [..._items]..removeAt(current);
-      _total -= 1;
-      // A página pedida antes da remoção usaria um offset adiantado em um; o rodapé pede de novo
-      if (_isLoadingMore) _inFlight?.cancel();
+      _removeAt(current);
     }
     notifyListeners();
   }

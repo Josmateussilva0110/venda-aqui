@@ -7,6 +7,7 @@ abstract final class ApiCodes {
   static const pinLocked = 'PIN_LOCKED';
   static const phoneAlreadyRegistered = 'PHONE_ALREADY_REGISTERED';
   static const recoveryCodeInvalid = 'RECOVERY_CODE_INVALID';
+  static const customerPhoneTaken = 'CUSTOMER_PHONE_TAKEN';
 
   static const sessionEndingCodes = {sessionInvalid, sessionExpired, sessionRevoked};
 }
@@ -35,6 +36,11 @@ abstract final class ApiPaths {
   static String customer(String id) => '/customers/$id';
   static String customerStatement(String id) => '/customers/$id/statement';
   static String customerPayments(String id) => '/customers/$id/payments';
+  static String customerDueDate(String id) => '/customers/$id/due-date';
+  static String customerOpenAccount(String id) => '/customers/$id/open-account';
+  static String customerReminder(String id) => '/customers/$id/reminders';
+  static const creditReminders = '/customers/reminders';
+  static const creditSettings = '/settings/credit';
 
   static const salesReport = '/reports/sales';
 }

@@ -2,6 +2,7 @@ import '../../../core/network/api_codes.dart';
 import '../../../core/network/json_map.dart';
 import '../../../core/network/json_reader.dart';
 import '../../../core/network/request_data.dart';
+import '../../../core/notifications/reminder_notifier.dart';
 import '../../../core/stock/stock_level.dart';
 import '../domain/stock_overview.dart';
 
@@ -62,7 +63,11 @@ class DashboardRepositoryImpl implements DashboardRepository {
       params: {'balance': _owingFilter, 'limit': 1, 'offset': 0},
       parse: (json) {
         final summary = jsonMap(json).requireMap('summary');
-        return CreditOverview(owingCount: summary.requireInt('owingCount'), owedCents: summary.requireInt('owedCents'));
+        return CreditOverview(
+          owingCount: summary.requireInt('owingCount'),
+          owedCents: summary.requireInt('owedCents'),
+          reminders: ReminderSchedule.fromSummaryJson(summary['reminders']),
+        );
       },
     );
     return response.requireData();

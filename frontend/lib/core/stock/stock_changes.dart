@@ -18,6 +18,12 @@ final class ProductUpdated extends StockChange {
   final String productId;
 }
 
+final class ProductDeleted extends StockChange {
+  const ProductDeleted(this.productId);
+
+  final String productId;
+}
+
 /// Venda registrada ou editada: o servidor baixou (ou devolveu) o estoque de vários produtos de uma vez.
 final class StockSold extends StockChange {
   const StockSold();

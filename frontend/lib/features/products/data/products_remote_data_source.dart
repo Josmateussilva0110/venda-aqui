@@ -55,6 +55,11 @@ class ProductsRemoteDataSource {
     response.ensureSuccess();
   }
 
+  Future<void> delete(String id) async {
+    final response = await requestData<void>(endpoint: ApiPaths.product(id), method: 'DELETE');
+    response.ensureSuccess();
+  }
+
   Future<void> restock(String id, double quantity) async {
     final response = await requestData<void>(endpoint: ApiPaths.productRestock(id), method: 'POST', data: {'quantity': quantity});
     response.ensureSuccess();

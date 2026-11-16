@@ -9,6 +9,7 @@ import '../../../../core/utils/money_format.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/filter_pill.dart';
 import '../../../../core/widgets/pagination_footer.dart';
+import '../../../../core/widgets/reminder_banner.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/search_field.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -17,23 +18,29 @@ import '../../domain/customer.dart';
 import '../../domain/customers_repository.dart';
 import '../controllers/customer_list_controller.dart';
 import '../widgets/customer_tile.dart';
+import '../widgets/customer_whatsapp_button.dart';
 
 /// Fiado: quanto há para receber e quem deve, em ordem alfabética.
 class DebtorsPage extends StatelessWidget {
-  const DebtorsPage({super.key});
+  const DebtorsPage({super.key, this.merchantName});
+
+  /// Assina a cobrança pelo WhatsApp; vem da sessão, pelo app.
+  final String? merchantName;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) =>
           CustomerListController(context.read<CustomersRepository>(), initialFilter: CustomerBalanceFilter.owing)..loadFirstPage(),
-      child: const _DebtorsView(),
+      child: _DebtorsView(merchantName: merchantName),
     );
   }
 }
 
 class _DebtorsView extends StatefulWidget {
-  const _DebtorsView();
+  const _DebtorsView({required this.merchantName});
+
+  final String? merchantName;
 
   @override
   State<_DebtorsView> createState() => _DebtorsViewState();
@@ -72,6 +79,15 @@ class _DebtorsViewState extends State<_DebtorsView> {
     final controller = context.read<CustomerListController>();
     final changed = await context.push<bool>(AppRoutes.customer(customer.id));
     if (changed != true) return;
+    _changed = true;
+    await controller.loadFirstPage(silent: true);
+  }
+
+  // Enviar lembrete muda o resumo (pendentes e próximo aviso): busca de novo sem limpar a tela
+  Future<void> _openReminders() async {
+    final controller = context.read<CustomerListController>();
+    final sent = await context.push<bool>(AppRoutes.creditReminders);
+    if (sent != true) return;
     _changed = true;
     await controller.loadFirstPage(silent: true);
   }
@@ -117,7 +133,7 @@ class _DebtorsViewState extends State<_DebtorsView> {
                         padding: EdgeInsets.fromLTRB(spacing.lg, 0, spacing.lg, spacing.xl),
                         itemCount: 1 + (placeholder != null ? 1 : customers.length + 1),
                         itemBuilder: (context, index) {
-                          if (index == 0) return _DebtorsHeader(searchController: _searchController);
+                          if (index == 0) return _DebtorsHeader(searchController: _searchController, onOpenReminders: _openReminders);
                           if (placeholder != null) return placeholder;
                           if (index == customers.length + 1) {
                             return PaginationFooter(
@@ -131,7 +147,14 @@ class _DebtorsViewState extends State<_DebtorsView> {
                           final customer = customers[index - 1];
                           return Padding(
                             padding: EdgeInsets.only(bottom: spacing.sm),
-                            child: CustomerTile(customer: customer, showAmount: true, onTap: () => _open(customer)),
+                            child: CustomerTile(
+                              customer: customer,
+                              showAmount: true,
+                              onTap: () => _open(customer),
+                              trailing: customer.owes
+                                  ? CustomerWhatsAppButton(customer: customer, charge: true, merchantName: widget.merchantName)
+                                  : null,
+                            ),
                           );
                         },
                       ),
@@ -149,9 +172,10 @@ class _DebtorsViewState extends State<_DebtorsView> {
 
 /// Total a receber, busca e filtro. Reconstrói só quando o resumo ou o filtro muda.
 class _DebtorsHeader extends StatelessWidget {
-  const _DebtorsHeader({required this.searchController});
+  const _DebtorsHeader({required this.searchController, required this.onOpenReminders});
 
   final TextEditingController searchController;
+  final VoidCallback onOpenReminders;
 
   @override
   Widget build(BuildContext context) {
@@ -191,6 +215,10 @@ class _DebtorsHeader extends StatelessWidget {
               ),
             ),
           ),
+          if (summary?.reminders?.dueCount case final count? when count > 0) ...[
+            SizedBox(height: spacing.md),
+            ReminderBanner(count: count, onTap: onOpenReminders),
+          ],
           SizedBox(height: spacing.md),
           SearchField(controller: searchController, hint: l10n.debtorsSearchHint, onChanged: controller.setSearch),
           SizedBox(height: spacing.md),

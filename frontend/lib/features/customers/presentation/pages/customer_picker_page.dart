@@ -15,6 +15,8 @@ import '../../../../core/widgets/search_field.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/customer.dart';
+import '../../../../core/network/api_codes.dart';
+import '../forms/customer_form.dart';
 import '../../domain/customers_repository.dart';
 import '../controllers/customer_list_controller.dart';
 import '../widgets/customer_tile.dart';
@@ -102,9 +104,8 @@ class _PickerViewState extends State<_PickerView> {
       _select(customer);
       showAppToast(context, l10n.customerSaved);
       return null;
-    } on ValidationFailure catch (failure) {
-      return failure;
     } on AppFailure catch (failure) {
+      if (customerFieldFailure(failure, ApiCodes.customerPhoneTaken) case final fieldFailure?) return fieldFailure;
       if (mounted) showAppToast(context, failureMessage(l10n, failure), tone: ToastTone.error);
       return null;
     }
