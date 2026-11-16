@@ -16,6 +16,7 @@ import {
   PRODUCT_UPDATE_FAILED_ERROR,
 } from "../errors/products"
 import type { ListProductsDTO } from "../schemas/products/listProducts"
+import type { RestockDTO } from "../schemas/products/restock"
 import type { ProductDTO } from "../schemas/products/product"
 import {
   ProductErrorCode,
@@ -176,11 +177,16 @@ class ProductService {
     }
   }
 
-  async restock(merchantId: string, productId: string, quantity: number): ProductResult<{ id: string }> {
+  async restock(merchantId: string, productId: string, input: RestockDTO): ProductResult<{ id: string }> {
     try {
       const { data, error } = await supabase
-        .rpc("restock_product", { p_merchant_id: merchantId, p_product_id: productId, p_quantity: quantity })
-        .maybeSingle<{ id: string }>()
+        .rpc("restock_product", {
+          p_merchant_id: merchantId,
+          p_product_id: productId,
+          p_quantity: input.quantity,
+          p_client_id: input.clientId ?? null,
+        })
+        .maybeSingle<{ id: string; replayed: boolean }>()
 
       if (isCheckViolation(error)) {
         return {

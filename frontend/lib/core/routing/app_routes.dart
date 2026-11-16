@@ -29,6 +29,9 @@ abstract final class AppRoutes {
   static const creditReminders = '/customers/reminders';
   static const settings = '/settings';
   static const creditSettings = '/settings/credit';
+
+  /// Vendas, pagamentos e reposições feitos sem internet que ainda não subiram (ou foram recusados).
+  static const pendingChanges = '/settings/pending';
   static const stock = '/stock';
 
   /// Filtro do estoque na URL (`all`, `low` ou `out`): é por ela que o início abre o estoque já filtrado.

@@ -1,5 +1,6 @@
 import '../../../core/network/app_failure.dart';
 import '../../../core/network/auth_interceptor.dart';
+import '../../../core/offline/offline_store.dart';
 import '../../../core/security/session_refresher.dart';
 import '../../../core/security/token_store.dart';
 import '../domain/auth_repository.dart';
@@ -8,12 +9,15 @@ import 'auth_dtos.dart';
 import 'auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({required this._remote, required this._tokenStore, required this._refresher});
+  AuthRepositoryImpl({required this._remote, required this._tokenStore, required this._refresher, required this._offline});
 
   final AuthRemoteDataSource _remote;
   final TokenStore _tokenStore;
   final SessionRefresher _refresher;
+  final OfflineStore _offline;
 
+  // Sem internet não dá para saber se a sessão ainda vale: com refresh token guardado, entra com os
+  // dados locais e a sessão é conferida na primeira requisição que alcançar o servidor
   @override
   Future<Merchant?> restoreSession() async {
     final outcome = await _refresher.refresh();
@@ -22,10 +26,25 @@ class AuthRepositoryImpl implements AuthRepository {
         await _tokenStore.clearSession();
         return null;
       case RefreshOutcome.unreachable:
-        throw const NetworkFailure();
+        return _offlineMerchant();
       case RefreshOutcome.renewed:
-        return _remote.me();
+        try {
+          return await _remember(await _remote.me());
+        } on NetworkFailure {
+          return _offlineMerchant();
+        }
     }
+  }
+
+  Future<Merchant> _offlineMerchant() async {
+    final owner = await _offline.owner();
+    if (owner == null) throw const NetworkFailure();
+    return Merchant(id: owner.id, name: owner.name, phone: owner.phone);
+  }
+
+  Future<Merchant> _remember(Merchant merchant) async {
+    await _offline.saveOwner((id: merchant.id, name: merchant.name, phone: merchant.phone));
+    return merchant;
   }
 
   @override
@@ -65,6 +84,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<Merchant> _start(SessionDto session) async {
     await _tokenStore.saveTokens(accessToken: session.accessToken, refreshToken: session.refreshToken);
-    return session.merchant;
+    return _remember(session.merchant);
   }
 }

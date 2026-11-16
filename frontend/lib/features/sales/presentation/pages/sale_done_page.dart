@@ -113,6 +113,7 @@ class _SaleDonePageState extends State<SaleDonePage> {
                         textAlign: TextAlign.center,
                         style: context.text.titleSmall?.copyWith(color: colors.onPrimaryMuted),
                       ),
+                      if (sale.pendingSync) ...[SizedBox(height: spacing.lg), const _PendingSyncNote()],
                       SizedBox(height: spacing.huge),
                       AppButton(label: l10n.saleDoneNewSale, variant: AppButtonVariant.light, onPressed: _newSale),
                       SizedBox(height: spacing.sm),
@@ -144,4 +145,36 @@ class _SaleDonePageState extends State<SaleDonePage> {
 String _methodLabel(AppLocalizations l10n, Sale sale) {
   final customer = sale.customer;
   return customer == null ? sale.method.label(l10n) : l10n.saleDoneCredit(customer.name);
+}
+
+/// Venda feita sem internet: fica claro que não se perdeu e que o servidor ainda vai conferir.
+class _PendingSyncNote extends StatelessWidget {
+  const _PendingSyncNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    return Semantics(
+      liveRegion: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: colors.onPrimary.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(context.radius.lg)),
+        child: Padding(
+          padding: EdgeInsets.all(spacing.md),
+          child: Row(
+            children: [
+              Icon(Icons.cloud_upload_outlined, color: colors.onPrimary, size: context.sizes.icon),
+              SizedBox(width: spacing.sm),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context).saleDonePendingSync,
+                  style: context.text.bodyMedium?.copyWith(color: colors.onPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

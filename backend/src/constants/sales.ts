@@ -6,6 +6,11 @@ export const SETTLEMENT_METHODS = ["cash", "pix", "card"] as const
 
 export const MAX_SALE_ITEMS = 100
 
+// Venda feita sem internet: mais velha que isso fica presa no aparelho em vez de reescrever relatórios antigos
+export const MAX_OFFLINE_SALE_AGE_DAYS = 30
+
+export const DAY_MS = 24 * 60 * 60 * 1000
+
 // Um ano de histórico por consulta: períodos maiores varreriam vendas demais de uma vez
 export const MAX_HISTORY_RANGE_DAYS = 366
 

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/app_failure.dart';
+import '../../../../core/offline/sync_state.dart';
 import '../../../../core/stock/stock_changes.dart';
 import '../../../../core/utils/dispose_aware_notifier.dart';
 import '../../../../core/utils/quantity_format.dart';
@@ -51,14 +52,18 @@ class RestockController extends ChangeNotifier with DisposeAwareNotifier {
     notifyListeners();
   }
 
-  /// Verdadeiro quando o servidor confirmou a reposição.
+  /// Sem internet, a reposição ficou guardada no aparelho (a tela avisa de outro jeito).
+  bool _savedOffline = false;
+  bool get savedOffline => _savedOffline;
+
+  /// Verdadeiro quando a reposição foi gravada (no servidor ou, sem internet, na fila do aparelho).
   Future<bool> save() async {
     if (!canSave || _isSaving) return false;
     _isSaving = true;
     _saveFailure = null;
     notifyListeners();
     try {
-      await _repository.restock(productId, amount);
+      _savedOffline = await _repository.restock(productId, amount) == SyncState.pending;
       _changes.notify(ProductUpdated(productId));
       return true;
     } on AppFailure catch (failure) {

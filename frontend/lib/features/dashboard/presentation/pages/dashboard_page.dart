@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/widgets/pending_changes_banner.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/notifications/reminder_notifier.dart';
 import '../../../../core/stock/stock_changes.dart';
@@ -144,6 +145,11 @@ class _DashboardView extends StatelessWidget {
                       pendingReminders: controller.credit?.reminders?.dueCount ?? 0,
                       onReminders: () => _openReminders(context),
                       onSettings: () => context.push(AppRoutes.settings),
+                    ),
+                    // Some com a fila vazia, junto com o espaço em volta
+                    PendingChangesBanner(
+                      onTap: () => context.push(AppRoutes.pendingChanges),
+                      padding: EdgeInsets.only(top: spacing.lg),
                     ),
                     SizedBox(height: spacing.xl),
                     if (controller.todaySales case final sales?)

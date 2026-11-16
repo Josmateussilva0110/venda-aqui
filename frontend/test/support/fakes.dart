@@ -2,7 +2,13 @@ import 'dart:async';
 
 import 'package:vendaqui/core/network/cancel_signal.dart';
 import 'package:vendaqui/core/notifications/reminder_notifier.dart';
+import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:vendaqui/core/offline/local_database.dart';
+import 'package:vendaqui/core/offline/offline_store.dart';
+import 'package:vendaqui/core/offline/outbox.dart';
+import 'package:vendaqui/core/offline/sync_state.dart';
 import 'package:vendaqui/core/stock/stock_level.dart';
 import 'package:vendaqui/core/theme/theme_controller.dart';
 import 'package:vendaqui/core/network/app_failure.dart';
@@ -19,6 +25,63 @@ import 'package:vendaqui/features/dashboard/domain/stock_overview.dart';
 import 'package:vendaqui/features/products/domain/photo_picker.dart';
 import 'package:vendaqui/features/products/domain/product.dart';
 import 'package:vendaqui/features/products/domain/products_repository.dart';
+
+/// Cópia local em memória: some ao fim do teste e não toca no disco.
+/// Cada teste abre o seu banco em memória (executores separados), então o aviso de instância repetida não se aplica.
+LocalDatabase memoryDatabase() {
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  return LocalDatabase(NativeDatabase.memory());
+}
+
+OfflineStore memoryOfflineStore() => OfflineStore(memoryDatabase());
+
+/// Fila vazia num banco em memória próprio, para as telas que só leem as contagens.
+Outbox memoryOutbox() {
+  final db = memoryDatabase();
+  return Outbox(db, OfflineStore(db));
+}
+
+/// Fila com uma venda, um pagamento e uma reposição esperando internet e uma venda recusada, com
+/// textos longos: é o pior caso da tela de pendências e faz a faixa do início aparecer.
+Future<Outbox> busyOutbox() async {
+  final db = memoryDatabase();
+  final store = OfflineStore(db);
+  final outbox = Outbox(db, store)
+    ..register('sale', (payload) async {
+      final rejected = payload['body'] is Map && (payload['body'] as Map)['clientId'] == 'recusada';
+      return rejected
+          ? (outcome: OutboxOutcome.rejected, detail: null, message: 'Um dos produtos não existe mais. Atualize a lista.')
+          : (outcome: OutboxOutcome.retryLater, detail: null, message: null);
+    });
+  await store.saveOwner((id: testMerchant.id, name: testMerchant.name, phone: testMerchant.phone));
+  Map<String, dynamic> sale(String clientId) => {
+    'body': {'clientId': clientId},
+    'display': {'totalCents': 1234567, 'itemCount': 12, 'method': 'credit', 'customerName': 'Maria Aparecida dos Santos Oliveira'},
+  };
+  await outbox.add(id: 'recusada', kind: 'sale', payload: sale('recusada'));
+  await outbox.add(id: 'venda', kind: 'sale', payload: sale('venda'));
+  await outbox.add(
+    id: 'pagamento',
+    kind: 'payment',
+    payload: {
+      'customerId': 'c1',
+      'body': {'amountCents': 45000, 'paymentMethod': 'pix', 'clientId': 'pagamento'},
+      'display': {'name': 'Maria Aparecida dos Santos Oliveira'},
+    },
+  );
+  await outbox.add(
+    id: 'reposicao',
+    kind: 'restock',
+    payload: {
+      'productId': 'p1',
+      'body': {'quantity': 12.5, 'clientId': 'reposicao'},
+      'display': {'name': 'Farinha de mandioca torrada fina 1kg', 'soldByWeight': true},
+    },
+  );
+  // Só a venda recusada sobe e é recusada; o resto fica esperando (sem enviador registrado para eles)
+  await outbox.flush();
+  return outbox;
+}
 
 const testMerchant = Merchant(id: 'm1', name: 'Mercearia da Rita', phone: '+5586999990000');
 
@@ -113,7 +176,7 @@ class FakeProductsRepository implements ProductsRepository {
   Future<void> delete(String id) async {}
 
   @override
-  Future<void> restock(String id, double quantity) async {}
+  Future<SyncState> restock(String id, double quantity) async => SyncState.synced;
 
   @override
   Future<void> uploadPhoto(String id, ProductPhoto photo) async {}
@@ -484,7 +547,7 @@ class FakeCustomersRepository implements CustomersRepository {
   }
 
   @override
-  Future<int> registerPayment(String customerId, {required int amountCents, required SettlementMethod method}) async {
+  Future<PaymentReceipt> registerPayment(String customerId, {required int amountCents, required SettlementMethod method}) async {
     final index = customers.indexWhere((customer) => customer.id == customerId);
     final customer = customers[index];
     if (amountCents > customer.balanceCents) {
@@ -504,7 +567,7 @@ class FakeCustomersRepository implements CustomersRepository {
             settlementMethod: method,
           ),
         );
-    return balance;
+    return PaymentReceipt(balanceCents: balance, state: SyncState.synced);
   }
 }
 

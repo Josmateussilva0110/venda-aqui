@@ -11,25 +11,27 @@ void main() {
 
   final l10n = lookupAppLocalizations(const Locale('pt'));
   final year = DateTime.now().year;
-  final account = OpenAccount(
-    balanceCents: 10345,
-    creditDueDate: DateTime(year, 11, 20),
-    paidCents: 4655,
+
+  String messageFor(OpenAccount account, DueStatus status, {String customer = 'Lucas', String? merchant = 'Zoro'}) =>
+      reminderMessage(l10n, customerName: customer, account: account, status: status, merchantName: merchant, locale: 'pt_BR');
+
+  // Exemplo real enviado pelo comerciante; valores alinhados à direita num bloco monoespaçado
+  final lucas = OpenAccount(
+    balanceCents: 2200,
+    creditDueDate: DateTime(2027, 1, 1),
+    paidCents: 0,
     purchases: [
       OpenPurchase(
-        createdAt: DateTime(year, 11, 3, 9),
-        totalCents: 8250,
-        items: const [
-          PurchasedItem(name: 'Arroz', quantity: 2, soldByWeight: false, subtotalCents: 5000),
-          PurchasedItem(name: 'Tomate', quantity: 1.5, soldByWeight: true, subtotalCents: 3250),
-        ],
+        createdAt: DateTime(year, 11, 12, 9),
+        totalCents: 400,
+        items: const [PurchasedItem(name: 'Tomate', quantity: 2, soldByWeight: false, subtotalCents: 400)],
       ),
       OpenPurchase(
-        createdAt: DateTime(year, 11, 8, 17),
-        totalCents: 6750,
+        createdAt: DateTime(year, 11, 13, 9),
+        totalCents: 1800,
         items: const [
-          PurchasedItem(name: 'Café', quantity: 1, soldByWeight: false, subtotalCents: 1890),
-          PurchasedItem(name: 'Pão', quantity: 3, soldByWeight: false, subtotalCents: 4860),
+          PurchasedItem(name: 'Maçã', quantity: 1, soldByWeight: true, subtotalCents: 1200),
+          PurchasedItem(name: 'Banana', quantity: 1, soldByWeight: true, subtotalCents: 600),
         ],
       ),
     ],
@@ -37,47 +39,51 @@ void main() {
     earlierCents: 0,
   );
 
-  String messageFor(DueStatus status, {OpenAccount? from, String? merchant = 'José'}) => reminderMessage(
-    l10n,
-    customerName: 'Maria das Graças',
-    account: from ?? account,
-    status: status,
-    merchantName: merchant,
-    locale: 'pt_BR',
-  );
-
-  test('lista as compras com cada item e o valor dele, e o já pago à parte (formato C)', () {
+  test('lista os itens com o valor alinhado à direita, num bloco monoespaçado', () {
     expect(
-      messageFor(DueStatus.upcoming),
-      'Olá, Maria. Tudo bem?\n'
-      'Gostaria de lembrar que o seu saldo em aberto conosco é de *R\$ 103,45*, com vencimento em *20/11*.\n'
+      messageFor(lucas, DueStatus.upcoming),
+      'Olá, Lucas. Tudo bem?\n'
+      'Gostaria de lembrar que o seu saldo em aberto conosco é de *R\$\u00a022,00*, com vencimento em *01/01/2027*.\n'
       '\n'
       '*Compras:*\n'
-      '*03/11*\n'
-      '  • 2 un Arroz — R\$\u00a050,00\n'
-      '  • 1,5 kg Tomate — R\$\u00a032,50\n'
-      '*08/11*\n'
-      '  • 1 un Café — R\$\u00a018,90\n'
-      '  • 3 un Pão — R\$\u00a048,60\n'
-      '\n'
-      '*Já pago:* R\$\u00a046,55\n'
+      '```\n'
+      '12/11\n'
+      '• 2 un Tomate    R\$\u00a04,00\n'
+      '13/11\n'
+      '• 1 kg Maçã     R\$\u00a012,00\n'
+      '• 1 kg Banana    R\$\u00a06,00\n'
+      '```\n'
       '\n'
       'Em caso de dúvida, estou à disposição.\n'
-      'Atenciosamente, José.',
+      'Atenciosamente, Zoro.',
     );
   });
 
-  test('cada situação usa a sua abertura e o seu fechamento', () {
-    final due = messageFor(DueStatus.due);
-    expect(due, contains('hoje vence o seu saldo de *R\$ 103,45*'));
-    expect(due, contains('Em caso de dúvida'));
-
-    final overdue = messageFor(DueStatus.overdue);
-    expect(overdue, contains('vencido em *20/11*, ainda está em aberto.'));
-    expect(overdue, contains('Caso precise de um novo prazo, é só responder esta mensagem.\nAtenciosamente, José.'));
+  test('todas as linhas da lista têm a mesma largura, para o valor alinhar', () {
+    final message = messageFor(lucas, DueStatus.upcoming);
+    final block = message.split('```')[1].trim().split('\n').where((line) => line.startsWith('•'));
+    expect(block.map((line) => line.length).toSet(), {24});
   });
 
-  test('compras antigas viram resumo, itens demais viram "Mais N itens" com a soma, sem pago some a linha', () {
+  test('cada situação usa a sua abertura e o seu fechamento, e o já pago fica fora do bloco', () {
+    final paid = OpenAccount(
+      balanceCents: lucas.balanceCents,
+      creditDueDate: lucas.creditDueDate,
+      paidCents: 4655,
+      purchases: lucas.purchases,
+      earlierCount: 0,
+      earlierCents: 0,
+    );
+    final due = messageFor(paid, DueStatus.due);
+    expect(due, contains('hoje vence o seu saldo de *R\$ 22,00*'));
+    expect(due, contains('```\n\n*Já pago:* R\$ 46,55\n\nEm caso de dúvida'));
+
+    final overdue = messageFor(lucas, DueStatus.overdue);
+    expect(overdue, contains('vencido em *01/01/2027*, ainda está em aberto.'));
+    expect(overdue, contains('Caso precise de um novo prazo, é só responder esta mensagem.\nAtenciosamente, Zoro.'));
+  });
+
+  test('compras antigas viram resumo, nome longo é cortado e itens demais viram "Mais N itens" com a soma', () {
     final crowded = OpenAccount(
       balanceCents: 30000,
       creditDueDate: DateTime(year, 11, 20),
@@ -86,16 +92,19 @@ void main() {
         OpenPurchase(
           createdAt: DateTime(year, 11, 10, 8),
           totalCents: 10000,
-          items: [for (var i = 1; i <= 7; i++) PurchasedItem(name: 'Item $i', quantity: 1, soldByWeight: false, subtotalCents: 1000 + i)],
+          items: [
+            const PurchasedItem(name: 'Biscoito recheado de chocolate meio amargo', quantity: 1, soldByWeight: false, subtotalCents: 1001),
+            for (var i = 2; i <= 7; i++) PurchasedItem(name: 'Item $i', quantity: 1, soldByWeight: false, subtotalCents: 1000 + i),
+          ],
         ),
       ],
       earlierCount: 3,
       earlierCents: 20000,
     );
-    final message = messageFor(DueStatus.upcoming, from: crowded, merchant: null);
-    expect(message, contains('• 3 compras anteriores — R\$ 200,00\n*10/11*\n  • 1 un Item 1 — R\$ 10,01'));
+    final message = messageFor(crowded, DueStatus.upcoming, merchant: null);
+    expect(message, contains('```\n• +3 compras   R\$\u00a0200,00\n10/11\n• 1 un Biscoit… R\$\u00a010,01'));
     // Itens 6 e 7 somados (1006 + 1007), para a conta continuar fechando
-    expect(message, contains('  • 1 un Item 5 — R\$ 10,05\n  • Mais 2 itens — R\$ 20,13\n\nEm caso'));
+    expect(message, contains('• Mais 2 itens  R\$\u00a020,13\n```'));
     expect(message, isNot(contains('Já pago')));
     expect(message, endsWith('\nAtenciosamente.'));
   });

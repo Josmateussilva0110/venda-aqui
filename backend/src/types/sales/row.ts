@@ -25,3 +25,11 @@ export interface SaleListRow {
   total_cents: number
   items: SaleRow[]
 }
+
+// Retorno de register_sale
+export interface SaleRegisteredRow {
+  id: string
+  total_cents: number
+  stock_shortfalls: Array<{ productId: string; name: string; missingQuantity: number | string }>
+  replayed: boolean
+}

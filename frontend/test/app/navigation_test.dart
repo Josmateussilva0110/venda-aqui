@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:vendaqui/app/app.dart';
 import 'package:vendaqui/app/dependencies.dart';
+import 'package:vendaqui/core/offline/offline_status.dart';
 import 'package:vendaqui/core/network/app_failure.dart';
 import 'package:vendaqui/core/network/cancel_signal.dart';
 import 'package:vendaqui/core/routing/app_routes.dart';
@@ -74,6 +75,8 @@ void main() {
     final auth = FakeAuthRepository(signedIn: true);
     final sales = FakeSalesRepository();
     final dependencies = AppDependencies(
+      offlineStatus: OfflineStatus(),
+      outbox: memoryOutbox(),
       authRepository: auth,
       productsRepository: products,
       dashboardRepository: dashboard,
@@ -125,6 +128,8 @@ void main() {
 
     await tester.tap(find.byTooltip('Configurações'));
     await tester.pumpAndSettle();
+    // A seção "Sem internet" empurrou a conta para baixo: rola até o botão antes de tocar
+    await tester.ensureVisible(find.text('Sair da conta'));
     await tester.tap(find.text('Sair da conta'));
     await tester.pumpAndSettle();
 

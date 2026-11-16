@@ -1,7 +1,7 @@
 import type { Request, Response } from "express"
 import { saleErrorHttpStatusMap } from "../errors/sales"
 import type { ListSalesDTO } from "../schemas/sales/listSales"
-import type { SaleDTO } from "../schemas/sales/sale"
+import type { CreateSaleDTO, SaleDTO } from "../schemas/sales/sale"
 import type { SaleParamsDTO } from "../schemas/sales/saleParams"
 import SaleService from "../services/SaleService"
 import { requireAuthField } from "../utils/requireAuthField"
@@ -22,7 +22,7 @@ class SaleController {
     return sendSuccess(response, "Venda carregada.", result.data)
   }
 
-  async create(request: Request<unknown, unknown, SaleDTO>, response: Response): Promise<Response> {
+  async create(request: Request<unknown, unknown, CreateSaleDTO>, response: Response): Promise<Response> {
     const result = await SaleService.create(requireAuthField(request, "merchantId"), request.body)
     if (!result.status) return sendFailure(response, result.error, saleErrorHttpStatusMap)
     return sendSuccess(response, "Venda registrada com sucesso.", result.data, 201)

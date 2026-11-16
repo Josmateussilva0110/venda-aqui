@@ -43,7 +43,7 @@ class ProductController {
   }
 
   async restock(request: Request<ProductParamsDTO, unknown, RestockDTO>, response: Response): Promise<Response> {
-    const result = await ProductService.restock(requireAuthField(request, "merchantId"), request.params.id, request.body.quantity)
+    const result = await ProductService.restock(requireAuthField(request, "merchantId"), request.params.id, request.body)
     if (!result.status) return sendFailure(response, result.error, productErrorHttpStatusMap)
     return sendSuccess(response, "Estoque atualizado.", result.data)
   }

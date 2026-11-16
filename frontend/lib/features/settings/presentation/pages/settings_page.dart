@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/offline/outbox.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
+import '../../../../core/widgets/confirm_dialog.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -22,9 +24,27 @@ class SettingsPage extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     // Depois de sair esta tela some (vai para as boas-vindas): guarda o messenger e o aviso antes
     final messenger = ScaffoldMessenger.of(context);
-    final message = AppLocalizations.of(context).settingsLoggedOut;
+    final l10n = AppLocalizations.of(context);
+    final outbox = context.read<Outbox>();
+
+    // Vendas feitas sem internet só existem no aparelho: tenta enviar e, se não der, o comerciante decide
+    if (outbox.pendingCount > 0) await outbox.flush();
+    if (!context.mounted) return;
+    final pending = outbox.pendingCount + outbox.rejectedCount;
+    if (pending > 0) {
+      final confirmed = await showConfirmDialog(
+        context,
+        title: l10n.logoutPendingTitle,
+        message: l10n.logoutPendingMessage(pending),
+        confirmLabel: l10n.logoutPendingConfirm,
+        destructive: true,
+      );
+      if (!confirmed) return;
+      await outbox.discardOwnerEntries();
+    }
+
     await onLogout();
-    messenger.showAppToast(message);
+    messenger.showAppToast(l10n.settingsLoggedOut);
   }
 
   @override
@@ -82,6 +102,17 @@ class SettingsPage extends StatelessWidget {
                             label: l10n.creditSettingsTitle,
                             icon: Icons.event_repeat_rounded,
                             onTap: () => context.push(AppRoutes.creditSettings),
+                          ),
+                        ),
+                        SizedBox(height: spacing.xl),
+                        SectionHeader(title: l10n.settingsOfflineSection),
+                        SizedBox(height: spacing.md),
+                        AppCard(
+                          padding: EdgeInsets.symmetric(vertical: spacing.xs),
+                          child: _SettingsTile(
+                            label: l10n.pendingChangesTitle,
+                            icon: Icons.cloud_upload_outlined,
+                            onTap: () => context.push(AppRoutes.pendingChanges),
                           ),
                         ),
                         SizedBox(height: spacing.xl),

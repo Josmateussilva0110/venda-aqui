@@ -2,25 +2,57 @@ import '../../../core/network/api_codes.dart';
 import '../../../core/network/json_map.dart';
 import '../../../core/network/json_reader.dart';
 import '../../../core/network/request_data.dart';
+import '../../../core/offline/offline_reader.dart';
+import '../../../core/offline/offline_store.dart';
 import '../../../core/notifications/reminder_notifier.dart';
 import '../../../core/stock/stock_level.dart';
 import '../domain/stock_overview.dart';
 
 /// Lê o resumo do estoque pela lista de produtos filtrada em "attention" (baixo + esgotado).
+/// Sem internet, só o estoque vem da cópia local: vendas do dia e fiado dependem do servidor.
 class DashboardRepositoryImpl implements DashboardRepository {
-  const DashboardRepositoryImpl();
+  const DashboardRepositoryImpl(this._offline);
+
+  final OfflineReader _offline;
 
   static const _attentionFilter = 'attention';
   static const _owingFilter = 'owing';
 
   @override
-  Future<StockOverview> stockOverview({required int alertLimit}) async {
-    final response = await requestData<StockOverview>(
-      endpoint: ApiPaths.products,
-      params: {'stockLevel': _attentionFilter, 'limit': alertLimit, 'offset': 0},
-      parse: (json) => _overviewFromJson(jsonMap(json)),
+  Future<StockOverview> stockOverview({required int alertLimit}) {
+    return _offline.read(
+      remote: () async {
+        final response = await requestData<StockOverview>(
+          endpoint: ApiPaths.products,
+          params: {'stockLevel': _attentionFilter, 'limit': alertLimit, 'offset': 0},
+          parse: (json) => _overviewFromJson(jsonMap(json)),
+        );
+        return response.requireData();
+      },
+      local: (store) => _localOverview(store, alertLimit: alertLimit),
     );
-    return response.requireData();
+  }
+
+  Future<StockOverview> _localOverview(OfflineStore store, {required int alertLimit}) async {
+    final threshold = await store.lowStockThreshold();
+    final counts = await store.productCounts();
+    final alerts = await store.productsNeedingAttention(limit: alertLimit);
+    return StockOverview(
+      totalProducts: counts.all,
+      lowCount: counts.low,
+      outCount: counts.out,
+      alerts: [
+        for (final row in alerts)
+          StockAlert(
+            productId: row.id,
+            name: row.name,
+            photoUrl: row.thumbUrl ?? row.photoUrl,
+            quantity: row.quantity,
+            soldByWeight: row.soldByWeight,
+            level: StockLevel.of(row.quantity, lowThreshold: threshold),
+          ),
+      ],
+    );
   }
 
   // Contagem e soma do dia vêm no resumo do histórico; a primeira página traz as vendas mais recentes
