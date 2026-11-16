@@ -1,4 +1,5 @@
 import '../../../core/network/cancel_signal.dart';
+import '../../../core/offline/sync_state.dart';
 import 'product.dart';
 
 /// Contrato de produtos. Busca, filtro e paginação são feitos pelo servidor.
@@ -20,8 +21,9 @@ abstract interface class ProductsRepository {
   /// Vendas já registradas guardam nome e preço do item e não são afetadas.
   Future<void> delete(String id);
 
-  /// Soma [quantity] ao estoque; o novo total é calculado no servidor.
-  Future<void> restock(String id, double quantity);
+  /// Soma [quantity] ao estoque; o novo total é calculado no servidor. Sem internet a reposição fica
+  /// guardada no aparelho ([SyncState.pending]) e sobe sozinha depois.
+  Future<SyncState> restock(String id, double quantity);
 
   Future<void> uploadPhoto(String id, ProductPhoto photo);
 }

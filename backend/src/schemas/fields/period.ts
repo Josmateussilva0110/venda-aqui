@@ -1,7 +1,5 @@
 import { z } from "zod"
-import { MAX_HISTORY_RANGE_DAYS } from "../../constants/sales"
-
-const DAY_MS = 24 * 60 * 60 * 1000
+import { DAY_MS, MAX_HISTORY_RANGE_DAYS } from "../../constants/sales"
 
 // O app manda o início e o fim do período já no fuso do aparelho; "to" é exclusivo
 export const periodFields = {

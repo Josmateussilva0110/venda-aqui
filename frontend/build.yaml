@@ -1,0 +1,7 @@
+# Só o banco local usa geração de código: limitar evita analisar o app inteiro a cada build
+targets:
+  $default:
+    builders:
+      drift_dev:
+        generate_for:
+          - lib/core/offline/local_database.dart

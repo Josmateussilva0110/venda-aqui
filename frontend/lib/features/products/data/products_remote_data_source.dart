@@ -60,10 +60,19 @@ class ProductsRemoteDataSource {
     response.ensureSuccess();
   }
 
-  Future<void> restock(String id, double quantity) async {
-    final response = await requestData<void>(endpoint: ApiPaths.productRestock(id), method: 'POST', data: {'quantity': quantity});
+  /// [clientId] torna o reenvio seguro: se a resposta se perder e a reposição for reenviada pela fila,
+  /// o servidor reconhece e não soma duas vezes.
+  Future<void> restock(String id, double quantity, {required String clientId, CancelSignal? cancel}) async {
+    final response = await requestData<void>(
+      endpoint: ApiPaths.productRestock(id),
+      method: 'POST',
+      data: restockBody(quantity, clientId: clientId),
+      cancelToken: cancel?.token,
+    );
     response.ensureSuccess();
   }
+
+  static Map<String, Object> restockBody(double quantity, {required String clientId}) => {'quantity': quantity, 'clientId': clientId};
 
   Future<void> uploadPhoto(String id, ProductPhoto photo) async {
     final target = await requestData<({String photoUrl, String path, String thumbUrl})>(

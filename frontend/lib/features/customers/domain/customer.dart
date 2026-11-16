@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/notifications/reminder_notifier.dart';
+import '../../../core/offline/sync_state.dart';
 import '../../../core/utils/date_only.dart';
 
 /// Cliente do comércio. O saldo do fiado é calculado e guardado pelo servidor.
@@ -215,6 +216,16 @@ class CustomerPage {
 
   /// Só vem na primeira página: não muda entre as páginas.
   final CreditSummary? summary;
+}
+
+/// Resultado de receber o fiado. Sem internet ([SyncState.pending]) o pagamento ficou guardado no
+/// aparelho e [balanceCents] é nulo: quem decide o saldo é o servidor, quando a fila subir.
+@immutable
+class PaymentReceipt {
+  const PaymentReceipt({required this.balanceCents, required this.state});
+
+  final int? balanceCents;
+  final SyncState state;
 }
 
 /// Formas aceitas para receber o fiado (pagar fiado com fiado não existe).

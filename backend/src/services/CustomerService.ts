@@ -205,8 +205,10 @@ class CustomerService {
           p_customer_id: customerId,
           p_amount_cents: input.amountCents,
           p_payment_method: input.paymentMethod,
+          p_client_id: input.clientId ?? null,
+          p_paid_at: input.paidAt ?? null,
         })
-        .single<{ id: string; balance_cents: number }>()
+        .single<{ id: string; balance_cents: number; replayed: boolean }>()
 
       if (error?.code === SALE_DB_ERRORS.customerNotFound) return { status: false, error: CUSTOMER_NOT_FOUND_ERROR }
       if (error?.code === SALE_DB_ERRORS.negativeBalance) return { status: false, error: CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR }

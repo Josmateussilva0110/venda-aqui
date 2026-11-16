@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:vendaqui/app/app.dart';
 import 'package:vendaqui/app/dependencies.dart';
+import 'package:vendaqui/core/offline/offline_status.dart';
 import 'package:vendaqui/core/routing/app_routes.dart';
 import 'package:vendaqui/core/stock/stock_changes.dart';
 import 'package:vendaqui/features/auth/domain/merchant.dart';
@@ -34,6 +35,8 @@ void main() {
   Future<void> openRegister(WidgetTester tester, _RecordingAuth auth) async {
     final sales = FakeSalesRepository();
     final dependencies = AppDependencies(
+      offlineStatus: OfflineStatus(),
+      outbox: memoryOutbox(),
       authRepository: auth,
       productsRepository: FakeProductsRepository(),
       dashboardRepository: FakeDashboardRepository(),

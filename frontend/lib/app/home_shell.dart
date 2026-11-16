@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../core/theme/app_breakpoints.dart';
 import '../core/theme/theme_context.dart';
+import '../core/widgets/offline_notice.dart';
+import 'pending_changes_notices.dart';
 import '../l10n/app_localizations.dart';
 
 /// Navegação principal: barra inferior no celular, trilho lateral em telas largas.
@@ -45,14 +47,16 @@ class HomeShell extends StatelessWidget {
               ),
             ),
             VerticalDivider(width: 1, color: context.colors.divider),
-            Expanded(child: navigationShell),
+            Expanded(
+              child: PendingChangesNotices(child: OfflineNotice(child: navigationShell)),
+            ),
           ],
         ),
       );
     }
 
     return Scaffold(
-      body: navigationShell,
+      body: PendingChangesNotices(child: OfflineNotice(child: navigationShell)),
       bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
           color: context.colors.surface,

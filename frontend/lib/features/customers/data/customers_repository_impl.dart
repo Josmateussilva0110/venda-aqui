@@ -1,19 +1,46 @@
+import 'package:drift/drift.dart' show Value;
+
 import '../../../core/network/api_codes.dart';
 import '../../../core/network/cancel_signal.dart';
 import '../../../core/network/json_map.dart';
 import '../../../core/network/json_reader.dart';
 import '../../../core/network/request_data.dart';
+import '../../../core/offline/local_database.dart';
+import '../../../core/offline/offline_reader.dart';
+import '../../../core/offline/offline_store.dart';
+import '../../../core/offline/offline_writer.dart';
 import '../../../core/notifications/reminder_notifier.dart';
 import '../../../core/utils/date_only.dart';
 import '../domain/customer.dart';
 import '../domain/customers_repository.dart';
+import 'pending_payment_sender.dart';
 
-/// Clientes e fiado direto na API (sem cache local: o saldo muda a cada venda e pagamento).
+/// Clientes e fiado na API. Sem internet, a lista e o cliente vêm da cópia local, com o saldo
+/// da última sincronização, e o pagamento recebido vai para a fila; extrato, cobrança, vencimento e
+/// cadastro continuam só online.
 class CustomersRepositoryImpl implements CustomersRepository {
-  const CustomersRepositoryImpl();
+  const CustomersRepositoryImpl(this._offline, this._writer);
+
+  final OfflineReader _offline;
+  final OfflineWriter _writer;
 
   @override
   Future<CustomerPage> list({
+    required String search,
+    required CustomerBalanceFilter balance,
+    required int offset,
+    required int limit,
+    CancelSignal? cancel,
+  }) {
+    return _offline.read(
+      cancel: cancel,
+      remote: () => _remoteList(search: search, balance: balance, offset: offset, limit: limit, cancel: cancel),
+      save: (store, page) => store.upsertCustomers(page.items.map(_toLocal).toList()),
+      local: (store) => _localList(store, search: search, balance: balance, offset: offset, limit: limit),
+    );
+  }
+
+  Future<CustomerPage> _remoteList({
     required String search,
     required CustomerBalanceFilter balance,
     required int offset,
@@ -38,9 +65,18 @@ class CustomersRepositoryImpl implements CustomersRepository {
   }
 
   @override
-  Future<Customer> get(String id) async {
-    final response = await requestData<Customer>(endpoint: ApiPaths.customer(id), parse: (json) => _customerFromJson(jsonMap(json)));
-    return response.requireData();
+  Future<Customer> get(String id) {
+    return _offline.read(
+      remote: () async {
+        final response = await requestData<Customer>(endpoint: ApiPaths.customer(id), parse: (json) => _customerFromJson(jsonMap(json)));
+        return response.requireData();
+      },
+      save: (store, customer) => store.upsertCustomers([_toLocal(customer)]),
+      local: (store) async {
+        final row = await store.customer(id);
+        return row == null ? null : _fromLocal(row);
+      },
+    );
   }
 
   // A API devolve só o id; cliente recém-cadastrado não deve nada
@@ -71,6 +107,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
   Future<void> delete(String id) async {
     final response = await requestData<void>(endpoint: ApiPaths.customer(id), method: 'DELETE');
     response.ensureSuccess();
+    await _offline.store.deleteCustomer(id);
   }
 
   @override
@@ -89,15 +126,31 @@ class CustomersRepositoryImpl implements CustomersRepository {
     return response.requireData();
   }
 
+  // Dinheiro recebido sem internet não pode ficar sem registro: vai para a fila com a hora do recebimento.
+  // O servidor confere de novo o teto (não pagar mais do que deve) quando a fila subir
   @override
-  Future<int> registerPayment(String customerId, {required int amountCents, required SettlementMethod method}) async {
-    final response = await requestData<int>(
-      endpoint: ApiPaths.customerPayments(customerId),
-      method: 'POST',
-      data: {'amountCents': amountCents, 'paymentMethod': method.apiValue},
-      parse: (json) => jsonMap(json).requireInt('balanceCents'),
+  Future<PaymentReceipt> registerPayment(String customerId, {required int amountCents, required SettlementMethod method}) async {
+    final customer = await _offline.store.customer(customerId);
+    final write = await _writer.write(
+      kind: PendingPaymentSender.kind,
+      online: (clientId, budget) async {
+        final response = await requestData<int>(
+          endpoint: ApiPaths.customerPayments(customerId),
+          method: 'POST',
+          data: PendingPaymentSender.body(amountCents: amountCents, method: method, clientId: clientId),
+          cancelToken: budget.token,
+          parse: (json) => jsonMap(json).requireInt('balanceCents'),
+        );
+        return response.requireData();
+      },
+      queued: (clientId, paidAt) => PendingPaymentSender.payload(
+        customerId: customerId,
+        body: PendingPaymentSender.body(amountCents: amountCents, method: method, clientId: clientId, paidAt: paidAt),
+        customerName: customer?.name ?? '',
+      ),
+      localEffects: (store) => store.applyPayment(customerId: customerId, amountCents: amountCents),
     );
-    return response.requireData();
+    return PaymentReceipt(balanceCents: write.value, state: write.state);
   }
 
   @override
@@ -222,6 +275,45 @@ class CustomersRepositoryImpl implements CustomersRepository {
       owingCount: json.requireInt('owingCount'),
       owedCents: json.requireInt('owedCents'),
       reminders: ReminderSchedule.fromSummaryJson(json['reminders']),
+    );
+  }
+
+  // O resumo local não traz os lembretes: a agenda deles é calculada pelo servidor
+  Future<CustomerPage> _localList(
+    OfflineStore store, {
+    required String search,
+    required CustomerBalanceFilter balance,
+    required int offset,
+    required int limit,
+  }) async {
+    final page = await store.customers(search: search, owingOnly: balance == CustomerBalanceFilter.owing, offset: offset, limit: limit);
+    final totals = offset == 0 ? await store.creditTotals() : null;
+    return CustomerPage(
+      items: page.items.map(_fromLocal).toList(growable: false),
+      total: page.total,
+      summary: totals == null ? null : CreditSummary(owingCount: totals.owingCount, owedCents: totals.owedCents),
+    );
+  }
+
+  static Customer _fromLocal(LocalCustomer row) {
+    return Customer(
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      balanceCents: row.balanceCents,
+      creditDueDate: DateOnly.tryParse(row.creditDueDate),
+    );
+  }
+
+  static LocalCustomersCompanion _toLocal(Customer customer) {
+    final dueDate = customer.creditDueDate;
+    return LocalCustomersCompanion.insert(
+      id: customer.id,
+      name: customer.name,
+      searchKey: OfflineStore.searchKeyOf(customer.name),
+      phone: customer.phone,
+      balanceCents: customer.balanceCents,
+      creditDueDate: Value(dueDate == null ? null : DateOnly.toApi(dueDate)),
     );
   }
 

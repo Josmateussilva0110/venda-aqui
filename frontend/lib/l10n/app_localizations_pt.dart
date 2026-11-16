@@ -1292,4 +1292,159 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get dashboardNoSalesToday => 'Nenhuma venda hoje ainda.';
+
+  @override
+  String offlineSavedToday(String time) {
+    return 'Sem internet · dados das $time';
+  }
+
+  @override
+  String offlineSavedOn(String date, String time) {
+    return 'Sem internet · dados de $date, $time';
+  }
+
+  @override
+  String get saleDonePendingSync => 'Sem internet: a venda ficou guardada no aparelho e será enviada sozinha quando a conexão voltar.';
+
+  @override
+  String get pendingChangesSent => 'O que foi feito sem internet já foi enviado.';
+
+  @override
+  String pendingSaleShortfall(String when, String products) {
+    return 'Venda de $when enviada, mas faltou estoque: $products. O estoque desses produtos ficou em zero.';
+  }
+
+  @override
+  String pendingSaleRejected(String when, String reason) {
+    return 'A venda de $when não foi aceita: $reason';
+  }
+
+  @override
+  String get pendingChangeRejectedFallback => 'o servidor recusou.';
+
+  @override
+  String get logoutPendingTitle => 'Alterações não enviadas';
+
+  @override
+  String logoutPendingMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vendas, pagamentos ou reposições feitos sem internet ainda não foram enviados. Se sair agora, serão perdidos.',
+      one: '1 venda, pagamento ou reposição feito sem internet ainda não foi enviado. Se sair agora, será perdido.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get logoutPendingConfirm => 'Sair e perder';
+
+  @override
+  String get restockSavedOffline => 'Sem internet: a reposição ficou guardada e será enviada quando a conexão voltar.';
+
+  @override
+  String get receiveSavedOffline => 'Sem internet: o pagamento ficou guardado e será enviado quando a conexão voltar.';
+
+  @override
+  String pendingRestockRejected(String quantity, String product, String reason) {
+    return 'A reposição de $quantity de $product não foi aceita: $reason';
+  }
+
+  @override
+  String pendingPaymentRejected(String amount, String customer, String reason) {
+    return 'O pagamento de $amount de $customer não foi aceito: $reason';
+  }
+
+  @override
+  String get settingsOfflineSection => 'Sem internet';
+
+  @override
+  String get pendingChangesTitle => 'Alterações não enviadas';
+
+  @override
+  String get pendingChangesEmpty => 'Tudo enviado. Nada esperando internet.';
+
+  @override
+  String get pendingChangesStillOffline => 'Ainda sem internet. Tudo continua guardado e sobe sozinho quando a conexão voltar.';
+
+  @override
+  String get pendingChangesSendNow => 'Enviar agora';
+
+  @override
+  String pendingChangesWaitingSection(int count) {
+    return 'Esperando internet ($count)';
+  }
+
+  @override
+  String get pendingChangesWaitingHint => 'Sobem sozinhas, nesta ordem, quando a conexão voltar.';
+
+  @override
+  String pendingChangesRejectedSection(int count) {
+    return 'Recusadas pelo servidor ($count)';
+  }
+
+  @override
+  String get pendingChangesRejectedHint => 'Confira o motivo. Depois de corrigir, tente de novo; se não fizer mais sentido, descarte.';
+
+  @override
+  String pendingChangesBannerWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alterações esperando internet',
+      one: '1 alteração esperando internet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pendingChangesBannerRejected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alterações recusadas: toque para ver',
+      one: '1 alteração recusada: toque para ver',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pendingChangeRetry => 'Tentar de novo';
+
+  @override
+  String get pendingChangeDiscard => 'Descartar';
+
+  @override
+  String get pendingChangeDiscardTitle => 'Descartar alteração?';
+
+  @override
+  String pendingChangeDiscardMessage(String change) {
+    return '$change não vai para o servidor e some deste aparelho. Isso não pode ser desfeito.';
+  }
+
+  @override
+  String get pendingChangeUnknown => 'Alteração';
+
+  @override
+  String pendingSaleTitle(String total) {
+    return 'Venda de $total';
+  }
+
+  @override
+  String get pendingSaleTitleUnknown => 'Venda';
+
+  @override
+  String pendingPaymentTitle(String amount) {
+    return 'Pagamento de fiado de $amount';
+  }
+
+  @override
+  String pendingRestockTitle(String product) {
+    return 'Reposição de $product';
+  }
+
+  @override
+  String pendingRestockDetail(String quantity) {
+    return '+$quantity no estoque';
+  }
 }

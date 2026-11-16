@@ -29,8 +29,11 @@ abstract final class SaleDto {
   }
 
   /// Corpo do registro e da edição: só produto e quantidade; preço e total saem do servidor.
-  static Map<String, dynamic> toJson(SaleInput input) {
+  /// [clientId] torna o reenvio seguro (o servidor não duplica); [soldAt] marca a venda feita sem internet.
+  static Map<String, dynamic> toJson(SaleInput input, {String? clientId, DateTime? soldAt}) {
     return {
+      'clientId': ?clientId,
+      if (soldAt != null) 'soldAt': soldAt.toUtc().toIso8601String(),
       'paymentMethod': input.method.apiValue,
       if (input.method == PaymentMethod.credit) 'customerId': input.customer?.id,
       'items': [

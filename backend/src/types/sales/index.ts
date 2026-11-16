@@ -43,3 +43,16 @@ export interface SaleSaved {
   id: string
   totalCents: number
 }
+
+// Produto que faltou numa venda feita sem internet: a venda foi aceita e o estoque parou em zero
+export interface StockShortfall {
+  productId: string
+  name: string
+  missingQuantity: number
+}
+
+export interface SaleRegistered extends SaleSaved {
+  stockShortfalls: StockShortfall[]
+  // Reenvio de uma venda que já estava gravada (mesmo clientId)
+  replayed: boolean
+}
