@@ -4,6 +4,7 @@ import '../../../core/network/json_reader.dart';
 import '../../../core/network/request_data.dart';
 import '../../../core/offline/offline_writer.dart';
 import '../../../core/offline/outbox.dart';
+import '../../../core/offline/pending_change_text.dart';
 import '../domain/sale.dart';
 
 /// Envia as vendas feitas sem internet que estão na fila ([Outbox]).
@@ -21,8 +22,52 @@ class PendingSaleSender {
         'itemCount': input.items.fold(0, (sum, item) => sum + (item.soldByWeight ? 1 : item.quantity.round())),
         'method': input.method.apiValue,
         'customerName': input.customer?.name,
+        'productNames': [for (final item in input.items) item.name],
+        'customerId': input.customer?.id,
+        // Itens como foram vendidos (preço do catálogo), para o histórico mostrar a venda antes de ela subir
+        'items': [
+          for (final item in input.items)
+            {
+              'productId': item.productId,
+              'name': item.name,
+              'unitPriceCents': item.unitPriceCents,
+              'quantity': item.quantity,
+              'soldByWeight': item.soldByWeight,
+            },
+        ],
       },
     };
+  }
+
+  /// A venda guardada como o histórico mostra, marcada como ainda não enviada. Vendas guardadas antes
+  /// dos itens entrarem no resumo aparecem só com os nomes.
+  static Sale saleOf(PendingChange change) {
+    final rawItems = displayField<List<dynamic>>(change.payload, 'items');
+    final names = displayField<List<dynamic>>(change.payload, 'productNames')?.whereType<String>().toList() ?? const <String>[];
+    final items = rawItems == null
+        ? [for (final name in names) SaleItem(productId: null, name: name, unitPriceCents: 0, quantity: 1, soldByWeight: false)]
+        : [
+            for (final item in rawItems.whereType<Map<String, dynamic>>())
+              SaleItem(
+                productId: item['productId'] as String?,
+                name: item['name'] is String ? item['name'] as String : '',
+                unitPriceCents: item['unitPriceCents'] is int ? item['unitPriceCents'] as int : 0,
+                quantity: item['quantity'] is num ? (item['quantity'] as num).toDouble() : 0,
+                soldByWeight: item['soldByWeight'] == true,
+              ),
+          ];
+    final customerName = displayField<String>(change.payload, 'customerName');
+    return Sale(
+      id: change.id,
+      createdAt: change.createdAt.toLocal(),
+      items: items,
+      method: PaymentMethod.fromApi(displayField<String>(change.payload, 'method')) ?? PaymentMethod.cash,
+      totalCents: displayField<int>(change.payload, 'totalCents') ?? 0,
+      customer: customerName == null
+          ? null
+          : SaleCustomer(id: displayField<String>(change.payload, 'customerId') ?? '', name: customerName),
+      pendingSync: true,
+    );
   }
 
   /// Corpo da requisição. Vendas guardadas antes do resumo existir têm o corpo direto no payload.

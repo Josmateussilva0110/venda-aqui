@@ -1,7 +1,9 @@
 import '../../../core/network/cancel_signal.dart';
 import '../../../core/offline/offline_reader.dart';
 import '../../../core/offline/offline_store.dart';
+import '../../../core/network/app_failure.dart';
 import '../../../core/offline/offline_writer.dart';
+import '../../../core/offline/outbox.dart';
 import '../domain/sale.dart';
 import '../domain/sales_repository.dart';
 import 'catalog_remote_data_source.dart';
@@ -10,13 +12,14 @@ import 'sale_dto.dart';
 import 'sales_remote_data_source.dart';
 
 class SalesRepositoryImpl implements SalesRepository {
-  SalesRepositoryImpl(this._catalog, this._sales, this._offline, this._writer, {DateTime Function()? clock})
+  SalesRepositoryImpl(this._catalog, this._sales, this._offline, this._writer, this._outbox, {DateTime Function()? clock})
     : _clock = clock ?? DateTime.now;
 
   final CatalogRemoteDataSource _catalog;
   final SalesRemoteDataSource _sales;
   final OfflineReader _offline;
   final OfflineWriter _writer;
+  final Outbox _outbox;
   final DateTime Function() _clock;
 
   // Sem internet, o catálogo vem da cópia local (a listagem online já é guardada pelo estoque e pela sincronização)
@@ -43,7 +46,7 @@ class SalesRepositoryImpl implements SalesRepository {
         input: input,
         totalCents: localTotal,
       ),
-      localEffects: (store) => store.applyOfflineSale(
+      localEffects: (store, _) => store.applyOfflineSale(
         items: [
           for (final item in input.items)
             if (item.productId case final productId?) (productId: productId, quantity: item.quantity),
@@ -59,9 +62,50 @@ class SalesRepositoryImpl implements SalesRepository {
     return _saleFrom(input, id: saved.id, totalCents: saved.totalCents, createdAt: write.at);
   }
 
+  // A primeira página leva junto as vendas da fila que combinam com o filtro: aconteceram no balcão,
+  // só ainda não subiram. Sem internet, o histórico mostra pelo menos elas
   @override
-  Future<SaleHistoryPage> history(SaleFilter filter, {required int offset, required int limit, CancelSignal? cancel}) {
-    return _sales.history(filter, offset: offset, limit: limit, cancel: cancel);
+  Future<SaleHistoryPage> history(SaleFilter filter, {required int offset, required int limit, CancelSignal? cancel}) async {
+    final pending = offset == 0 ? await _pendingMatching(filter) : const <Sale>[];
+    final pendingCents = pending.fold(0, (sum, sale) => sum + sale.totalCents);
+    try {
+      final page = await _sales.history(filter, offset: offset, limit: limit, cancel: cancel);
+      if (pending.isEmpty) return page;
+      final items = [...pending, ...page.items]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return SaleHistoryPage(
+        items: items,
+        total: page.total + pending.length,
+        totalCents: page.totalCents + pendingCents,
+        pendingCount: pending.length,
+      );
+    } on NetworkFailure {
+      if ((cancel?.isCancelled ?? false) || pending.isEmpty) rethrow;
+      return SaleHistoryPage(
+        items: pending,
+        total: pending.length,
+        totalCents: pendingCents,
+        pendingCount: pending.length,
+        onlyPending: true,
+      );
+    }
+  }
+
+  /// Mesmos critérios do servidor: dias inteiros no fuso do aparelho, forma de pagamento e busca pelo produto.
+  Future<List<Sale>> _pendingMatching(SaleFilter filter) async {
+    final from = DateTime(filter.from.year, filter.from.month, filter.from.day);
+    final until = DateTime(filter.to.year, filter.to.month, filter.to.day + 1);
+    final search = filter.search.trim().toLowerCase();
+    final changes = await _outbox.list();
+    return [
+      for (final change in changes)
+        if (change.kind == PendingSaleSender.kind && !change.rejected)
+          if (PendingSaleSender.saleOf(change) case final sale
+              when !sale.createdAt.isBefore(from) &&
+                  sale.createdAt.isBefore(until) &&
+                  (filter.method == null || sale.method == filter.method) &&
+                  (search.isEmpty || sale.items.any((item) => item.name.toLowerCase().contains(search))))
+            sale,
+    ]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   @override

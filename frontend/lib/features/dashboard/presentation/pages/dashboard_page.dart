@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/network/app_failure.dart';
 import '../../../../core/widgets/pending_changes_banner.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/notifications/reminder_notifier.dart';
@@ -152,13 +153,18 @@ class _DashboardView extends StatelessWidget {
                       padding: EdgeInsets.only(top: spacing.lg),
                     ),
                     SizedBox(height: spacing.xl),
-                    if (controller.todaySales case final sales?)
-                      RevenueCard(sales: sales, onTap: () => context.push(AppRoutes.salesHistory))
-                    else if (controller.salesFailure case final failure?)
-                      ErrorView(message: failureMessage(l10n, failure), onRetry: controller.loadSales)
-                    else
+                    if (controller.todaySales case final sales?) ...[
+                      RevenueCard(sales: sales, onTap: () => context.push(AppRoutes.salesHistory)),
+                      SizedBox(height: spacing.lg),
+                    ]
+                    // Sem internet o cartão some: a faixa do topo já avisa, e vender continua funcionando
+                    else if (controller.salesFailure case final failure? when failure is! NetworkFailure) ...[
+                      ErrorView(message: failureMessage(l10n, failure), onRetry: controller.loadSales),
+                      SizedBox(height: spacing.lg),
+                    ] else if (controller.salesFailure == null) ...[
                       const LoadingView(),
-                    SizedBox(height: spacing.lg),
+                      SizedBox(height: spacing.lg),
+                    ],
                     AppButton(
                       label: l10n.dashboardRegisterSale,
                       icon: Icons.add_shopping_cart_rounded,
@@ -219,7 +225,11 @@ class _DashboardView extends StatelessWidget {
                         onAction: () => context.push(AppRoutes.salesHistory),
                       ),
                       SizedBox(height: spacing.md),
-                      TodaySalesCard(sales: sales.recent, onOpen: (sale) => context.push(AppRoutes.sale(sale.id))),
+                      TodaySalesCard(
+                        sales: sales.recent,
+                        // Venda ainda na fila não existe no servidor: abre as pendências em vez do detalhe
+                        onOpen: (sale) => context.push(sale.pendingSync ? AppRoutes.pendingChanges : AppRoutes.sale(sale.id)),
+                      ),
                     ],
                   ],
                 ),

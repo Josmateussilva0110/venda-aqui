@@ -83,7 +83,7 @@ void main() {
     final remote = _FlakySalesRemote(online: false);
     final reader = OfflineReader(store, OfflineStatus(), clock: () => now);
     final writer = OfflineWriter(reader, outbox, clock: () => now, newId: () => ids.removeAt(0));
-    final repository = SalesRepositoryImpl(const CatalogRemoteDataSource(), remote, reader, writer, clock: () => now);
+    final repository = SalesRepositoryImpl(const CatalogRemoteDataSource(), remote, reader, writer, outbox, clock: () => now);
 
     final sale = await repository.register(const SaleInput(items: [_rice], method: PaymentMethod.credit, customer: _customer));
 

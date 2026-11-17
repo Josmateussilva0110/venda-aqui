@@ -160,11 +160,23 @@ class PendingSaleReceipt {
 /// Uma página do histórico, com o resumo do filtro inteiro (não só da página) calculado pelo servidor.
 @immutable
 class SaleHistoryPage {
-  const SaleHistoryPage({required this.items, required this.total, required this.totalCents});
+  const SaleHistoryPage({
+    required this.items,
+    required this.total,
+    required this.totalCents,
+    this.pendingCount = 0,
+    this.onlyPending = false,
+  });
 
   final List<Sale> items;
   final int total;
   final int totalCents;
+
+  /// Vendas da fila do aparelho incluídas na página (e em [total] e [totalCents]); só vêm na primeira.
+  final int pendingCount;
+
+  /// Sem internet: a página tem só as vendas guardadas no aparelho, não as do servidor.
+  final bool onlyPending;
 }
 
 /// Filtro do histórico: período por dia (inclusivo), forma de pagamento e busca por produto.

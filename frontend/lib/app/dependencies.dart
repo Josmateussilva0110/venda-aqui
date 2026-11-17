@@ -36,6 +36,7 @@ import '../features/products/data/products_repository_impl.dart';
 import '../features/products/domain/photo_picker.dart';
 import '../features/products/domain/products_repository.dart';
 import '../features/customers/data/customers_repository_impl.dart';
+import '../features/customers/data/pending_customer_sender.dart';
 import '../features/customers/data/pending_payment_sender.dart';
 import '../features/customers/domain/customers_repository.dart';
 import '../features/reports/data/reports_repository_impl.dart';
@@ -46,6 +47,7 @@ import '../features/sales/data/sales_remote_data_source.dart';
 import '../features/sales/data/sales_repository_impl.dart';
 import '../features/sales/domain/sales_repository.dart';
 import '../features/sales/presentation/controllers/sale_cart_controller.dart';
+import 'pending_sales_today.dart';
 
 /// Tudo que acessa rede, armazenamento ou plugins é criado aqui e injetado por Provider,
 /// para os testes trocarem por versões falsas.
@@ -87,7 +89,7 @@ class AppDependencies {
   /// Se as telas estão mostrando a cópia local por falta de internet.
   final OfflineStatus offlineStatus;
 
-  /// Vendas, pagamentos de fiado e reposições feitos sem internet esperando para subir.
+  /// Vendas, cadastros de cliente, pagamentos de fiado e reposições feitos sem internet esperando para subir.
   final Outbox outbox;
 
   /// Enquanto houver venda na fila, tenta enviar de tempos em tempos (a internet pode voltar
@@ -130,6 +132,7 @@ class AppDependencies {
       return result;
     });
     register(PendingSaleSender.kind, const PendingSaleSender().send);
+    register(PendingCustomerSender.kind, const PendingCustomerSender().send);
     register(PendingPaymentSender.kind, const PendingPaymentSender().send);
     register(PendingRestockSender.kind, const PendingRestockSender().send);
     final offlineWriter = OfflineWriter(offlineReader, outbox);
@@ -147,6 +150,7 @@ class AppDependencies {
       const SalesRemoteDataSource(),
       offlineReader,
       offlineWriter,
+      outbox,
     );
     final stockChanges = StockChanges();
     final saleCart = SaleCartController(salesRepository, stockChanges);
@@ -207,7 +211,7 @@ class AppDependencies {
     return AppDependencies(
       authRepository: authRepository,
       productsRepository: ProductsRepositoryImpl(ProductsRemoteDataSource(storageClient: storageClient), offlineReader, offlineWriter),
-      dashboardRepository: DashboardRepositoryImpl(offlineReader),
+      dashboardRepository: DashboardRepositoryImpl(offlineReader, pendingSalesToday(outbox)),
       photoPicker: ImagePickerPhotoPicker(),
       sessionController: session,
       stockChanges: stockChanges,

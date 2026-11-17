@@ -5,7 +5,7 @@ import { RegisterSchema } from "../src/schemas/auth/register"
 import { ProductSchema } from "../src/schemas/products/product"
 import { ListProductsSchema } from "../src/schemas/products/listProducts"
 import { RestockSchema } from "../src/schemas/products/restock"
-import { CustomerSchema } from "../src/schemas/customers/customer"
+import { CreateCustomerSchema, CustomerSchema } from "../src/schemas/customers/customer"
 import { ListCustomersSchema } from "../src/schemas/customers/listCustomers"
 import { DueDateSchema } from "../src/schemas/customers/dueDate"
 import { PaymentSchema } from "../src/schemas/customers/payment"
@@ -200,6 +200,19 @@ describe("pagamento e reposição feitos sem internet", () => {
   it("reposição aceita o id do aparelho e recusa id malformado", () => {
     expect(RestockSchema.parse({ quantity: 5, clientId })).toEqual({ quantity: 5, clientId })
     expect(RestockSchema.safeParse({ quantity: 5, clientId: "abc" }).success).toBe(false)
+  })
+})
+
+describe("cadastro de cliente feito sem internet", () => {
+  it("aceita o id escolhido pelo aparelho só no cadastro, e a edição o descarta", () => {
+    const clientId = "8b3e3c74-8f2d-4c62-9f2c-1e3d7c2a4b33"
+    expect(CreateCustomerSchema.parse({ name: "Ana Souza", phone: "(86) 99999-0000", clientId })).toEqual({
+      name: "Ana Souza",
+      phone: "+5586999990000",
+      clientId,
+    })
+    expect(CreateCustomerSchema.safeParse({ name: "Ana Souza", phone: "(86) 99999-0000", clientId: "abc" }).success).toBe(false)
+    expect(CustomerSchema.parse({ name: "Ana Souza", phone: "(86) 99999-0000", clientId })).not.toHaveProperty("clientId")
   })
 })
 

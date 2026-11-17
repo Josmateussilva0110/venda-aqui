@@ -21,7 +21,7 @@ import {
 } from "../errors/customers"
 import { OPEN_ACCOUNT_PURCHASE_LIMIT } from "../constants/customers"
 import { SALE_DB_ERRORS } from "../constants/sales"
-import type { CustomerDTO } from "../schemas/customers/customer"
+import type { CreateCustomerDTO, CustomerDTO } from "../schemas/customers/customer"
 import type { DueDateDTO } from "../schemas/customers/dueDate"
 import type { ListRemindersDTO } from "../schemas/customers/listReminders"
 import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
@@ -126,15 +126,24 @@ class CustomerService {
     }
   }
 
-  async create(merchantId: string, input: CustomerDTO): CustomerResult<{ id: string }> {
+  async create(merchantId: string, input: CreateCustomerDTO): CustomerResult<{ id: string }> {
     try {
       const { data, error } = await supabase
         .from("customers")
-        .insert({ merchant_id: merchantId, ...this.toRow(input) })
+        .insert({ merchant_id: merchantId, ...this.toRow(input), ...(input.clientId ? { id: input.clientId } : {}) })
         .select("id")
         .single<{ id: string }>()
 
-      if (isUniqueViolation(error)) return { status: false, error: CUSTOMER_PHONE_TAKEN_ERROR }
+      if (isUniqueViolation(error)) {
+        // Reenvio do mesmo cadastro (resposta perdida, fila do app): o cliente já está gravado neste comércio.
+        // Um id de outro comércio cai no mesmo erro, mas não passa no filtro por merchant_id
+        if (input.clientId && (await this.belongsToMerchant(merchantId, input.clientId))) {
+          return { status: true, data: { id: input.clientId } }
+        }
+        // Sem ser reenvio, o normal é o telefone repetido; o id só colide se o aparelho mandou um id já usado
+        const phoneTaken = !input.clientId || (await this.phoneTaken(merchantId, input.phone))
+        return { status: false, error: phoneTaken ? CUSTOMER_PHONE_TAKEN_ERROR : CUSTOMER_CREATE_FAILED_ERROR }
+      }
       if (error || !data) {
         console.error("[CustomerService.create]", error)
         return { status: false, error: CUSTOMER_CREATE_FAILED_ERROR }
@@ -356,6 +365,16 @@ class CustomerService {
       .select("id", { count: "exact", head: true })
       .eq("id", customerId)
       .eq("merchant_id", merchantId)
+    if (error) throw error
+    return (count ?? 0) > 0
+  }
+
+  private async phoneTaken(merchantId: string, phone: string): Promise<boolean> {
+    const { count, error } = await supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("merchant_id", merchantId)
+      .eq("phone", phone)
     if (error) throw error
     return (count ?? 0) > 0
   }

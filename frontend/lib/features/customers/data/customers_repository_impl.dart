@@ -11,8 +11,10 @@ import '../../../core/offline/offline_store.dart';
 import '../../../core/offline/offline_writer.dart';
 import '../../../core/notifications/reminder_notifier.dart';
 import '../../../core/utils/date_only.dart';
+import '../../../core/utils/phone_format.dart';
 import '../domain/customer.dart';
 import '../domain/customers_repository.dart';
+import 'pending_customer_sender.dart';
 import 'pending_payment_sender.dart';
 
 /// Clientes e fiado na API. Sem internet, a lista e o cliente vêm da cópia local, com o saldo
@@ -80,16 +82,36 @@ class CustomersRepositoryImpl implements CustomersRepository {
   }
 
   // A API devolve só o id; cliente recém-cadastrado não deve nada
+  // Sem internet o cadastro vai para a fila com o id já escolhido pelo aparelho: o cliente aparece na
+  // lista na hora e pode receber venda fiado offline, que sobe depois dele (a fila respeita a ordem)
   @override
   Future<Customer> create(CustomerInput input) async {
-    final response = await requestData<String>(
-      endpoint: ApiPaths.customers,
-      method: 'POST',
-      data: {'name': input.name, 'phone': input.phone},
-      parse: (json) => jsonMap(json).requireString('id'),
+    final name = input.name.trim();
+    final write = await _writer.write(
+      kind: PendingCustomerSender.kind,
+      online: (clientId, budget) async {
+        final response = await requestData<String>(
+          endpoint: ApiPaths.customers,
+          method: 'POST',
+          data: PendingCustomerSender.body(input, clientId: clientId),
+          cancelToken: budget.token,
+          parse: (json) => jsonMap(json).requireString('id'),
+        );
+        return response.requireData();
+      },
+      queued: (clientId, _) => PendingCustomerSender.payload(body: PendingCustomerSender.body(input, clientId: clientId)),
+      localEffects: (store, clientId) => store.upsertCustomers([
+        LocalCustomersCompanion.insert(
+          id: clientId,
+          name: name,
+          searchKey: OfflineStore.searchKeyOf(name),
+          // Aproximado até a sincronização trazer o formato que o servidor gravou
+          phone: '+${PhoneFormat.internationalDigits(input.phone)}',
+          balanceCents: 0,
+        ),
+      ]),
     );
-    final id = response.requireData();
-    return Customer(id: id, name: input.name.trim(), phone: input.phone, balanceCents: 0);
+    return Customer(id: write.value ?? write.clientId, name: name, phone: input.phone, balanceCents: 0);
   }
 
   // A API devolve só o id; quem chamou busca o cliente de novo para ver o telefone já normalizado
@@ -148,7 +170,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
         body: PendingPaymentSender.body(amountCents: amountCents, method: method, clientId: clientId, paidAt: paidAt),
         customerName: customer?.name ?? '',
       ),
-      localEffects: (store) => store.applyPayment(customerId: customerId, amountCents: amountCents),
+      localEffects: (store, _) => store.applyPayment(customerId: customerId, amountCents: amountCents),
     );
     return PaymentReceipt(balanceCents: write.value, state: write.state);
   }
