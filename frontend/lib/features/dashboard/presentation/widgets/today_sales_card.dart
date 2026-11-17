@@ -77,6 +77,13 @@ class _SaleRow extends StatelessWidget {
               ),
             ),
             SizedBox(width: spacing.md),
+            if (sale.pendingSync) ...[
+              Tooltip(
+                message: l10n.dashboardPendingSaleTooltip,
+                child: Icon(Icons.cloud_upload_outlined, size: context.sizes.iconSmall, color: context.colors.warning),
+              ),
+              SizedBox(width: spacing.xs),
+            ],
             Text(MoneyFormat.format(sale.totalCents), style: context.text.titleMedium),
           ],
         ),

@@ -48,7 +48,27 @@ void main() {
     // Fila cheia: a faixa do início aparece e a tela de pendências tem todos os tipos de cartão
     final outbox = (await tester.runAsync(busyOutbox))!;
     final auth = FakeAuthRepository(signedIn: signedIn);
-    final sales = FakeSalesRepository();
+    // Uma venda de hoje ainda na fila: o histórico mostra o ícone de "não enviada"
+    final sales = FakeSalesRepository()
+      ..sales.add(
+        Sale(
+          id: 'fila-1',
+          createdAt: DateTime.now(),
+          items: const [
+            SaleItem(
+              productId: 'p1',
+              name: 'Farinha de mandioca torrada fina 1kg',
+              unitPriceCents: 1234567,
+              quantity: 3,
+              soldByWeight: false,
+            ),
+          ],
+          method: PaymentMethod.credit,
+          totalCents: 3703701,
+          customer: const SaleCustomer(id: 'c1', name: 'Maria Aparecida dos Santos Oliveira'),
+          pendingSync: true,
+        ),
+      );
     final dependencies = AppDependencies(
       // Com a faixa de "sem internet" à mostra: ela tira altura de todas as telas do app
       offlineStatus: OfflineStatus()..markOffline(DateTime(2026, 11, 15, 9)),

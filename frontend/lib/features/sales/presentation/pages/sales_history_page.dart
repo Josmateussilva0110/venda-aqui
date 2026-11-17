@@ -69,6 +69,12 @@ class _HistoryViewState extends State<_HistoryView> {
   // Só busca de novo se a venda foi editada, e sem limpar a tela (a rolagem fica onde estava)
   Future<void> _open(Sale sale) async {
     final controller = context.read<SalesHistoryController>();
+    // Venda ainda na fila não existe no servidor: abre as pendências, e ao voltar a lista se atualiza
+    if (sale.pendingSync) {
+      await context.push<void>(AppRoutes.pendingChanges);
+      await controller.load(silent: true);
+      return;
+    }
     final edited = await context.push<bool>(AppRoutes.sale(sale.id));
     if (edited == true) await controller.load(silent: true);
   }
@@ -119,7 +125,15 @@ class _HistoryViewState extends State<_HistoryView> {
                       padding: EdgeInsets.fromLTRB(spacing.lg, 0, spacing.lg, spacing.xl),
                       itemCount: 1 + (placeholder != null ? 1 : entries.length + 1),
                       itemBuilder: (context, index) {
-                        if (index == 0) return _HistoryFilters(searchController: _searchController);
+                        if (index == 0) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _HistoryFilters(searchController: _searchController),
+                              if (controller.onlyPending && placeholder == null) const _OnlyPendingNote(),
+                            ],
+                          );
+                        }
                         if (placeholder != null) return placeholder;
                         if (index == entries.length + 1) {
                           return PaginationFooter(
@@ -262,12 +276,18 @@ class _DayHeader extends StatelessWidget {
     };
     return Padding(
       padding: EdgeInsets.fromLTRB(spacing.xs, spacing.md, spacing.xs, spacing.sm),
+      // Dia de faturamento alto com fonte grande: o resumo quebra a linha em vez de estourar a tela
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: Text(label, style: context.text.titleSmall)),
-          Text(
-            l10n.historySummary(l10n.historySaleCount(group.sales.length), MoneyFormat.format(group.totalCents)),
-            style: context.text.bodySmall,
+          SizedBox(width: spacing.sm),
+          Flexible(
+            child: Text(
+              l10n.historySummary(l10n.historySaleCount(group.sales.length), MoneyFormat.format(group.totalCents)),
+              style: context.text.bodySmall,
+              textAlign: TextAlign.end,
+            ),
           ),
         ],
       ),
@@ -278,6 +298,9 @@ class _DayHeader extends StatelessWidget {
 /// Uma venda; as vendas do mesmo dia formam um cartão contínuo, com cantos só nas pontas.
 class _SaleRow extends StatelessWidget {
   const _SaleRow({required this.sale, required this.timeFormat, required this.isFirst, required this.isLast, required this.onTap});
+
+  /// Parte máxima da linha para o valor e a forma de pagamento; o resto fica para hora e produtos.
+  static const _amountMaxShare = 0.45;
 
   final Sale sale;
   final DateFormat timeFormat;
@@ -305,40 +328,93 @@ class _SaleRow extends StatelessWidget {
           ),
           child: Padding(
             padding: EdgeInsets.all(spacing.md),
-            child: Row(
-              children: [
-                Text(time, style: context.text.labelMedium?.copyWith(color: context.colors.muted)),
-                SizedBox(width: spacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        sale.items.map((item) => item.name).join(', '),
-                        style: context.text.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        sale.customer?.name ?? l10n.historyProductCount(sale.items.length),
-                        style: context.text.bodySmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: spacing.sm),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final rowWidth = constraints.maxWidth;
+                return Row(
                   children: [
-                    Text(MoneyFormat.format(sale.totalCents), style: context.text.titleSmall),
-                    SizedBox(height: spacing.xxs),
-                    PaymentMethodBadge(method: sale.method),
+                    // A nuvem fica embaixo da hora: ao lado do valor, um total alto estouraria o celular pequeno
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(time, style: context.text.labelMedium?.copyWith(color: context.colors.muted)),
+                        if (sale.pendingSync)
+                          Tooltip(
+                            message: l10n.dashboardPendingSaleTooltip,
+                            child: Icon(Icons.cloud_upload_outlined, size: context.sizes.iconSmall, color: colors.warning),
+                          ),
+                      ],
+                    ),
+                    SizedBox(width: spacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            sale.items.map((item) => item.name).join(', '),
+                            style: context.text.titleSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            sale.customer?.name ?? l10n.historyProductCount(sale.items.length),
+                            style: context.text.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: spacing.sm),
+                    // Valor alto com fonte grande no celular pequeno encolhe (com o selo) em vez de empurrar a linha
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: rowWidth * _amountMaxShare),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(MoneyFormat.format(sale.totalCents), style: context.text.titleSmall),
+                            SizedBox(height: spacing.xxs),
+                            PaymentMethodBadge(method: sale.method),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
-                ),
-              ],
+                );
+              },
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Sem internet o histórico só tem as vendas guardadas no aparelho: deixa claro que faltam as do servidor.
+class _OnlyPendingNote extends StatelessWidget {
+  const _OnlyPendingNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    return Padding(
+      padding: EdgeInsets.only(bottom: spacing.md),
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: colors.warningSoft, borderRadius: BorderRadius.circular(context.radius.lg)),
+        child: Padding(
+          padding: EdgeInsets.all(spacing.md),
+          child: Row(
+            children: [
+              Icon(Icons.cloud_off_rounded, color: colors.warning, size: context.sizes.iconSmall),
+              SizedBox(width: spacing.sm),
+              Expanded(
+                child: Text(AppLocalizations.of(context).historyOnlyPending, style: context.text.bodySmall?.copyWith(color: colors.ink)),
+              ),
+            ],
           ),
         ),
       ),

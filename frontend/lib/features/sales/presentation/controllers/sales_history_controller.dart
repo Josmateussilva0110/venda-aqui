@@ -48,6 +48,9 @@ class SalesHistoryController extends ChangeNotifier with DisposeAwareNotifier {
   List<SaleDayGroup> _groups = const [];
   int _total = 0;
   int _totalCents = 0;
+  int _pendingCount = 0;
+  int _pendingCents = 0;
+  bool _onlyPending = false;
   bool _isLoadingMore = false;
   AppFailure? _failure;
   AppFailure? _loadMoreFailure;
@@ -64,6 +67,9 @@ class SalesHistoryController extends ChangeNotifier with DisposeAwareNotifier {
   AppFailure? get loadMoreFailure => _loadMoreFailure;
   bool get hasMore => _sales.length < _total;
   bool get isLoadingMore => _isLoadingMore;
+
+  /// Sem internet: a lista tem só as vendas guardadas no aparelho.
+  bool get onlyPending => _onlyPending;
 
   /// Resumo do filtro inteiro, vindo do servidor (a lista pode ter só a primeira página).
   int get saleCount => _total;
@@ -108,9 +114,18 @@ class SalesHistoryController extends ChangeNotifier with DisposeAwareNotifier {
     notifyListeners();
 
     try {
-      final page = await _repository.history(_filter(from, to), offset: _sales.length, limit: pageSize, cancel: signal);
+      // As vendas da fila só vêm na primeira página: o servidor conta a partir das dele
+      final page = await _repository.history(_filter(from, to), offset: _sales.length - _pendingCount, limit: pageSize, cancel: signal);
       if (!signal.isCancelled) {
-        _applyPage(SaleHistoryPage(items: [..._sales, ...page.items], total: page.total, totalCents: page.totalCents));
+        _applyPage(
+          SaleHistoryPage(
+            items: [..._sales, ...page.items],
+            total: page.total + _pendingCount,
+            totalCents: page.totalCents + _pendingCents,
+            pendingCount: _pendingCount,
+          ),
+          keepPending: true,
+        );
       }
     } on AppFailure catch (failure) {
       if (!signal.isCancelled) _loadMoreFailure = failure;
@@ -153,11 +168,15 @@ class SalesHistoryController extends ChangeNotifier with DisposeAwareNotifier {
 
   SaleFilter _filter(DateTime from, DateTime to) => SaleFilter(from: from, to: to, method: _method, search: _search);
 
-  void _applyPage(SaleHistoryPage page) {
+  void _applyPage(SaleHistoryPage page, {bool keepPending = false}) {
     _sales = page.items;
     _total = page.total;
     _totalCents = page.totalCents;
     _groups = _groupByDay(page.items);
+    if (keepPending) return;
+    _pendingCount = page.pendingCount;
+    _pendingCents = page.items.where((sale) => sale.pendingSync).fold(0, (sum, sale) => sum + sale.totalCents);
+    _onlyPending = page.onlyPending;
   }
 
   (DateTime, DateTime) _range() {

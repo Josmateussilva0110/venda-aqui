@@ -2404,7 +2404,7 @@ abstract class AppLocalizations {
   /// No description provided for @logoutPendingMessage.
   ///
   /// In pt, this message translates to:
-  /// **'{count, plural, =1{1 venda, pagamento ou reposição feito sem internet ainda não foi enviado. Se sair agora, será perdido.} other{{count} vendas, pagamentos ou reposições feitos sem internet ainda não foram enviados. Se sair agora, serão perdidos.}}'**
+  /// **'{count, plural, =1{1 alteração feita sem internet ainda não foi enviada. Se sair agora, ela será perdida.} other{{count} alterações feitas sem internet ainda não foram enviadas. Se sair agora, elas serão perdidas.}}'**
   String logoutPendingMessage(int count);
 
   /// No description provided for @logoutPendingConfirm.
@@ -2562,6 +2562,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'+{quantity} no estoque'**
   String pendingRestockDetail(String quantity);
+
+  /// No description provided for @pendingCustomerTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cadastro de {name}'**
+  String pendingCustomerTitle(String name);
+
+  /// No description provided for @pendingCustomerRejected.
+  ///
+  /// In pt, this message translates to:
+  /// **'{change} não foi aceito: {reason}'**
+  String pendingCustomerRejected(String change, String reason);
+
+  /// No description provided for @dashboardPendingSales.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{Inclui 1 venda feita sem internet, ainda não enviada} other{Inclui {count} vendas feitas sem internet, ainda não enviadas}}'**
+  String dashboardPendingSales(int count);
+
+  /// No description provided for @dashboardPendingSaleTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Feita sem internet, ainda não enviada'**
+  String get dashboardPendingSaleTooltip;
+
+  /// No description provided for @historyOnlyPending.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet: mostrando só as vendas feitas neste aparelho que ainda não foram enviadas.'**
+  String get historyOnlyPending;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

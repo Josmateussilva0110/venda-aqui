@@ -1330,8 +1330,8 @@ class AppLocalizationsPt extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count vendas, pagamentos ou reposições feitos sem internet ainda não foram enviados. Se sair agora, serão perdidos.',
-      one: '1 venda, pagamento ou reposição feito sem internet ainda não foi enviado. Se sair agora, será perdido.',
+      other: '$count alterações feitas sem internet ainda não foram enviadas. Se sair agora, elas serão perdidas.',
+      one: '1 alteração feita sem internet ainda não foi enviada. Se sair agora, ela será perdida.',
     );
     return '$_temp0';
   }
@@ -1447,4 +1447,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String pendingRestockDetail(String quantity) {
     return '+$quantity no estoque';
   }
+
+  @override
+  String pendingCustomerTitle(String name) {
+    return 'Cadastro de $name';
+  }
+
+  @override
+  String pendingCustomerRejected(String change, String reason) {
+    return '$change não foi aceito: $reason';
+  }
+
+  @override
+  String dashboardPendingSales(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Inclui $count vendas feitas sem internet, ainda não enviadas',
+      one: 'Inclui 1 venda feita sem internet, ainda não enviada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardPendingSaleTooltip => 'Feita sem internet, ainda não enviada';
+
+  @override
+  String get historyOnlyPending => 'Sem internet: mostrando só as vendas feitas neste aparelho que ainda não foram enviadas.';
 }

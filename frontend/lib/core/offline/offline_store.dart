@@ -75,6 +75,12 @@ class OfflineStore {
     return int.tryParse(raw ?? '') ?? _defaultLowStockThreshold;
   }
 
+  /// Último resultado de uma consulta que não cabe nas tabelas da cópia (ex.: vendas de hoje no início),
+  /// em JSON, para mostrar sem internet. Some com a cópia na saída da conta.
+  Future<void> saveSnapshot(String key, String json) => _setMark('snapshot.$key', json);
+
+  Future<String?> snapshot(String key) => _mark('snapshot.$key');
+
   // ---------- Dono da cópia ----------
 
   /// Quem está logado (id, nome e telefone, nada de token), para abrir o app sem internet.

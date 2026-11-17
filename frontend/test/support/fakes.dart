@@ -188,9 +188,11 @@ class FakeDashboardRepository implements DashboardRepository {
   final CreditOverview credit;
 
   @override
+  // Uma das vendas ainda está na fila: o selo e o ícone de "não enviada" entram nos testes de layout
   Future<TodaySales> todaySales(DateTime now, {required int recentLimit}) async => TodaySales(
     count: 2,
     totalCents: 4590,
+    pendingCount: 1,
     recent: [
       RecentSale(
         id: 's1',
@@ -199,6 +201,7 @@ class FakeDashboardRepository implements DashboardRepository {
         paymentMethod: 'credit',
         totalCents: 1200,
         customerName: 'Maria das Graças Oliveira Santos',
+        pendingSync: true,
       ),
       RecentSale(
         id: 's2',

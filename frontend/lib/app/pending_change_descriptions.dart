@@ -1,5 +1,6 @@
 import '../core/offline/outbox.dart';
 import '../core/offline/pending_change_text.dart';
+import '../features/customers/data/pending_customer_sender.dart';
 import '../features/customers/data/pending_payment_sender.dart';
 import '../features/customers/presentation/widgets/pending_payment_notice.dart';
 import '../features/products/data/pending_restock_sender.dart';
@@ -13,6 +14,7 @@ PendingChangeText describePendingChange(AppLocalizations l10n, PendingChange cha
   return switch (change.kind) {
     PendingSaleSender.kind => pendingSaleText(l10n, change.payload),
     PendingPaymentSender.kind => pendingPaymentText(l10n, change.payload),
+    PendingCustomerSender.kind => pendingCustomerText(l10n, change.payload),
     PendingRestockSender.kind => pendingRestockText(l10n, change.payload),
     _ => (title: l10n.pendingChangeUnknown, detail: ''),
   };

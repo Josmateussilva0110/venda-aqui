@@ -73,7 +73,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
         productName: product?.name ?? '',
         soldByWeight: product?.soldByWeight ?? false,
       ),
-      localEffects: (store) => store.applyRestock(productId: id, quantity: quantity),
+      localEffects: (store, _) => store.applyRestock(productId: id, quantity: quantity),
     );
     return write.state;
   }

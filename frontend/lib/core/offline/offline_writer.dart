@@ -35,7 +35,7 @@ class OfflineWriter {
     required String kind,
     required Future<T> Function(String clientId, CancelSignal budget) online,
     required Map<String, dynamic> Function(String clientId, DateTime at) queued,
-    Future<void> Function(OfflineStore store)? localEffects,
+    Future<void> Function(OfflineStore store, String clientId)? localEffects,
   }) async {
     final clientId = _newId();
     if (!_reader.recentlyOffline) {
@@ -59,7 +59,7 @@ class OfflineWriter {
       id: clientId,
       kind: kind,
       payload: queued(clientId, at),
-      localEffects: effects == null ? null : () => effects(_reader.store),
+      localEffects: effects == null ? null : () => effects(_reader.store, clientId),
     );
     return (value: null, state: SyncState.pending, clientId: clientId, at: at);
   }

@@ -878,7 +878,7 @@
   },
   "pendingChangeRejectedFallback": "o servidor recusou.",
   "logoutPendingTitle": "Alterações não enviadas",
-  "logoutPendingMessage": "{count, plural, =1{1 venda, pagamento ou reposição feito sem internet ainda não foi enviado. Se sair agora, será perdido.} other{{count} vendas, pagamentos ou reposições feitos sem internet ainda não foram enviados. Se sair agora, serão perdidos.}}",
+  "logoutPendingMessage": "{count, plural, =1{1 alteração feita sem internet ainda não foi enviada. Se sair agora, ela será perdida.} other{{count} alterações feitas sem internet ainda não foram enviadas. Se sair agora, elas serão perdidas.}}",
   "@logoutPendingMessage": {
     "placeholders": {
       "count": {
@@ -1000,5 +1000,34 @@
         "type": "String"
       }
     }
-  }
+  },
+  "pendingCustomerTitle": "Cadastro de {name}",
+  "@pendingCustomerTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pendingCustomerRejected": "{change} não foi aceito: {reason}",
+  "@pendingCustomerRejected": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardPendingSales": "{count, plural, =1{Inclui 1 venda feita sem internet, ainda não enviada} other{Inclui {count} vendas feitas sem internet, ainda não enviadas}}",
+  "@dashboardPendingSales": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardPendingSaleTooltip": "Feita sem internet, ainda não enviada",
+  "historyOnlyPending": "Sem internet: mostrando só as vendas feitas neste aparelho que ainda não foram enviadas."
 }
