@@ -8,6 +8,7 @@ abstract final class ApiCodes {
   static const phoneAlreadyRegistered = 'PHONE_ALREADY_REGISTERED';
   static const recoveryCodeInvalid = 'RECOVERY_CODE_INVALID';
   static const customerPhoneTaken = 'CUSTOMER_PHONE_TAKEN';
+  static const customerCpfTaken = 'CUSTOMER_CPF_TAKEN';
 
   static const sessionEndingCodes = {sessionInvalid, sessionExpired, sessionRevoked};
 }

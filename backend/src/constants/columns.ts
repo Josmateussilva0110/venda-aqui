@@ -8,5 +8,8 @@ export const PRODUCT_COLUMNS =
 
 export const CUSTOMER_COLUMNS = "id, name, phone, balance_cents, credit_due_date, created_at, updated_at"
 
+// O CPF é dado pessoal: vai só no detalhe (que abre a edição), nunca nas listas
+export const CUSTOMER_DETAIL_COLUMNS = `${CUSTOMER_COLUMNS}, cpf`
+
 export const CREDIT_SETTINGS_COLUMNS =
   "credit_term_days, reminders_enabled, remind_days_before, remind_on_due, remind_overdue_every_days, reminder_hour"

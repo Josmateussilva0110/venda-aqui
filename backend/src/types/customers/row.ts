@@ -5,6 +5,8 @@ export interface CustomerRow {
   phone: string
   balance_cents: number
   credit_due_date: string | null
+  // Só na consulta de detalhe (CUSTOMER_DETAIL_COLUMNS)
+  cpf?: string | null
   created_at: string
   updated_at: string
 }

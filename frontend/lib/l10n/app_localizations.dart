@@ -1597,6 +1597,24 @@ abstract class AppLocalizations {
   /// **'Telefone inválido. Use DDD + número.'**
   String get customerPhoneInvalid;
 
+  /// No description provided for @customerCpfLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'CPF (opcional)'**
+  String get customerCpfLabel;
+
+  /// No description provided for @customerCpfPlaceholder.
+  ///
+  /// In pt, this message translates to:
+  /// **'000.000.000-00'**
+  String get customerCpfPlaceholder;
+
+  /// No description provided for @customerCpfInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'CPF inválido. Confira os 11 números.'**
+  String get customerCpfInvalid;
+
   /// No description provided for @customerSave.
   ///
   /// In pt, this message translates to:

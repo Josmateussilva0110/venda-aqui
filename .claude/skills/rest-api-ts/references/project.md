@@ -54,3 +54,7 @@
   Campos compartilhados em `schemas/fields/offline.ts`. Nas duas funções o registro com `client_id` entra ANTES do
   efeito (saldo/estoque), para o reenvio simultâneo parar no índice único sem aplicar duas vezes. Pagamento maior
   que a dívida continua VQ006 também offline (o app mostra como recusado).
+- CPF do cliente (`20261119000000_customer_cpf.sql`): opcional, só os 11 dígitos (check), único por comércio
+  (`customers_merchant_cpf_key`; erro `CUSTOMER_CPF_TAKEN`, 409, identificado pelo nome do índice com
+  `isUniqueViolationOf`). Dígitos verificadores conferidos em `schemas/fields/cpf.ts`. No PUT, `cpf` ausente não mexe
+  (app antigo não apaga), `""`/`null` apaga. Vai só no detalhe (`CUSTOMER_DETAIL_COLUMNS`), nunca nas listas.

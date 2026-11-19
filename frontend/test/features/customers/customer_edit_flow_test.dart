@@ -68,7 +68,7 @@ void main() {
     expect(customers.customers.first.phone, testCustomer.phone);
 
     await tester.enterText(nameField, 'Maria Santos');
-    await tester.enterText(find.byType(TextField).last, '86977776666');
+    await tester.enterText(find.byType(TextField).at(1), '86977776666');
     await tester.tap(find.text('Salvar alterações'));
     await tester.pumpAndSettle();
 
@@ -112,5 +112,67 @@ void main() {
     expect(customers.customers, isNot(contains(other)));
     expect(find.text('Fiado'), findsOneWidget);
     expect(find.text('Conta do cliente'), findsNothing);
+  });
+
+  // O CPF só vem no detalhe do cliente: a edição mostra o que está guardado, não apaga sem querer
+  // (editar o nome mantém o CPF, cliente sem CPF carregado não recebe "vazio") e apaga quando esvaziado
+  group('CPF na edição', () {
+    const withCpf = Customer(id: 'c3', name: 'Carla', phone: '+5586911112222', balanceCents: 0, cpf: '52998224725');
+
+    Future<FakeCustomersRepository> openEdit(WidgetTester tester, Customer customer) async {
+      final customers = FakeCustomersRepository(customers: [customer]);
+      final router = await pumpApp(tester, customers);
+      router.go(AppRoutes.customer(customer.id));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Editar cliente'));
+      await tester.pumpAndSettle();
+      return customers;
+    }
+
+    Future<void> save(WidgetTester tester) async {
+      await tester.tap(find.text('Salvar alterações'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('aparece formatado e continua igual ao editar o nome', (tester) async {
+      final customers = await openEdit(tester, withCpf);
+      expect(find.widgetWithText(TextField, '529.982.247-25'), findsOneWidget);
+
+      await tester.enterText(find.widgetWithText(TextField, 'Carla'), 'Carla Souza');
+      await save(tester);
+      expect(customers.lastUpdate?.cpf, '52998224725');
+      expect(customers.customers.single.cpf, '52998224725');
+    });
+
+    testWidgets('esvaziar o campo apaga o CPF', (tester) async {
+      final customers = await openEdit(tester, withCpf);
+      await tester.enterText(find.widgetWithText(TextField, '529.982.247-25'), '');
+      await save(tester);
+      expect(customers.lastUpdate?.cpf, '');
+      expect(customers.customers.single.cpf, isNull);
+    });
+
+    testWidgets('cliente sem CPF carregado não manda nada (não apaga o que estiver guardado)', (tester) async {
+      final customers = await openEdit(tester, other);
+      await tester.enterText(find.widgetWithText(TextField, 'João'), 'João Pedro');
+      await save(tester);
+      expect(customers.lastUpdate, isNotNull);
+      expect(customers.lastUpdate?.cpf, isNull);
+    });
+  });
+
+  testWidgets('CPF com dígito errado é recusado no campo, antes de ir ao servidor', (tester) async {
+    final customers = FakeCustomersRepository(customers: [other]);
+    final router = await pumpApp(tester, customers);
+    router.go(AppRoutes.customer(other.id));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Editar cliente'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).at(2), '52998224726');
+    await tester.tap(find.text('Salvar alterações'));
+    await tester.pumpAndSettle();
+    expect(find.text('CPF inválido. Confira os 11 números.'), findsOneWidget);
+    expect(customers.lastUpdate, isNull);
   });
 }

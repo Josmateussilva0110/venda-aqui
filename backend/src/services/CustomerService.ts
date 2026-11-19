@@ -1,5 +1,5 @@
 import { supabase } from "../config/supabase"
-import { CUSTOMER_COLUMNS } from "../constants/columns"
+import { CUSTOMER_COLUMNS, CUSTOMER_DETAIL_COLUMNS } from "../constants/columns"
 import {
   CUSTOMER_CREATE_FAILED_ERROR,
   CUSTOMER_DELETE_FAILED_ERROR,
@@ -14,12 +14,13 @@ import {
   CUSTOMER_PAYMENT_EXCEEDS_BALANCE_ERROR,
   CUSTOMER_PAYMENT_FAILED_ERROR,
   CUSTOMER_PHONE_TAKEN_ERROR,
+  CUSTOMER_CPF_TAKEN_ERROR,
   CUSTOMER_REMINDER_FAILED_ERROR,
   CUSTOMER_REMINDERS_FAILED_ERROR,
   CUSTOMER_STATEMENT_FAILED_ERROR,
   CUSTOMER_UPDATE_FAILED_ERROR,
 } from "../errors/customers"
-import { OPEN_ACCOUNT_PURCHASE_LIMIT } from "../constants/customers"
+import { CUSTOMER_CPF_UNIQUE_INDEX, OPEN_ACCOUNT_PURCHASE_LIMIT } from "../constants/customers"
 import { SALE_DB_ERRORS } from "../constants/sales"
 import type { CreateCustomerDTO, CustomerDTO } from "../schemas/customers/customer"
 import type { DueDateDTO } from "../schemas/customers/dueDate"
@@ -48,7 +49,7 @@ import type {
   StatementRow,
 } from "../types/customers"
 import type { PaymentMethod } from "../types/sales"
-import { escapeLikePattern, isForeignKeyViolation, isUniqueViolation } from "../utils/database"
+import { escapeLikePattern, isForeignKeyViolation, isUniqueViolation, isUniqueViolationOf } from "../utils/database"
 
 class CustomerService {
 
@@ -108,7 +109,7 @@ class CustomerService {
     try {
       const { data, error } = await supabase
         .from("customers")
-        .select(CUSTOMER_COLUMNS)
+        .select(CUSTOMER_DETAIL_COLUMNS)
         .eq("id", customerId)
         .eq("merchant_id", merchantId)
         .maybeSingle<CustomerRow>()
@@ -140,6 +141,7 @@ class CustomerService {
         if (input.clientId && (await this.belongsToMerchant(merchantId, input.clientId))) {
           return { status: true, data: { id: input.clientId } }
         }
+        if (isUniqueViolationOf(error, CUSTOMER_CPF_UNIQUE_INDEX)) return { status: false, error: CUSTOMER_CPF_TAKEN_ERROR }
         // Sem ser reenvio, o normal é o telefone repetido; o id só colide se o aparelho mandou um id já usado
         const phoneTaken = !input.clientId || (await this.phoneTaken(merchantId, input.phone))
         return { status: false, error: phoneTaken ? CUSTOMER_PHONE_TAKEN_ERROR : CUSTOMER_CREATE_FAILED_ERROR }
@@ -166,6 +168,7 @@ class CustomerService {
         .select("id")
         .maybeSingle<{ id: string }>()
 
+      if (isUniqueViolationOf(error, CUSTOMER_CPF_UNIQUE_INDEX)) return { status: false, error: CUSTOMER_CPF_TAKEN_ERROR }
       if (isUniqueViolation(error)) return { status: false, error: CUSTOMER_PHONE_TAKEN_ERROR }
       if (error) {
         console.error("[CustomerService.update]", error)
@@ -391,6 +394,8 @@ class CustomerService {
     return {
       name: input.name,
       phone: input.phone,
+      // Ausente não entra no update: app antigo (sem o campo) editando não apaga o CPF
+      ...(input.cpf !== undefined ? { cpf: input.cpf } : {}),
     }
   }
 
@@ -403,6 +408,7 @@ class CustomerService {
       creditDueDate: row.credit_due_date,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
+      ...(row.cpf !== undefined ? { cpf: row.cpf } : {}),
     }
   }
 

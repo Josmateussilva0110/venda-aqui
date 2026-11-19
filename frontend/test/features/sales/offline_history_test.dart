@@ -50,9 +50,10 @@ void main() {
     ScriptedApi(); // sem respostas: o registro online cai na fila
     final db = memoryDatabase();
     final store = OfflineStore(db);
-    final outbox = Outbox(db, store)..register(PendingSaleSender.kind, const PendingSaleSender().send);
-    await store.saveOwner((id: 'm1', name: 'Mercearia', phone: '+5586999990000'));
     final now = DateTime(2026, 11, 16, 10);
+    // A fila usa o mesmo relógio do teste: com o do sistema, o resultado dependeria do dia em que roda
+    final outbox = Outbox(db, store, clock: () => now)..register(PendingSaleSender.kind, const PendingSaleSender().send);
+    await store.saveOwner((id: 'm1', name: 'Mercearia', phone: '+5586999990000'));
     final reader = OfflineReader(store, OfflineStatus(), clock: () => now);
     final ids = ['fila-1', 'fila-2'];
     final writer = OfflineWriter(reader, outbox, clock: () => now, newId: () => ids.removeAt(0));
@@ -86,9 +87,10 @@ void main() {
     ScriptedApi();
     final db = memoryDatabase();
     final store = OfflineStore(db);
-    final outbox = Outbox(db, store)..register(PendingSaleSender.kind, const PendingSaleSender().send);
-    await store.saveOwner((id: 'm1', name: 'Mercearia', phone: '+5586999990000'));
     final now = DateTime(2026, 11, 16, 10);
+    // A fila usa o mesmo relógio do teste: com o do sistema, o resultado dependeria do dia em que roda
+    final outbox = Outbox(db, store, clock: () => now)..register(PendingSaleSender.kind, const PendingSaleSender().send);
+    await store.saveOwner((id: 'm1', name: 'Mercearia', phone: '+5586999990000'));
     final reader = OfflineReader(store, OfflineStatus(), clock: () => now);
     final writer = OfflineWriter(reader, outbox, clock: () => now, newId: () => 'fila-1');
     final repository = SalesRepositoryImpl(const CatalogRemoteDataSource(), const SalesRemoteDataSource(), reader, writer, outbox);

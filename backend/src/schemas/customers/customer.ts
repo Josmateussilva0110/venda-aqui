@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { optionalCpfField } from "../fields/cpf"
 import { nameField } from "../fields/name"
 import { clientIdField } from "../fields/offline"
 import { phoneField } from "../fields/phone"
@@ -6,6 +7,7 @@ import { phoneField } from "../fields/phone"
 export const CustomerSchema = z.object({
   name: nameField("o nome do cliente", 2, 80),
   phone: phoneField,
+  cpf: optionalCpfField,
 })
 
 export type CustomerDTO = z.infer<typeof CustomerSchema>
