@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/app_failure.dart';
+import '../../../../core/offline/sync_state.dart';
 import '../../../../core/utils/dispose_aware_notifier.dart';
 import '../../domain/customer.dart';
 import '../../domain/customers_repository.dart';
@@ -95,21 +96,27 @@ class CustomerAccountController extends ChangeNotifier with DisposeAwareNotifier
   }
 
   /// Registra o pagamento e recarrega o extrato. Lança [AppFailure] quando o servidor recusa.
-  Future<void> registerPayment({required int amountCents, required SettlementMethod method}) async {
+  /// Devolve [SyncState.pending] quando, sem internet, o pagamento ficou guardado no aparelho.
+  Future<SyncState?> registerPayment({required int amountCents, required SettlementMethod method}) async {
     final customer = _customer;
-    if (_isPaying || customer == null) return;
+    if (_isPaying || customer == null) return null;
     _isPaying = true;
     notifyListeners();
+    final PaymentReceipt receipt;
     try {
-      final balance = await _repository.registerPayment(customerId, amountCents: amountCents, method: method);
+      receipt = await _repository.registerPayment(customerId, amountCents: amountCents, method: method);
+      // Na fila, o saldo mostrado é a conta do app (já validada contra a dívida); o servidor confere ao subir
+      final balance = receipt.balanceCents ?? (customer.balanceCents - amountCents).clamp(0, customer.balanceCents);
       _customer = customer.copyWith(balanceCents: balance);
       _changed = true;
     } finally {
       _isPaying = false;
       notifyListeners();
     }
-    // O saldo já veio na resposta; só o extrato precisa vir de novo, com o pagamento no topo
-    await _reloadStatement();
+    // O saldo já veio na resposta; só o extrato precisa vir de novo, com o pagamento no topo.
+    // Sem internet o extrato não carregaria (e o pagamento ainda não está nele)
+    if (receipt.state == SyncState.synced) await _reloadStatement();
+    return receipt.state;
   }
 
   /// Nome ou telefone mudou: busca de novo e avisa a lista de devedores ao voltar.

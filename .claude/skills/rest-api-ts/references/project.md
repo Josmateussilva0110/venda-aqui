@@ -42,3 +42,19 @@
   `20261113000000`): compras fiado desde a última vez que o saldo zerou (janela sobre vendas + pagamentos, sem coluna
   nova), até `OPEN_ACCOUNT_PURCHASE_LIMIT` compras com itens (`subtotal_cents` gravado na venda) e o já pago no período;
   compras listadas + anteriores − pago = saldo. Migration já aplicada não se edita: mudança de função vai em arquivo novo.
+- Vendas feitas sem internet (`20261116000000_offline_sales.sql`): `POST /sales` (`CreateSaleSchema`) aceita `clientId`
+  (UUID do aparelho, índice único parcial `(merchant_id, client_id)`) e `soldAt` (hora do balcão, exige `clientId`, até
+  `MAX_OFFLINE_SALE_AGE_DAYS`). Reenvio com o mesmo `clientId` devolve a venda gravada com `replayed: true`, sem mexer de
+  novo em estoque e saldo. Com `soldAt`, falta de estoque é aceita: o estoque para em zero (constraint `quantity >= 0`) e
+  a resposta traz `stockShortfalls`. Online (sem `soldAt`) continua o 409. `created_at = least(soldAt, now())`.
+  `_sale_apply_items` ganhou `p_allow_shortfall default false`; a edição (`SaleSchema`) descarta os campos offline.
+- Pagamento de fiado e reposição feitos sem internet (`20261117000000_offline_payments_restocks.sql`): `POST
+  /customers/:id/payments` aceita `clientId` + `paidAt` (vira `created_at`, limitado a agora) e `POST
+  /products/:id/restock` aceita `clientId` (registro em `product_restocks`, que também é o histórico de entradas).
+  Campos compartilhados em `schemas/fields/offline.ts`. Nas duas funções o registro com `client_id` entra ANTES do
+  efeito (saldo/estoque), para o reenvio simultâneo parar no índice único sem aplicar duas vezes. Pagamento maior
+  que a dívida continua VQ006 também offline (o app mostra como recusado).
+- CPF do cliente (`20261119000000_customer_cpf.sql`): opcional, só os 11 dígitos (check), único por comércio
+  (`customers_merchant_cpf_key`; erro `CUSTOMER_CPF_TAKEN`, 409, identificado pelo nome do índice com
+  `isUniqueViolationOf`). Dígitos verificadores conferidos em `schemas/fields/cpf.ts`. No PUT, `cpf` ausente não mexe
+  (app antigo não apaga), `""`/`null` apaga. Vai só no detalhe (`CUSTOMER_DETAIL_COLUMNS`), nunca nas listas.

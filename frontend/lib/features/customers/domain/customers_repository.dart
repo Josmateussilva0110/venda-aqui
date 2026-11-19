@@ -25,8 +25,9 @@ abstract interface class CustomersRepository {
   /// Do lançamento mais recente para o mais antigo.
   Future<StatementPage> statement(String customerId, {required int offset, required int limit});
 
-  /// Devolve o saldo que sobrou. O servidor recusa pagamento maior que a dívida.
-  Future<int> registerPayment(String customerId, {required int amountCents, required SettlementMethod method});
+  /// Devolve o saldo que sobrou. O servidor recusa pagamento maior que a dívida. Sem internet o
+  /// pagamento vai para a fila e o saldo só é conhecido quando ela subir.
+  Future<PaymentReceipt> registerPayment(String customerId, {required int amountCents, required SettlementMethod method});
 
   /// Compras da dívida atual com os itens, para a mensagem de cobrança.
   Future<OpenAccount> openAccount(String customerId);

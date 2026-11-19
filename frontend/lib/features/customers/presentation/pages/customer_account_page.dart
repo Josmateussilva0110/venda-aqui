@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/network/app_failure.dart';
+import '../../../../core/offline/sync_state.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
@@ -256,10 +257,10 @@ class _BalanceCardState extends State<_BalanceCard> {
     final l10n = AppLocalizations.of(context);
     final controller = context.read<CustomerAccountController>();
     try {
-      await controller.registerPayment(amountCents: amountCents, method: method);
-      if (!mounted) return;
+      final state = await controller.registerPayment(amountCents: amountCents, method: method);
+      if (!mounted || state == null) return;
       setState(() => _panelAmount = null);
-      showAppToast(context, l10n.receiveDone);
+      showAppToast(context, state == SyncState.pending ? l10n.receiveSavedOffline : l10n.receiveDone);
     } on AppFailure catch (failure) {
       if (mounted) showAppToast(context, failureMessage(l10n, failure), tone: ToastTone.error);
     }

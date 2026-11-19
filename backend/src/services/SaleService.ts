@@ -14,8 +14,20 @@ import {
   saleQuantityNotIntegerError,
 } from "../errors/sales"
 import type { ListSalesDTO } from "../schemas/sales/listSales"
-import type { SaleDTO } from "../schemas/sales/sale"
-import type { Sale, SaleErrorCode, SaleItem, SaleItemRow, SaleList, SaleListRow, SaleResult, SaleRow, SaleSaved } from "../types/sales"
+import type { CreateSaleDTO, SaleDTO } from "../schemas/sales/sale"
+import type {
+  Sale,
+  SaleErrorCode,
+  SaleItem,
+  SaleItemRow,
+  SaleList,
+  SaleListRow,
+  SaleRegistered,
+  SaleRegisteredRow,
+  SaleResult,
+  SaleRow,
+  SaleSaved,
+} from "../types/sales"
 import { escapeLikePattern } from "../utils/database"
 
 class SaleService {
@@ -75,11 +87,16 @@ class SaleService {
     }
   }
 
-  async create(merchantId: string, input: SaleDTO): SaleResult<SaleSaved> {
+  async create(merchantId: string, input: CreateSaleDTO): SaleResult<SaleRegistered> {
     try {
       const { data, error } = await supabase
-        .rpc("register_sale", { p_merchant_id: merchantId, ...this.toArgs(input) })
-        .single<{ id: string; total_cents: number }>()
+        .rpc("register_sale", {
+          p_merchant_id: merchantId,
+          ...this.toArgs(input),
+          p_client_id: input.clientId ?? null,
+          p_sold_at: input.soldAt ?? null,
+        })
+        .single<SaleRegisteredRow>()
 
       const ruleError = this.mapRuleError(error)
       if (ruleError) return { status: false, error: ruleError }
@@ -88,7 +105,7 @@ class SaleService {
         return { status: false, error: SALE_CREATE_FAILED_ERROR }
       }
 
-      return { status: true, data: { id: data.id, totalCents: data.total_cents } }
+      return { status: true, data: this.toRegistered(data) }
     } catch (error) {
       console.error("[SaleService.create] error:", error)
       return { status: false, error: SALE_CREATE_FAILED_ERROR }
@@ -141,6 +158,20 @@ class SaleService {
       p_payment_method: input.paymentMethod,
       p_customer_id: input.customerId ?? null,
       p_items: input.items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+    }
+  }
+
+  private toRegistered(row: SaleRegisteredRow): SaleRegistered {
+    return {
+      id: row.id,
+      totalCents: row.total_cents,
+      // numeric do Postgres pode chegar como texto no JSON
+      stockShortfalls: row.stock_shortfalls.map((item) => ({
+        productId: item.productId,
+        name: item.name,
+        missingQuantity: Number(item.missingQuantity),
+      })),
+      replayed: row.replayed,
     }
   }
 

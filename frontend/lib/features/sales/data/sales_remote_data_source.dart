@@ -10,12 +10,14 @@ import 'sale_dto.dart';
 class SalesRemoteDataSource {
   const SalesRemoteDataSource();
 
-  /// Devolve o id e o total calculado pelo servidor.
-  Future<({String id, int totalCents})> register(SaleInput input) async {
+  /// Devolve o id e o total calculado pelo servidor. [clientId] vai junto para que, se a resposta
+  /// se perder e a venda for reenviada pela fila, o servidor reconheça e não registre duas vezes.
+  Future<({String id, int totalCents})> register(SaleInput input, {required String clientId, CancelSignal? cancel}) async {
     final response = await requestData<({String id, int totalCents})>(
       endpoint: ApiPaths.sales,
       method: 'POST',
-      data: SaleDto.toJson(input),
+      data: SaleDto.toJson(input, clientId: clientId),
+      cancelToken: cancel?.token,
       parse: _savedFromJson,
     );
     return response.requireData();

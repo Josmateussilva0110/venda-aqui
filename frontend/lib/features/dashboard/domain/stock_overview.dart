@@ -58,6 +58,7 @@ class RecentSale {
     required this.paymentMethod,
     required this.totalCents,
     this.customerName,
+    this.pendingSync = false,
   });
 
   final String id;
@@ -70,19 +71,43 @@ class RecentSale {
 
   /// Só no fiado.
   final String? customerName;
+
+  /// Feita sem internet e ainda na fila: o servidor ainda não a tem (não abre o detalhe da venda).
+  final bool pendingSync;
 }
 
 /// Vendas de hoje: contagem e soma do dia inteiro (servidor) e as mais recentes.
 @immutable
 class TodaySales {
-  const TodaySales({required this.count, required this.totalCents, this.recent = const []});
+  const TodaySales({required this.count, required this.totalCents, this.recent = const [], this.pendingCount = 0});
 
   final int count;
   final int totalCents;
 
   /// Da mais recente para a mais antiga.
   final List<RecentSale> recent;
+
+  /// Quantas das vendas do dia ainda estão na fila do aparelho (já somadas em [count] e [totalCents]).
+  final int pendingCount;
+
+  static const empty = TodaySales(count: 0, totalCents: 0);
+
+  /// Soma as vendas de hoje que ainda estão na fila: o servidor não as tem, mas elas aconteceram.
+  TodaySales withPending(List<RecentSale> pending, {required int recentLimit}) {
+    if (pending.isEmpty) return this;
+    final merged = [...pending, ...recent]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return TodaySales(
+      count: count + pending.length,
+      totalCents: totalCents + pending.fold(0, (sum, sale) => sum + sale.totalCents),
+      recent: merged.take(recentLimit).toList(growable: false),
+      pendingCount: pending.length,
+    );
+  }
 }
+
+/// Vendas feitas sem internet entre [from] e [until] que ainda estão na fila. Vem de fora (a fila é da
+/// feature de vendas): o início só as soma ao dia.
+typedef PendingSalesSource = Future<List<RecentSale>> Function(DateTime from, DateTime until);
 
 abstract interface class DashboardRepository {
   Future<StockOverview> stockOverview({required int alertLimit});

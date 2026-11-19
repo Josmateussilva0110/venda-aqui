@@ -1,6 +1,6 @@
 import type { Request, Response } from "express"
 import { customerErrorHttpStatusMap } from "../errors/customers"
-import type { CustomerDTO } from "../schemas/customers/customer"
+import type { CreateCustomerDTO, CustomerDTO } from "../schemas/customers/customer"
 import type { CustomerParamsDTO } from "../schemas/customers/customerParams"
 import type { DueDateDTO } from "../schemas/customers/dueDate"
 import type { ListRemindersDTO } from "../schemas/customers/listReminders"
@@ -26,7 +26,7 @@ class CustomerController {
     return sendSuccess(response, "Cliente carregado.", result.data)
   }
 
-  async create(request: Request<unknown, unknown, CustomerDTO>, response: Response): Promise<Response> {
+  async create(request: Request<unknown, unknown, CreateCustomerDTO>, response: Response): Promise<Response> {
     const result = await CustomerService.create(requireAuthField(request, "merchantId"), request.body)
     if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
     return sendSuccess(response, "Cliente cadastrado com sucesso.", result.data, 201)

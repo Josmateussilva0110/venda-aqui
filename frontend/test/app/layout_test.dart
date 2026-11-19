@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:vendaqui/app/app.dart';
 import 'package:vendaqui/app/dependencies.dart';
+import 'package:vendaqui/core/offline/offline_status.dart';
 import 'package:vendaqui/core/routing/app_routes.dart';
+import 'package:vendaqui/features/sales/domain/sale.dart';
 import 'package:vendaqui/core/stock/stock_changes.dart';
 import 'package:vendaqui/features/auth/presentation/controllers/session_controller.dart';
 import 'package:vendaqui/features/customers/domain/customer.dart';
@@ -43,9 +45,34 @@ void main() {
   ];
 
   Future<void> pumpApp(WidgetTester tester, {required bool signedIn}) async {
+    // Fila cheia: a faixa do início aparece e a tela de pendências tem todos os tipos de cartão
+    final outbox = (await tester.runAsync(busyOutbox))!;
     final auth = FakeAuthRepository(signedIn: signedIn);
-    final sales = FakeSalesRepository();
+    // Uma venda de hoje ainda na fila: o histórico mostra o ícone de "não enviada"
+    final sales = FakeSalesRepository()
+      ..sales.add(
+        Sale(
+          id: 'fila-1',
+          createdAt: DateTime.now(),
+          items: const [
+            SaleItem(
+              productId: 'p1',
+              name: 'Farinha de mandioca torrada fina 1kg',
+              unitPriceCents: 1234567,
+              quantity: 3,
+              soldByWeight: false,
+            ),
+          ],
+          method: PaymentMethod.credit,
+          totalCents: 3703701,
+          customer: const SaleCustomer(id: 'c1', name: 'Maria Aparecida dos Santos Oliveira'),
+          pendingSync: true,
+        ),
+      );
     final dependencies = AppDependencies(
+      // Com a faixa de "sem internet" à mostra: ela tira altura de todas as telas do app
+      offlineStatus: OfflineStatus()..markOffline(DateTime(2026, 11, 15, 9)),
+      outbox: outbox,
       authRepository: auth,
       productsRepository: FakeProductsRepository(),
       dashboardRepository: FakeDashboardRepository(),
@@ -104,9 +131,24 @@ void main() {
         for (final route in signedInRoutes) {
           await visit(tester, route);
         }
+        await visit(tester, AppRoutes.pendingChanges);
         const CustomerPickerRequest pickerRequest = (amountCents: 4590, itemCount: 3, initialCustomerId: null);
         await visit(tester, AppRoutes.customerPicker, extra: pickerRequest);
         await visit(tester, AppRoutes.customerEdit(testCustomer.id), extra: testCustomer);
+        // Venda feita sem internet: o aviso de "guardada no aparelho" é o texto mais longo da tela
+        await visit(
+          tester,
+          AppRoutes.sellDone,
+          extra: Sale(
+            id: 'offline-1',
+            createdAt: DateTime(2026, 11, 15, 10),
+            items: const [SaleItem(productId: 'p1', name: 'Arroz', unitPriceCents: 500, quantity: 2, soldByWeight: false)],
+            method: PaymentMethod.credit,
+            totalCents: 1000,
+            customer: const SaleCustomer(id: 'c1', name: 'Maria Aparecida dos Santos'),
+            pendingSync: true,
+          ),
+        );
       });
     }
   }

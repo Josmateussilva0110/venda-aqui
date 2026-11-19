@@ -76,6 +76,24 @@ class RevenueCard extends StatelessWidget {
                         child: Text(l10n.historySaleCount(sales.count), style: context.text.labelSmall?.copyWith(color: colors.onPrimary)),
                       ),
                     ),
+                    // Já somadas no total: o comerciante vê que o dia está completo mesmo sem internet
+                    if (sales.pendingCount > 0) ...[
+                      SizedBox(height: spacing.xs + 2),
+                      Row(
+                        children: [
+                          Icon(Icons.cloud_upload_outlined, size: context.sizes.iconSmall, color: colors.primaryTint),
+                          SizedBox(width: spacing.xs + 2),
+                          Flexible(
+                            child: Text(
+                              l10n.dashboardPendingSales(sales.pendingCount),
+                              style: context.text.bodySmall?.copyWith(color: colors.primaryTint),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

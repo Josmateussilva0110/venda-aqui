@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/notifications/reminder_notifier.dart';
+import '../../../core/offline/sync_state.dart';
 import '../../../core/utils/date_only.dart';
 
 /// Cliente do comércio. O saldo do fiado é calculado e guardado pelo servidor.
 @immutable
 class Customer {
-  const Customer({required this.id, required this.name, required this.phone, required this.balanceCents, this.creditDueDate});
+  const Customer({required this.id, required this.name, required this.phone, required this.balanceCents, this.creditDueDate, this.cpf});
 
   final String id;
   final String name;
@@ -19,6 +20,10 @@ class Customer {
 
   /// Até quando o fiado deve ser pago; o servidor define e limpa junto com o saldo.
   final DateTime? creditDueDate;
+
+  /// Só os 11 dígitos. Vem só no detalhe do cliente (as listas e a cópia offline não guardam):
+  /// nulo pode ser "sem CPF" ou "não carregado".
+  final String? cpf;
 
   bool get owes => balanceCents > 0;
 
@@ -34,6 +39,7 @@ class Customer {
       phone: phone,
       balanceCents: balance,
       creditDueDate: balance == 0 ? null : creditDueDate ?? this.creditDueDate,
+      cpf: cpf,
     );
   }
 }
@@ -176,13 +182,17 @@ abstract final class CreditSettingsLimits {
   static const dueDateMaxDays = 365;
 }
 
-/// Dados para cadastrar um cliente. O servidor normaliza nome e telefone.
+/// Dados para cadastrar ou editar um cliente. O servidor normaliza nome e telefone e confere o CPF.
 @immutable
 class CustomerInput {
-  const CustomerInput({required this.name, required this.phone});
+  const CustomerInput({required this.name, required this.phone, this.cpf});
 
   final String name;
   final String phone;
+
+  /// Só dígitos. Nulo não mexe no CPF guardado (ex.: o formulário não sabia o CPF e ficou vazio);
+  /// vazio tira o CPF do cliente.
+  final String? cpf;
 }
 
 /// Fiado do comércio inteiro, independente do filtro e da página.
@@ -215,6 +225,16 @@ class CustomerPage {
 
   /// Só vem na primeira página: não muda entre as páginas.
   final CreditSummary? summary;
+}
+
+/// Resultado de receber o fiado. Sem internet ([SyncState.pending]) o pagamento ficou guardado no
+/// aparelho e [balanceCents] é nulo: quem decide o saldo é o servidor, quando a fila subir.
+@immutable
+class PaymentReceipt {
+  const PaymentReceipt({required this.balanceCents, required this.state});
+
+  final int? balanceCents;
+  final SyncState state;
 }
 
 /// Formas aceitas para receber o fiado (pagar fiado com fiado não existe).

@@ -45,7 +45,7 @@ class _RestockView extends StatelessWidget {
       if (failure != null) showAppToast(context, failureMessage(l10n, failure), tone: ToastTone.error);
       return;
     }
-    showAppToast(context, l10n.restockDone);
+    showAppToast(context, controller.savedOffline ? l10n.restockSavedOffline : l10n.restockDone);
     context.pop();
   }
 

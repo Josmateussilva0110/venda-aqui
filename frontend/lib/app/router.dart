@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/routing/app_routes.dart';
+import '../features/pending_changes/presentation/pages/pending_changes_page.dart';
 import '../features/auth/presentation/controllers/session_controller.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/recover_pin_page.dart';
@@ -33,6 +34,7 @@ import '../features/sales/presentation/pages/weight_page.dart';
 import '../features/reports/presentation/pages/reports_page.dart';
 import '../features/settings/presentation/pages/settings_page.dart';
 import 'home_shell.dart';
+import 'pending_change_descriptions.dart';
 
 /// Rotas do app. A sessão decide para onde ir: sem login, só as telas de autenticação.
 GoRouter buildRouter(SessionController session) {
@@ -143,6 +145,11 @@ GoRouter buildRouter(SessionController session) {
         builder: (_, _) => SettingsPage(onLogout: session.logout),
       ),
       GoRoute(path: AppRoutes.creditSettings, builder: (_, _) => const CreditSettingsPage()),
+      // O texto de cada tipo vem das features donas (venda, fiado, estoque); a tela não depende delas
+      GoRoute(
+        path: AppRoutes.pendingChanges,
+        builder: (_, _) => const PendingChangesPage(describe: describePendingChange),
+      ),
       GoRoute(
         path: '/stock/:id/edit',
         builder: (_, state) => ProductEditPage(productId: state.pathParameters['id']!),

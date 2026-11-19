@@ -2,7 +2,7 @@ import { Router } from "express"
 import CustomerController from "../controllers/CustomerController"
 import { authMiddleware } from "../middleware/auth"
 import { validate } from "../middleware/validate"
-import { CustomerSchema } from "../schemas/customers/customer"
+import { CreateCustomerSchema, CustomerSchema } from "../schemas/customers/customer"
 import { CustomerParamsSchema } from "../schemas/customers/customerParams"
 import { DueDateSchema } from "../schemas/customers/dueDate"
 import { ListRemindersSchema } from "../schemas/customers/listReminders"
@@ -15,7 +15,7 @@ const router = Router()
 router.use(authMiddleware)
 
 router.get("/", validate(ListCustomersSchema, "query"), CustomerController.list)
-router.post("/", validate(CustomerSchema), CustomerController.create)
+router.post("/", validate(CreateCustomerSchema), CustomerController.create)
 // Antes de /:id, senão "reminders" seria lido como id
 router.get("/reminders", validate(ListRemindersSchema, "query"), CustomerController.listReminders)
 router.get("/:id", validate(CustomerParamsSchema, "params"), CustomerController.get)

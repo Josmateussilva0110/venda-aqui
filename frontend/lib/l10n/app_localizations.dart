@@ -1597,6 +1597,24 @@ abstract class AppLocalizations {
   /// **'Telefone inválido. Use DDD + número.'**
   String get customerPhoneInvalid;
 
+  /// No description provided for @customerCpfLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'CPF (opcional)'**
+  String get customerCpfLabel;
+
+  /// No description provided for @customerCpfPlaceholder.
+  ///
+  /// In pt, this message translates to:
+  /// **'000.000.000-00'**
+  String get customerCpfPlaceholder;
+
+  /// No description provided for @customerCpfInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'CPF inválido. Confira os 11 números.'**
+  String get customerCpfInvalid;
+
   /// No description provided for @customerSave.
   ///
   /// In pt, this message translates to:
@@ -2352,6 +2370,246 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Nenhuma venda hoje ainda.'**
   String get dashboardNoSalesToday;
+
+  /// No description provided for @offlineSavedToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet · dados das {time}'**
+  String offlineSavedToday(String time);
+
+  /// No description provided for @offlineSavedOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet · dados de {date}, {time}'**
+  String offlineSavedOn(String date, String time);
+
+  /// No description provided for @saleDonePendingSync.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet: a venda ficou guardada no aparelho e será enviada sozinha quando a conexão voltar.'**
+  String get saleDonePendingSync;
+
+  /// No description provided for @pendingChangesSent.
+  ///
+  /// In pt, this message translates to:
+  /// **'O que foi feito sem internet já foi enviado.'**
+  String get pendingChangesSent;
+
+  /// No description provided for @pendingSaleShortfall.
+  ///
+  /// In pt, this message translates to:
+  /// **'Venda de {when} enviada, mas faltou estoque: {products}. O estoque desses produtos ficou em zero.'**
+  String pendingSaleShortfall(String when, String products);
+
+  /// No description provided for @pendingSaleRejected.
+  ///
+  /// In pt, this message translates to:
+  /// **'A venda de {when} não foi aceita: {reason}'**
+  String pendingSaleRejected(String when, String reason);
+
+  /// No description provided for @pendingChangeRejectedFallback.
+  ///
+  /// In pt, this message translates to:
+  /// **'o servidor recusou.'**
+  String get pendingChangeRejectedFallback;
+
+  /// No description provided for @logoutPendingTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alterações não enviadas'**
+  String get logoutPendingTitle;
+
+  /// No description provided for @logoutPendingMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 alteração feita sem internet ainda não foi enviada. Se sair agora, ela será perdida.} other{{count} alterações feitas sem internet ainda não foram enviadas. Se sair agora, elas serão perdidas.}}'**
+  String logoutPendingMessage(int count);
+
+  /// No description provided for @logoutPendingConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair e perder'**
+  String get logoutPendingConfirm;
+
+  /// No description provided for @restockSavedOffline.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet: a reposição ficou guardada e será enviada quando a conexão voltar.'**
+  String get restockSavedOffline;
+
+  /// No description provided for @receiveSavedOffline.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet: o pagamento ficou guardado e será enviado quando a conexão voltar.'**
+  String get receiveSavedOffline;
+
+  /// No description provided for @pendingRestockRejected.
+  ///
+  /// In pt, this message translates to:
+  /// **'A reposição de {quantity} de {product} não foi aceita: {reason}'**
+  String pendingRestockRejected(String quantity, String product, String reason);
+
+  /// No description provided for @pendingPaymentRejected.
+  ///
+  /// In pt, this message translates to:
+  /// **'O pagamento de {amount} de {customer} não foi aceito: {reason}'**
+  String pendingPaymentRejected(String amount, String customer, String reason);
+
+  /// No description provided for @settingsOfflineSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet'**
+  String get settingsOfflineSection;
+
+  /// No description provided for @pendingChangesTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alterações não enviadas'**
+  String get pendingChangesTitle;
+
+  /// No description provided for @pendingChangesEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tudo enviado. Nada esperando internet.'**
+  String get pendingChangesEmpty;
+
+  /// No description provided for @pendingChangesStillOffline.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ainda sem internet. Tudo continua guardado e sobe sozinho quando a conexão voltar.'**
+  String get pendingChangesStillOffline;
+
+  /// No description provided for @pendingChangesSendNow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviar agora'**
+  String get pendingChangesSendNow;
+
+  /// No description provided for @pendingChangesWaitingSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esperando internet ({count})'**
+  String pendingChangesWaitingSection(int count);
+
+  /// No description provided for @pendingChangesWaitingHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sobem sozinhas, nesta ordem, quando a conexão voltar.'**
+  String get pendingChangesWaitingHint;
+
+  /// No description provided for @pendingChangesRejectedSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recusadas pelo servidor ({count})'**
+  String pendingChangesRejectedSection(int count);
+
+  /// No description provided for @pendingChangesRejectedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confira o motivo. Depois de corrigir, tente de novo; se não fizer mais sentido, descarte.'**
+  String get pendingChangesRejectedHint;
+
+  /// No description provided for @pendingChangesBannerWaiting.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 alteração esperando internet} other{{count} alterações esperando internet}}'**
+  String pendingChangesBannerWaiting(int count);
+
+  /// No description provided for @pendingChangesBannerRejected.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 alteração recusada: toque para ver} other{{count} alterações recusadas: toque para ver}}'**
+  String pendingChangesBannerRejected(int count);
+
+  /// No description provided for @pendingChangeRetry.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar de novo'**
+  String get pendingChangeRetry;
+
+  /// No description provided for @pendingChangeDiscard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descartar'**
+  String get pendingChangeDiscard;
+
+  /// No description provided for @pendingChangeDiscardTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descartar alteração?'**
+  String get pendingChangeDiscardTitle;
+
+  /// No description provided for @pendingChangeDiscardMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'{change} não vai para o servidor e some deste aparelho. Isso não pode ser desfeito.'**
+  String pendingChangeDiscardMessage(String change);
+
+  /// No description provided for @pendingChangeUnknown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alteração'**
+  String get pendingChangeUnknown;
+
+  /// No description provided for @pendingSaleTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Venda de {total}'**
+  String pendingSaleTitle(String total);
+
+  /// No description provided for @pendingSaleTitleUnknown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Venda'**
+  String get pendingSaleTitleUnknown;
+
+  /// No description provided for @pendingPaymentTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento de fiado de {amount}'**
+  String pendingPaymentTitle(String amount);
+
+  /// No description provided for @pendingRestockTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reposição de {product}'**
+  String pendingRestockTitle(String product);
+
+  /// No description provided for @pendingRestockDetail.
+  ///
+  /// In pt, this message translates to:
+  /// **'+{quantity} no estoque'**
+  String pendingRestockDetail(String quantity);
+
+  /// No description provided for @pendingCustomerTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cadastro de {name}'**
+  String pendingCustomerTitle(String name);
+
+  /// No description provided for @pendingCustomerRejected.
+  ///
+  /// In pt, this message translates to:
+  /// **'{change} não foi aceito: {reason}'**
+  String pendingCustomerRejected(String change, String reason);
+
+  /// No description provided for @dashboardPendingSales.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{Inclui 1 venda feita sem internet, ainda não enviada} other{Inclui {count} vendas feitas sem internet, ainda não enviadas}}'**
+  String dashboardPendingSales(int count);
+
+  /// No description provided for @dashboardPendingSaleTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Feita sem internet, ainda não enviada'**
+  String get dashboardPendingSaleTooltip;
+
+  /// No description provided for @historyOnlyPending.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem internet: mostrando só as vendas feitas neste aparelho que ainda não foram enviadas.'**
+  String get historyOnlyPending;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:vendaqui/app/app.dart';
 import 'package:vendaqui/app/dependencies.dart';
+import 'package:vendaqui/core/offline/offline_status.dart';
 import 'package:vendaqui/core/notifications/reminder_notifier.dart';
 import 'package:vendaqui/core/stock/stock_changes.dart';
 import 'package:vendaqui/features/auth/presentation/controllers/session_controller.dart';
@@ -19,6 +20,8 @@ void main() {
     await tester.pumpWidget(
       VendaquiApp(
         dependencies: AppDependencies(
+          offlineStatus: OfflineStatus(),
+          outbox: memoryOutbox(),
           authRepository: auth,
           productsRepository: FakeProductsRepository(),
           dashboardRepository: FakeDashboardRepository(

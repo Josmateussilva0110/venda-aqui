@@ -102,8 +102,10 @@ class Sale {
     required this.totalCents,
     this.editedAt,
     this.customer,
+    this.pendingSync = false,
   });
 
+  /// Na venda feita sem internet, o id gerado no aparelho (o mesmo que vai ao servidor).
   final String id;
   final DateTime createdAt;
   final List<SaleItem> items;
@@ -113,6 +115,10 @@ class Sale {
 
   /// Só a venda fiado tem cliente.
   final SaleCustomer? customer;
+
+  /// Feita sem internet: está guardada no aparelho e vai ao servidor quando a conexão voltar.
+  /// Até lá o total é o do app (preço do catálogo); o que vale é o que o servidor calcular.
+  final bool pendingSync;
 
   /// Produtos por peso contam como um item cada, como no carrinho.
   int get itemCount => items.fold(0, (sum, item) => sum + (item.soldByWeight ? 1 : item.quantity.round()));
@@ -130,14 +136,47 @@ class SaleInput {
   final SaleCustomer? customer;
 }
 
+/// Produto que faltou quando uma venda feita sem internet chegou ao servidor. A venda foi aceita
+/// (já tinha acontecido no balcão) e o estoque parou em zero.
+@immutable
+class StockShortfall {
+  const StockShortfall({required this.name, required this.missingQuantity, required this.soldByWeight});
+
+  final String name;
+  final double missingQuantity;
+  final bool soldByWeight;
+}
+
+/// Resultado do envio de uma venda que estava na fila.
+@immutable
+class PendingSaleReceipt {
+  const PendingSaleReceipt({required this.soldAt, required this.shortfalls});
+
+  /// Hora do balcão, para o aviso dizer de qual venda se trata.
+  final DateTime soldAt;
+  final List<StockShortfall> shortfalls;
+}
+
 /// Uma página do histórico, com o resumo do filtro inteiro (não só da página) calculado pelo servidor.
 @immutable
 class SaleHistoryPage {
-  const SaleHistoryPage({required this.items, required this.total, required this.totalCents});
+  const SaleHistoryPage({
+    required this.items,
+    required this.total,
+    required this.totalCents,
+    this.pendingCount = 0,
+    this.onlyPending = false,
+  });
 
   final List<Sale> items;
   final int total;
   final int totalCents;
+
+  /// Vendas da fila do aparelho incluídas na página (e em [total] e [totalCents]); só vêm na primeira.
+  final int pendingCount;
+
+  /// Sem internet: a página tem só as vendas guardadas no aparelho, não as do servidor.
+  final bool onlyPending;
 }
 
 /// Filtro do histórico: período por dia (inclusivo), forma de pagamento e busca por produto.

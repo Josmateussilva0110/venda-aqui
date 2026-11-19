@@ -5,12 +5,12 @@ import { RegisterSchema } from "../src/schemas/auth/register"
 import { ProductSchema } from "../src/schemas/products/product"
 import { ListProductsSchema } from "../src/schemas/products/listProducts"
 import { RestockSchema } from "../src/schemas/products/restock"
-import { CustomerSchema } from "../src/schemas/customers/customer"
+import { CreateCustomerSchema, CustomerSchema } from "../src/schemas/customers/customer"
 import { ListCustomersSchema } from "../src/schemas/customers/listCustomers"
 import { DueDateSchema } from "../src/schemas/customers/dueDate"
 import { PaymentSchema } from "../src/schemas/customers/payment"
 import { ListSalesSchema } from "../src/schemas/sales/listSales"
-import { SaleSchema } from "../src/schemas/sales/sale"
+import { CreateSaleSchema, SaleSchema } from "../src/schemas/sales/sale"
 import { CreditSettingsSchema } from "../src/schemas/settings/creditSettings"
 
 describe("phoneField", () => {
@@ -161,6 +161,80 @@ describe("SaleSchema", () => {
     expect(fieldsOf({ paymentMethod: "cash", items: [] })).toEqual(["items"])
     expect(fieldsOf({ paymentMethod: "cash", items: [{ productId, quantity: 0 }] })).toEqual(["items.0.quantity"])
     expect(fieldsOf({ paymentMethod: "cash", items: [{ productId, quantity: 1 }, { productId, quantity: 2 }] })).toEqual(["items"])
+  })
+})
+
+describe("CreateSaleSchema (venda feita sem internet)", () => {
+  const productId = "6f1c1a52-6d0b-4a40-9d0a-9c1b5a0f2f11"
+  const clientId = "8b3e3c74-8f2d-4c62-9f2c-1e3d7c2a4b33"
+  const items = [{ productId, quantity: 1 }]
+  const hoursAgo = (hours: number) => new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
+  const fieldsOf = (input: unknown) => CreateSaleSchema.safeParse(input).error?.issues.map((issue) => issue.path.join(".")) ?? []
+
+  it("aceita a hora do balcão com o id do aparelho, e recusa sem o id (o reenvio duplicaria)", () => {
+    expect(fieldsOf({ paymentMethod: "cash", items, clientId, soldAt: hoursAgo(2) })).toEqual([])
+    expect(fieldsOf({ paymentMethod: "cash", items, soldAt: hoursAgo(2) })).toEqual(["clientId"])
+  })
+
+  it("recusa venda velha demais, que reescreveria relatórios já fechados", () => {
+    expect(fieldsOf({ paymentMethod: "cash", items, clientId, soldAt: hoursAgo(31 * 24) })).toEqual(["soldAt"])
+  })
+
+  // A edição usa o mesmo payload, mas não pode reaproveitar a regra que aceita falta de estoque
+  it("a edição descarta os campos da venda offline", () => {
+    expect(SaleSchema.parse({ paymentMethod: "cash", items, clientId, soldAt: hoursAgo(1) })).toEqual({ paymentMethod: "cash", items })
+  })
+})
+
+describe("pagamento e reposição feitos sem internet", () => {
+  const clientId = "8b3e3c74-8f2d-4c62-9f2c-1e3d7c2a4b33"
+  const hoursAgo = (hours: number) => new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
+
+  it("pagamento com hora do recebimento exige o id do aparelho (senão o reenvio baixaria a dívida duas vezes)", () => {
+    expect(PaymentSchema.safeParse({ amountCents: 500, paymentMethod: "pix", clientId, paidAt: hoursAgo(3) }).success).toBe(true)
+    const withoutId = PaymentSchema.safeParse({ amountCents: 500, paymentMethod: "pix", paidAt: hoursAgo(3) })
+    expect(withoutId.error?.issues.map((issue) => issue.path.join("."))).toEqual(["clientId"])
+    expect(PaymentSchema.safeParse({ amountCents: 500, paymentMethod: "pix", clientId, paidAt: hoursAgo(31 * 24) }).success).toBe(false)
+  })
+
+  it("reposição aceita o id do aparelho e recusa id malformado", () => {
+    expect(RestockSchema.parse({ quantity: 5, clientId })).toEqual({ quantity: 5, clientId })
+    expect(RestockSchema.safeParse({ quantity: 5, clientId: "abc" }).success).toBe(false)
+  })
+})
+
+describe("cadastro de cliente feito sem internet", () => {
+  it("aceita o id escolhido pelo aparelho só no cadastro, e a edição o descarta", () => {
+    const clientId = "8b3e3c74-8f2d-4c62-9f2c-1e3d7c2a4b33"
+    expect(CreateCustomerSchema.parse({ name: "Ana Souza", phone: "(86) 99999-0000", clientId })).toEqual({
+      name: "Ana Souza",
+      phone: "+5586999990000",
+      clientId,
+    })
+    expect(CreateCustomerSchema.safeParse({ name: "Ana Souza", phone: "(86) 99999-0000", clientId: "abc" }).success).toBe(false)
+    expect(CustomerSchema.parse({ name: "Ana Souza", phone: "(86) 99999-0000", clientId })).not.toHaveProperty("clientId")
+  })
+})
+
+describe("CPF do cliente", () => {
+  const base = { name: "Ana Souza", phone: "(86) 99999-0000" }
+
+  it("aceita CPF válido como o comerciante digita e guarda só os dígitos", () => {
+    expect(CustomerSchema.parse({ ...base, cpf: "529.982.247-25" }).cpf).toBe("52998224725")
+  })
+
+  it("recusa dígito verificador errado e sequência repetida, no campo cpf", () => {
+    for (const cpf of ["529.982.247-26", "111.111.111-11", "123"]) {
+      const result = CustomerSchema.safeParse({ ...base, cpf })
+      expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual(["cpf"])
+    }
+  })
+
+  // Ausente não mexe no CPF guardado (app antigo editando); vazio ou null apaga
+  it("distingue CPF ausente de CPF apagado", () => {
+    expect(CustomerSchema.parse(base)).not.toHaveProperty("cpf")
+    expect(CustomerSchema.parse({ ...base, cpf: "" }).cpf).toBeNull()
+    expect(CustomerSchema.parse({ ...base, cpf: null }).cpf).toBeNull()
   })
 })
 
