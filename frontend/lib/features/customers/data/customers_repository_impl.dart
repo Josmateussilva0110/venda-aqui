@@ -117,11 +117,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
   // A API devolve só o id; quem chamou busca o cliente de novo para ver o telefone já normalizado
   @override
   Future<void> update(String id, CustomerInput input) async {
-    final response = await requestData<void>(
-      endpoint: ApiPaths.customer(id),
-      method: 'PUT',
-      data: {'name': input.name, 'phone': input.phone},
-    );
+    final response = await requestData<void>(endpoint: ApiPaths.customer(id), method: 'PUT', data: PendingCustomerSender.body(input));
     response.ensureSuccess();
   }
 
@@ -346,6 +342,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
       phone: json.requireString('phone'),
       balanceCents: json.requireInt('balanceCents'),
       creditDueDate: DateOnly.tryParse(json.optionalString('creditDueDate')),
+      cpf: json.optionalString('cpf'),
     );
   }
 

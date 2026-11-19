@@ -15,6 +15,8 @@ export interface Customer {
   balanceCents: number
   // Data (AAAA-MM-DD) até quando o fiado deve ser pago; nula quando não deve nada
   creditDueDate: string | null
+  // Só os 11 dígitos; vem só no detalhe do cliente (as listas não levam)
+  cpf?: string | null
   createdAt: string
   updatedAt: string
 }

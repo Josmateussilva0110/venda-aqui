@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/network/api_codes.dart';
 import '../../../../core/network/app_failure.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
@@ -49,7 +48,7 @@ class _EditView extends StatelessWidget {
       router.pop(CustomerEditResult.saved);
       return null;
     } on AppFailure catch (failure) {
-      if (customerFieldFailure(failure, ApiCodes.customerPhoneTaken) case final fieldFailure?) return fieldFailure;
+      if (customerFieldFailure(failure) case final fieldFailure?) return fieldFailure;
       messenger.showAppToast(failureMessage(l10n, failure), tone: ToastTone.error);
       return null;
     }
@@ -106,7 +105,7 @@ class _EditView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         CustomerForm(
-                          initialValue: CustomerInput(name: customer.name, phone: customer.phone),
+                          initialValue: CustomerInput(name: customer.name, phone: customer.phone, cpf: customer.cpf),
                           submitLabel: l10n.customerUpdate,
                           isSaving: isSaving,
                           onSubmit: (input) => _save(context, input),

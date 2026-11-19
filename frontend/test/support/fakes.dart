@@ -508,7 +508,7 @@ class FakeCustomersRepository implements CustomersRepository {
 
   @override
   Future<Customer> create(CustomerInput input) async {
-    final customer = Customer(id: 'customer-${_nextId++}', name: input.name, phone: input.phone, balanceCents: 0);
+    final customer = Customer(id: 'customer-${_nextId++}', name: input.name, phone: input.phone, balanceCents: 0, cpf: input.cpf);
     customers.add(customer);
     return customer;
   }
@@ -529,6 +529,7 @@ class FakeCustomersRepository implements CustomersRepository {
 
   @override
   Future<void> update(String id, CustomerInput input) async {
+    lastUpdate = input;
     if (customers.any((customer) => customer.id != id && customer.phone.endsWith(input.phone))) {
       throw const RequestFailure(statusCode: 409, message: 'Você já tem um cliente com esse telefone.', code: 'CUSTOMER_PHONE_TAKEN');
     }
@@ -540,6 +541,12 @@ class FakeCustomersRepository implements CustomersRepository {
       phone: '+55${input.phone}',
       balanceCents: current.balanceCents,
       creditDueDate: current.creditDueDate,
+      // Como o servidor: CPF ausente não mexe, vazio apaga
+      cpf: switch (input.cpf) {
+        null => current.cpf,
+        '' => null,
+        final cpf => cpf,
+      },
     );
   }
 
@@ -548,6 +555,9 @@ class FakeCustomersRepository implements CustomersRepository {
     final entries = statements[customerId] ?? const [];
     return StatementPage(items: entries.skip(offset).take(limit).toList(), total: entries.length);
   }
+
+  /// O último envio de edição, para conferir o que o formulário mandou (ex.: o CPF).
+  CustomerInput? lastUpdate;
 
   @override
   Future<PaymentReceipt> registerPayment(String customerId, {required int amountCents, required SettlementMethod method}) async {

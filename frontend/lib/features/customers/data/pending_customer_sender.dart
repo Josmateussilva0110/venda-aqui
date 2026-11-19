@@ -10,10 +10,11 @@ class PendingCustomerSender {
 
   static const kind = 'customer';
 
-  /// Corpo do cadastro. [clientId] vira o id do cliente: a venda fiado feita offline para ele já aponta
-  /// para esse id, e reenviar o cadastro não cria o cliente duas vezes.
-  static Map<String, Object> body(CustomerInput input, {required String clientId}) {
-    return {'name': input.name, 'phone': input.phone, 'clientId': clientId};
+  /// Corpo do cadastro e da edição. No cadastro, [clientId] vira o id do cliente: a venda fiado feita
+  /// offline para ele já aponta para esse id, e reenviar o cadastro não cria o cliente duas vezes.
+  /// O CPF só vai quando o formulário decidiu algo sobre ele (ausente: o servidor não mexe).
+  static Map<String, Object> body(CustomerInput input, {String? clientId}) {
+    return {'name': input.name, 'phone': input.phone, 'cpf': ?input.cpf, 'clientId': ?clientId};
   }
 
   static Map<String, dynamic> payload({required Map<String, Object> body}) => {'body': body};

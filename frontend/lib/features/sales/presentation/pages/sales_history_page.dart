@@ -276,13 +276,14 @@ class _DayHeader extends StatelessWidget {
     };
     return Padding(
       padding: EdgeInsets.fromLTRB(spacing.xs, spacing.md, spacing.xs, spacing.sm),
-      // Dia de faturamento alto com fonte grande: o resumo quebra a linha em vez de estourar a tela
+      // Resumo encostado à direita, alinhado com os valores das vendas. Dia de faturamento alto com fonte
+      // grande quebra a linha dentro da metade dele em vez de estourar a tela
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: Text(label, style: context.text.titleSmall)),
           SizedBox(width: spacing.sm),
-          Flexible(
+          Expanded(
             child: Text(
               l10n.historySummary(l10n.historySaleCount(group.sales.length), MoneyFormat.format(group.totalCents)),
               style: context.text.bodySmall,

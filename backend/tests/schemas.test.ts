@@ -216,6 +216,28 @@ describe("cadastro de cliente feito sem internet", () => {
   })
 })
 
+describe("CPF do cliente", () => {
+  const base = { name: "Ana Souza", phone: "(86) 99999-0000" }
+
+  it("aceita CPF válido como o comerciante digita e guarda só os dígitos", () => {
+    expect(CustomerSchema.parse({ ...base, cpf: "529.982.247-25" }).cpf).toBe("52998224725")
+  })
+
+  it("recusa dígito verificador errado e sequência repetida, no campo cpf", () => {
+    for (const cpf of ["529.982.247-26", "111.111.111-11", "123"]) {
+      const result = CustomerSchema.safeParse({ ...base, cpf })
+      expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual(["cpf"])
+    }
+  })
+
+  // Ausente não mexe no CPF guardado (app antigo editando); vazio ou null apaga
+  it("distingue CPF ausente de CPF apagado", () => {
+    expect(CustomerSchema.parse(base)).not.toHaveProperty("cpf")
+    expect(CustomerSchema.parse({ ...base, cpf: "" }).cpf).toBeNull()
+    expect(CustomerSchema.parse({ ...base, cpf: null }).cpf).toBeNull()
+  })
+})
+
 describe("ListSalesSchema", () => {
   it("recusa período invertido ou maior que um ano", () => {
     expect(ListSalesSchema.safeParse({ from: "2026-10-31T00:00:00-03:00", to: "2026-10-01T00:00:00-03:00" }).success).toBe(false)

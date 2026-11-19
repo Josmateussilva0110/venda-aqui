@@ -841,6 +841,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get customerPhoneInvalid => 'Telefone inválido. Use DDD + número.';
 
   @override
+  String get customerCpfLabel => 'CPF (opcional)';
+
+  @override
+  String get customerCpfPlaceholder => '000.000.000-00';
+
+  @override
+  String get customerCpfInvalid => 'CPF inválido. Confira os 11 números.';
+
+  @override
   String get customerSave => 'Salvar cliente';
 
   @override
