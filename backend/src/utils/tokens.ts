@@ -4,6 +4,7 @@ import { env } from "../config/env"
 import { ACCESS_TOKEN_TTL_SECONDS } from "../constants/auth"
 
 const JWT_ISSUER = "vendaqui-api"
+const PORTAL_JWT_ISSUER = "vendaqui-portal"
 const JWT_ALGORITHM = "HS256"
 
 export interface AccessTokenClaims {
@@ -31,6 +32,32 @@ export function verifyAccessToken(token: string): AccessTokenClaims | null {
   }
 }
 
+export interface PortalAccessTokenClaims {
+  accountId: string
+  sessionId: string
+}
+
+// Emissor próprio: com o mesmo segredo, é o que impede o token do cliente de valer nas rotas do
+// comerciante (o verifyAccessToken exige JWT_ISSUER) e o do comerciante de valer no portal
+export function signPortalAccessToken(claims: PortalAccessTokenClaims): string {
+  return jwt.sign({ sid: claims.sessionId }, env.JWT_SECRET, {
+    subject: claims.accountId,
+    issuer: PORTAL_JWT_ISSUER,
+    algorithm: JWT_ALGORITHM,
+    expiresIn: ACCESS_TOKEN_TTL_SECONDS,
+  })
+}
+
+export function verifyPortalAccessToken(token: string): PortalAccessTokenClaims | null {
+  try {
+    const payload = jwt.verify(token, env.JWT_SECRET, { issuer: PORTAL_JWT_ISSUER, algorithms: [JWT_ALGORITHM] })
+    if (typeof payload === "string" || !payload.sub || typeof payload.sid !== "string") return null
+    return { accountId: payload.sub, sessionId: payload.sid }
+  } catch {
+    return null
+  }
+}
+
 export function generateRefreshToken(): string {
   return randomBytes(48).toString("base64url")
 }
@@ -45,6 +72,11 @@ export function secretMatchesHash(value: string, hash: string): boolean {
   const expected = Buffer.from(hash, "hex")
   const actual = Buffer.from(hashSecret(value), "hex")
   return expected.length === actual.length && timingSafeEqual(expected, actual)
+}
+
+// Token do convite: vai na URL, por isso base64url
+export function generateUrlToken(bytes: number): string {
+  return randomBytes(bytes).toString("base64url")
 }
 
 export function generateNumericCode(length: number): string {

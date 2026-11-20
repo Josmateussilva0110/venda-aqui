@@ -743,6 +743,33 @@
   "stepperDecrease": "Diminuir",
   "stepperIncrease": "Aumentar",
   "whatsAppUnavailable": "Não foi possível abrir o WhatsApp.",
+  "portalAccessSend": "Enviar acesso ao app",
+  "portalAccessHint": "O cliente vê as compras e os pagamentos desta loja no app Vendaqui Cliente. O link vale por 24 horas e só uma vez; mandar de novo cancela o anterior.",
+  "portalAccessMessage": "Olá, {customerName}! Agora você pode ver suas compras e pagamentos na {merchantName} pelo app Vendaqui Cliente.\n\n1. Abra o app Vendaqui Cliente.\n2. Toque em \"Tenho um link de acesso\" e cole esta mensagem.\n3. Crie o seu PIN.\n\n{link}\n\nO link vale por 24 horas e só pode ser usado uma vez.",
+  "@portalAccessMessage": {
+    "placeholders": {
+      "customerName": {
+        "type": "String"
+      },
+      "merchantName": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "portalAccessMessageNoStore": "Olá, {customerName}! Agora você pode ver suas compras e pagamentos aqui da loja pelo app Vendaqui Cliente.\n\n1. Abra o app Vendaqui Cliente.\n2. Toque em \"Tenho um link de acesso\" e cole esta mensagem.\n3. Crie o seu PIN.\n\n{link}\n\nO link vale por 24 horas e só pode ser usado uma vez.",
+  "@portalAccessMessageNoStore": {
+    "placeholders": {
+      "customerName": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
   "statementTitle": "Movimentações",
   "statementSale": "Compra no fiado",
   "statementPayment": "Pagamento · {method}",

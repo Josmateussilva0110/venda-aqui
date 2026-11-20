@@ -2143,6 +2143,30 @@ abstract class AppLocalizations {
   /// **'Não foi possível abrir o WhatsApp.'**
   String get whatsAppUnavailable;
 
+  /// No description provided for @portalAccessSend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviar acesso ao app'**
+  String get portalAccessSend;
+
+  /// No description provided for @portalAccessHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'O cliente vê as compras e os pagamentos desta loja no app Vendaqui Cliente. O link vale por 24 horas e só uma vez; mandar de novo cancela o anterior.'**
+  String get portalAccessHint;
+
+  /// No description provided for @portalAccessMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Olá, {customerName}! Agora você pode ver suas compras e pagamentos na {merchantName} pelo app Vendaqui Cliente.\n\n1. Abra o app Vendaqui Cliente.\n2. Toque em \"Tenho um link de acesso\" e cole esta mensagem.\n3. Crie o seu PIN.\n\n{link}\n\nO link vale por 24 horas e só pode ser usado uma vez.'**
+  String portalAccessMessage(String customerName, String merchantName, String link);
+
+  /// No description provided for @portalAccessMessageNoStore.
+  ///
+  /// In pt, this message translates to:
+  /// **'Olá, {customerName}! Agora você pode ver suas compras e pagamentos aqui da loja pelo app Vendaqui Cliente.\n\n1. Abra o app Vendaqui Cliente.\n2. Toque em \"Tenho um link de acesso\" e cole esta mensagem.\n3. Crie o seu PIN.\n\n{link}\n\nO link vale por 24 horas e só pode ser usado uma vez.'**
+  String portalAccessMessageNoStore(String customerName, String link);
+
   /// No description provided for @statementTitle.
   ///
   /// In pt, this message translates to:

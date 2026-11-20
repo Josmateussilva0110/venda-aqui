@@ -18,6 +18,9 @@ const EnvSchema = z
     WHATSAPP_ACCESS_TOKEN: z.string().optional(),
     WHATSAPP_TEMPLATE_NAME: z.string().optional(),
     WHATSAPP_TEMPLATE_LANGUAGE: z.string().default("pt_BR"),
+    // Início do link de acesso que a loja manda ao cliente; o cliente cola o link no app. Trocar por um
+    // https://dominio/convite quando a API tiver domínio fixo, para o Android abrir o app direto (App Links)
+    CUSTOMER_INVITE_BASE_URL: z.url().default("vendaqui-cliente://convite"),
   })
   .superRefine((env, context) => {
     // O provedor "console" imprime o código no log: aceitável em dev, vazamento em produção

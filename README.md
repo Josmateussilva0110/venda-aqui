@@ -5,7 +5,8 @@ Gestão de vendas e estoque para o pequeno comerciante. Monorepo:
 | Pasta | O que é |
 |---|---|
 | [`backend/`](backend/README.md) | API REST (Node + TypeScript + Express + Supabase) |
-| [`frontend/`](frontend/README.md) | App Flutter (Android) |
+| [`frontend/`](frontend/README.md) | App Flutter do comerciante (Android) |
+| [`customer_app/`](customer_app/README.md) | App Flutter do cliente: consulta das compras por loja (Android) |
 
 O `.env` da API fica na raiz do repositório (`cp .env.example .env`). A configuração do app fica em
 `frontend/config/api.json` (`cp frontend/config/api.example.json frontend/config/api.json`): é o único lugar

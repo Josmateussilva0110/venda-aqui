@@ -3,6 +3,9 @@ export const MERCHANT_AUTH_COLUMNS = `${MERCHANT_COLUMNS}, pin_hash, failed_pin_
 
 export const SESSION_COLUMNS = "id, merchant_id, device_id, expires_at, revoked_at"
 
+export const PORTAL_ACCOUNT_AUTH_COLUMNS = "id, phone, pin_hash, failed_pin_attempts, pin_locked_until"
+export const PORTAL_SESSION_COLUMNS = "id, account_id, device_id, expires_at, revoked_at"
+
 export const PRODUCT_COLUMNS =
   "id, name, photo_path, thumb_path, sale_price_cents, cost_price_cents, quantity, sold_by_weight, created_at, updated_at"
 

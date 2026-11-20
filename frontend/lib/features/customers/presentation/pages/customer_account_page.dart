@@ -26,6 +26,7 @@ import '../controllers/customer_account_controller.dart';
 import '../widgets/customer_whatsapp_button.dart';
 import 'customer_edit_page.dart';
 import '../widgets/due_date_row.dart';
+import '../widgets/portal_access_button.dart';
 import '../widgets/receive_payment_panel.dart';
 import '../widgets/statement_entry_tile.dart';
 
@@ -366,6 +367,11 @@ class _BalanceCardState extends State<_BalanceCard> {
                 onCancel: () => setState(() => _panelAmount = null),
               ),
           ],
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: spacing.md),
+            child: Divider(height: 1, color: colors.divider),
+          ),
+          PortalAccessButton(customer: customer, merchantName: widget.merchantName),
         ],
       ),
     );

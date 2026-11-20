@@ -26,5 +26,6 @@ router.get("/:id/statement", validate(CustomerParamsSchema, "params"), validate(
 router.post("/:id/payments", validate(CustomerParamsSchema, "params"), validate(PaymentSchema), CustomerController.registerPayment)
 router.put("/:id/due-date", validate(CustomerParamsSchema, "params"), validate(DueDateSchema), CustomerController.setDueDate)
 router.post("/:id/reminders", validate(CustomerParamsSchema, "params"), CustomerController.markReminded)
+router.post("/:id/portal-invite", validate(CustomerParamsSchema, "params"), CustomerController.createPortalInvite)
 
 export default router

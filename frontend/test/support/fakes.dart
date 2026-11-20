@@ -498,6 +498,10 @@ class FakeCustomersRepository implements CustomersRepository {
   Future<void> markReminded(String customerId) async => remindedIds.add(customerId);
 
   @override
+  Future<PortalInvite> createPortalInvite(String customerId) async =>
+      PortalInvite(url: 'vendaqui-cliente://convite?token=$customerId', expiresAt: DateTime(2026, 11, 21, 10));
+
+  @override
   Future<CreditSettings> creditSettings() async => settings;
 
   @override

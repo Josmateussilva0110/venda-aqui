@@ -1,0 +1,97 @@
+{
+  "@@locale": "pt",
+  "appTitle": "Vendaqui Cliente",
+  "brandPrefix": "Vend",
+  "brandSuffix": "aqui",
+  "genericNetworkError": "Sem conexão com o servidor. Confira a internet e tente de novo.",
+  "genericServerError": "Algo deu errado do nosso lado. Tente de novo em instantes.",
+  "genericSessionExpired": "Sua sessão terminou. Entre de novo com seu PIN.",
+  "retry": "Tentar de novo",
+  "splashLoading": "Abrindo o Vendaqui…",
+  "loginTitle": "Suas compras",
+  "loginSubtitle": "Veja o que você comprou e quanto deve em cada loja.",
+  "loginByPhone": "Telefone",
+  "loginByCpf": "CPF",
+  "loginMethodLabel": "Entrar com",
+  "phoneFieldLabel": "Telefone / WhatsApp",
+  "phonePlaceholder": "(00) 00000-0000",
+  "cpfFieldLabel": "CPF",
+  "cpfPlaceholder": "000.000.000-00",
+  "pinFieldLabel": "PIN (4 a 6 números)",
+  "loginSubmit": "Entrar",
+  "loginMissingFields": "Preencha o telefone ou CPF e o PIN.",
+  "loginInvalidCpf": "CPF inválido. Confira os 11 números.",
+  "loginNoAccessHint": "Ainda não tem acesso ou esqueceu o PIN? Peça o link de acesso para a loja onde você compra. Ele chega pelo WhatsApp: copie a mensagem e cole aqui no app.",
+  "loginHaveInvite": "Tenho um link de acesso",
+  "inviteTitle": "Acesso às suas compras",
+  "inviteFrom": "Link enviado por {merchant} para o número terminado em {ending}.",
+  "@inviteFrom": {
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      },
+      "ending": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteCreatePinIntro": "Crie um PIN para entrar quando quiser. Você vai usar o seu telefone ou CPF e este PIN.",
+  "inviteCurrentPinIntro": "Você já tem acesso em outra loja. Digite o seu PIN para juntar esta loja às outras.",
+  "inviteResetPinIntro": "Ao criar um PIN novo, as outras lojas saem da sua consulta até cada uma enviar um link novo. Isso protege as suas compras.",
+  "inviteNewPinLabel": "PIN novo (4 a 6 números)",
+  "inviteConfirmPinLabel": "Repita o PIN",
+  "inviteCurrentPinLabel": "Seu PIN",
+  "inviteForgotPin": "Esqueci o PIN, criar um novo",
+  "inviteKnowPin": "Lembrei o PIN",
+  "inviteSubmit": "Liberar acesso",
+  "invitePinsDiffer": "Os PINs não conferem.",
+  "invitePinTooShort": "O PIN deve ter de 4 a 6 números.",
+  "inviteInvalidTitle": "Este link não vale mais",
+  "inviteInvalidBody": "O link de acesso vale por 24 horas e só pode ser usado uma vez. Peça um link novo para a loja.",
+  "inviteGoToLogin": "Já tenho PIN, entrar",
+  "inviteAccepted": "Acesso liberado.",
+  "pasteInviteTitle": "Link de acesso",
+  "pasteInviteSubtitle": "Na conversa com a loja no WhatsApp, toque e segure a mensagem com o link, escolha Copiar e cole aqui.",
+  "pasteInviteFieldLabel": "Link ou mensagem da loja",
+  "pasteInvitePaste": "Colar",
+  "pasteInviteContinue": "Continuar",
+  "pasteInviteNotFound": "Não achamos um link de acesso nesse texto. Copie a mensagem da loja de novo.",
+  "storesTitle": "Minhas lojas",
+  "storesSubtitle": "Toque numa loja para ver as compras e os pagamentos.",
+  "storesEmpty": "Nenhuma loja ligada ao seu acesso. Peça o link de acesso para a loja onde você compra.",
+  "storesLogout": "Sair",
+  "storesAddStore": "Colar link de outra loja",
+  "storeOwes": "Você deve",
+  "storeNothingOwed": "Nada em aberto",
+  "storeDueOn": "Vence em {date}",
+  "@storeDueOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "storeOpenStatement": "Ver movimentações de {merchant}",
+  "@storeOpenStatement": {
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      }
+    }
+  },
+  "statementEmpty": "Nenhuma compra fiado ou pagamento nesta loja ainda.",
+  "statementPurchase": "Compra fiado",
+  "statementPayment": "Pagamento",
+  "statementPaymentWith": "Pagamento em {method}",
+  "@statementPaymentWith": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentMethodCash": "dinheiro",
+  "paymentMethodPix": "Pix",
+  "paymentMethodCard": "cartão",
+  "back": "Voltar"
+}

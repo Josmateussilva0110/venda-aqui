@@ -1168,6 +1168,23 @@ class AppLocalizationsPt extends AppLocalizations {
   String get whatsAppUnavailable => 'Não foi possível abrir o WhatsApp.';
 
   @override
+  String get portalAccessSend => 'Enviar acesso ao app';
+
+  @override
+  String get portalAccessHint =>
+      'O cliente vê as compras e os pagamentos desta loja no app Vendaqui Cliente. O link vale por 24 horas e só uma vez; mandar de novo cancela o anterior.';
+
+  @override
+  String portalAccessMessage(String customerName, String merchantName, String link) {
+    return 'Olá, $customerName! Agora você pode ver suas compras e pagamentos na $merchantName pelo app Vendaqui Cliente.\n\n1. Abra o app Vendaqui Cliente.\n2. Toque em \"Tenho um link de acesso\" e cole esta mensagem.\n3. Crie o seu PIN.\n\n$link\n\nO link vale por 24 horas e só pode ser usado uma vez.';
+  }
+
+  @override
+  String portalAccessMessageNoStore(String customerName, String link) {
+    return 'Olá, $customerName! Agora você pode ver suas compras e pagamentos aqui da loja pelo app Vendaqui Cliente.\n\n1. Abra o app Vendaqui Cliente.\n2. Toque em \"Tenho um link de acesso\" e cole esta mensagem.\n3. Crie o seu PIN.\n\n$link\n\nO link vale por 24 horas e só pode ser usado uma vez.';
+  }
+
+  @override
   String get statementTitle => 'Movimentações';
 
   @override

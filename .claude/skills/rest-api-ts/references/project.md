@@ -58,3 +58,16 @@
   (`customers_merchant_cpf_key`; erro `CUSTOMER_CPF_TAKEN`, 409, identificado pelo nome do índice com
   `isUniqueViolationOf`). Dígitos verificadores conferidos em `schemas/fields/cpf.ts`. No PUT, `cpf` ausente não mexe
   (app antigo não apaga), `""`/`null` apaga. Vai só no detalhe (`CUSTOMER_DETAIL_COLUMNS`), nunca nas listas.
+- Portal do cliente (`20261120000000_customer_portal.sql`, rotas em `/api/portal`, domínio `portal`): o cliente final
+  consulta compras e pagamentos agrupados por loja. Conta = telefone + PIN próprio (`customer_accounts`), sessões em
+  `customer_sessions`, token com emissor `vendaqui-portal` (o do comerciante é `vendaqui-api`; mesmo segredo, então o
+  emissor é o que impede um token de valer nas rotas do outro). Campos do request: `portalAccountId`/`portalSessionId`,
+  lidos com `requireAuthField`. Uma loja só aparece quando ela envia o convite (`POST /customers/:id/portal-invite`,
+  link de uso único de 24 h, só o hash no banco, mandado pelo WhatsApp do comerciante via wa.me) e o cliente aceita:
+  `customers.portal_account_id`. **O CPF serve para entrar, nunca liga lojas** (é digitado pelo comerciante); CPF que
+  aponta para mais de uma conta é recusado no login. Como o comerciante vê o link, aceitar convite de conta existente
+  exige o PIN atual; criar PIN novo pelo convite desliga as outras lojas e revoga as sessões (tudo em
+  `redeem_customer_portal_invite`, VQ009 convite inválido, VQ010 conta inexistente sem PIN novo). Trocar o telefone do
+  cliente desliga a loja (trigger) e mata convites pendentes. O app do cliente é só Android (sem CORS): o link é
+  `CUSTOMER_INVITE_BASE_URL?token=...` e o cliente cola no app; com domínio fixo, trocar a base por https para App Links.
+  O extrato reaproveita `customer_statement`, com o `merchant_id` lido da linha ligada à conta, nunca da requisição.
