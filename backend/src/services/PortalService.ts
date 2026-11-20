@@ -71,3 +71,4 @@ class PortalService {
 }
 
 export default new PortalService()
+
