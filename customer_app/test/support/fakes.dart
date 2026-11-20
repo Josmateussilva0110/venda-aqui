@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:vendaqui_cliente/core/network/app_failure.dart';
+import 'package:vendaqui_cliente/core/theme/theme_controller.dart';
 import 'package:vendaqui_cliente/features/auth/domain/auth_repository.dart';
 import 'package:vendaqui_cliente/features/auth/domain/invite_info.dart';
 import 'package:vendaqui_cliente/features/auth/domain/login_method.dart';
@@ -63,6 +65,10 @@ class FakeStoresRepository implements StoresRepository {
       amountCents: 1234567,
       paymentMethod: PaymentMethod.credit,
       createdAt: DateTime(2026, 11, 2, 9),
+      items: const [
+        PurchaseItem(name: 'Farinha de mandioca torrada fina pacote de 1kg', quantity: 12, soldByWeight: false, subtotalCents: 1234067),
+        PurchaseItem(name: 'Tomate', quantity: 0.755, soldByWeight: true, subtotalCents: 500),
+      ],
     ),
     StatementEntry(
       id: 'p1',
@@ -81,4 +87,14 @@ class FakeStoresRepository implements StoresRepository {
     final page = entries.skip(offset).take(limit).toList();
     return StatementPage(items: page, total: entries.length, offset: offset);
   }
+}
+
+class MemoryThemeStore implements ThemePreferenceStore {
+  ThemeMode? saved;
+
+  @override
+  Future<ThemeMode?> read() async => saved;
+
+  @override
+  Future<void> write(ThemeMode mode) async => saved = mode;
 }

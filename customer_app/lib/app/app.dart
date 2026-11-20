@@ -41,24 +41,27 @@ class _VendaquiClienteAppState extends State<VendaquiClienteApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: widget.dependencies.providers,
-      child: MaterialApp.router(
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        debugShowCheckedModeBanner: false,
-        scaffoldMessengerKey: _messengerKey,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        // Sem tela de configurações: segue o claro/escuro do aparelho
-        themeMode: ThemeMode.system,
-        locale: const Locale('pt', 'BR'),
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        routerConfig: _router,
-        builder: (context, child) => _SessionEndedNotice(messengerKey: _messengerKey, child: child ?? const SizedBox.shrink()),
+      // Só o MaterialApp escuta o tema: trocar claro/escuro não reconstrói o resto da árvore por fora dele
+      child: ListenableBuilder(
+        listenable: widget.dependencies.themeController,
+        builder: (context, _) => MaterialApp.router(
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          debugShowCheckedModeBanner: false,
+          scaffoldMessengerKey: _messengerKey,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: widget.dependencies.themeController.mode,
+          locale: const Locale('pt', 'BR'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          routerConfig: _router,
+          builder: (context, child) => _SessionEndedNotice(messengerKey: _messengerKey, child: child ?? const SizedBox.shrink()),
+        ),
       ),
     );
   }

@@ -349,12 +349,6 @@ abstract class AppLocalizations {
   /// **'Link ou mensagem da loja'**
   String get pasteInviteFieldLabel;
 
-  /// No description provided for @pasteInvitePaste.
-  ///
-  /// In pt, this message translates to:
-  /// **'Colar'**
-  String get pasteInvitePaste;
-
   /// No description provided for @pasteInviteContinue.
   ///
   /// In pt, this message translates to:
@@ -396,6 +390,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Colar link de outra loja'**
   String get storesAddStore;
+
+  /// No description provided for @themeMenu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tema do app'**
+  String get themeMenu;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Igual ao celular'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In pt, this message translates to:
+  /// **'Claro'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escuro'**
+  String get themeDark;
 
   /// No description provided for @storeOwes.
   ///
@@ -444,6 +462,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Pagamento em {method}'**
   String statementPaymentWith(String method);
+
+  /// No description provided for @purchaseItemLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quantity} {name}'**
+  String purchaseItemLine(String quantity, String name);
+
+  /// No description provided for @quantityUnits.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quantity}×'**
+  String quantityUnits(String quantity);
+
+  /// No description provided for @quantityKg.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quantity} kg'**
+  String quantityKg(String quantity);
 
   /// No description provided for @paymentMethodCash.
   ///

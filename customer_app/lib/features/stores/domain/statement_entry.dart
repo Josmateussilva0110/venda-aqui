@@ -5,6 +5,17 @@ enum StatementKind { purchase, payment }
 
 enum PaymentMethod { cash, pix, card, credit, unknown }
 
+/// Item de uma compra, com o valor gravado na venda (preço da época).
+@immutable
+class PurchaseItem {
+  const PurchaseItem({required this.name, required this.quantity, required this.soldByWeight, required this.subtotalCents});
+
+  final String name;
+  final double quantity;
+  final bool soldByWeight;
+  final int subtotalCents;
+}
+
 @immutable
 class StatementEntry {
   const StatementEntry({
@@ -13,6 +24,7 @@ class StatementEntry {
     required this.amountCents,
     required this.paymentMethod,
     required this.createdAt,
+    this.items = const [],
   });
 
   final String id;
@@ -20,6 +32,9 @@ class StatementEntry {
   final int amountCents;
   final PaymentMethod paymentMethod;
   final DateTime createdAt;
+
+  /// O que foi comprado; vazio nos pagamentos.
+  final List<PurchaseItem> items;
 }
 
 /// Uma página do extrato, como o servidor paginou.

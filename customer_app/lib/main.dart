@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'app/app.dart';
 import 'app/dependencies.dart';
 import 'core/config/app_config.dart';
+import 'core/theme/theme_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,5 +15,6 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(['Manrope'], await rootBundle.loadString('assets/fonts/Manrope-OFL.txt'));
   });
   await initializeDateFormatting('pt_BR');
-  runApp(VendaquiClienteApp(dependencies: AppDependencies.create(AppConfig.fromEnvironment())));
+  final themeController = await ThemeController.load(SharedPreferencesThemeStore());
+  runApp(VendaquiClienteApp(dependencies: AppDependencies.create(AppConfig.fromEnvironment(), themeController: themeController)));
 }

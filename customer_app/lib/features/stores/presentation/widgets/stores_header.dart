@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/brand_logo.dart';
 import '../../../../core/widgets/page_intro.dart';
+import '../../../../core/widgets/theme_menu_button.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Topo da lista de lojas: marca, botão de sair e título.
@@ -26,6 +27,7 @@ class StoresHeader extends StatelessWidget {
                 child: BrandLogo(markSize: context.sizes.logoSmall, fontSize: context.text.titleLarge?.fontSize ?? context.sizes.logoSmall),
               ),
             ),
+            const ThemeMenuButton(),
             IconButton(tooltip: l10n.storesAddStore, onPressed: onAddStore, icon: const Icon(Icons.add_link_rounded)),
             IconButton(tooltip: l10n.storesLogout, onPressed: onLogout, icon: const Icon(Icons.logout_rounded)),
           ],

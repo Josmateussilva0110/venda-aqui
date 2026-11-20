@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/brand_logo.dart';
+import '../../../../core/widgets/theme_menu_button.dart';
 
 /// Coluna centralizada e rolável das telas de acesso, com a marca no topo e largura limitada em telas largas.
 class AuthFormLayout extends StatelessWidget {
@@ -21,12 +22,19 @@ class AuthFormLayout extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: BrandLogo(
-                  markSize: context.sizes.logoMedium,
-                  fontSize: context.text.headlineMedium?.fontSize ?? context.sizes.logoMedium,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: BrandLogo(
+                        markSize: context.sizes.logoMedium,
+                        fontSize: context.text.headlineMedium?.fontSize ?? context.sizes.logoMedium,
+                      ),
+                    ),
+                  ),
+                  const ThemeMenuButton(),
+                ],
               ),
               SizedBox(height: spacing.lg),
               ...children,

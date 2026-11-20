@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:vendaqui_cliente/app/app.dart';
 import 'package:vendaqui_cliente/app/dependencies.dart';
 import 'package:vendaqui_cliente/core/routing/app_routes.dart';
+import 'package:vendaqui_cliente/core/theme/theme_controller.dart';
 import 'package:vendaqui_cliente/features/auth/domain/invite_info.dart';
 import 'package:vendaqui_cliente/features/auth/presentation/controllers/session_controller.dart';
 import 'package:vendaqui_cliente/features/stores/domain/store.dart';
@@ -40,6 +41,7 @@ void main() {
       authRepository: auth,
       storesRepository: FakeStoresRepository(stores: [storeWithDueDate, testStore]),
       sessionController: SessionController(auth),
+      themeController: ThemeController(MemoryThemeStore()),
     );
     await tester.pumpWidget(VendaquiClienteApp(key: UniqueKey(), dependencies: dependencies));
     await tester.pumpAndSettle();

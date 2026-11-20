@@ -65,7 +65,17 @@ void main() {
           'data': {
             'items': [
               {'kind': 'payment', 'id': 'p1', 'amountCents': 500, 'paymentMethod': 'pix', 'createdAt': '2026-11-10T21:00:00.000Z'},
-              {'kind': 'sale', 'id': 's1', 'amountCents': 2000, 'paymentMethod': 'credit', 'createdAt': '2026-11-02T12:00:00.000Z'},
+              {
+                'kind': 'sale',
+                'id': 's1',
+                'amountCents': 2000,
+                'paymentMethod': 'credit',
+                'createdAt': '2026-11-02T12:00:00.000Z',
+                'items': [
+                  {'name': 'Arroz 5kg', 'quantity': 1, 'soldByWeight': false, 'subtotalCents': 1500},
+                  {'name': 'Tomate', 'quantity': 0.5, 'soldByWeight': true, 'subtotalCents': 500},
+                ],
+              },
             ],
             'total': 3,
             'limit': 2,
@@ -87,5 +97,8 @@ void main() {
       (StatementKind.purchase, PaymentMethod.credit),
     ]);
     expect(page.hasMore, isTrue);
+    final tomato = page.items.last.items.last;
+    expect((tomato.name, tomato.quantity, tomato.soldByWeight, tomato.subtotalCents), ('Tomate', 0.5, true, 500));
+    expect(page.items.first.items, isEmpty, reason: 'pagamento não tem itens');
   });
 }

@@ -34,6 +34,17 @@ abstract final class StatementDto {
       // Forma nova no servidor não derruba a lista: aparece como pagamento sem forma
       paymentMethod: PaymentMethod.values.asNameMap()[json.optionalString('paymentMethod')] ?? PaymentMethod.unknown,
       createdAt: createdAt.toLocal(),
+      // Servidor antigo, sem os itens, não derruba a lista: a compra aparece só com o total
+      items: (json['items'] is List<Object?>) ? json.requireMapList('items').map(_item).toList(growable: false) : const [],
+    );
+  }
+
+  static PurchaseItem _item(Map<String, dynamic> json) {
+    return PurchaseItem(
+      name: json.requireString('name'),
+      quantity: json.requireDouble('quantity'),
+      soldByWeight: json.optionalBool('soldByWeight'),
+      subtotalCents: json.requireInt('subtotalCents'),
     );
   }
 }

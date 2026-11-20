@@ -70,4 +70,5 @@
   `redeem_customer_portal_invite`, VQ009 convite inválido, VQ010 conta inexistente sem PIN novo). Trocar o telefone do
   cliente desliga a loja (trigger) e mata convites pendentes. O app do cliente é só Android (sem CORS): o link é
   `CUSTOMER_INVITE_BASE_URL?token=...` e o cliente cola no app; com domínio fixo, trocar a base por https para App Links.
-  O extrato reaproveita `customer_statement`, com o `merchant_id` lido da linha ligada à conta, nunca da requisição.
+  O extrato do portal é `customer_portal_statement` (migration `20261120010000`): confere a posse pela conta na mesma
+  ida ao banco, traz os itens de cada compra e devolve nulo (404) para cadastro de outra conta.

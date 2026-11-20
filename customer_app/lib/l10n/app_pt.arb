@@ -53,7 +53,6 @@
   "pasteInviteTitle": "Link de acesso",
   "pasteInviteSubtitle": "Na conversa com a loja no WhatsApp, toque e segure a mensagem com o link, escolha Copiar e cole aqui.",
   "pasteInviteFieldLabel": "Link ou mensagem da loja",
-  "pasteInvitePaste": "Colar",
   "pasteInviteContinue": "Continuar",
   "pasteInviteNotFound": "Não achamos um link de acesso nesse texto. Copie a mensagem da loja de novo.",
   "storesTitle": "Minhas lojas",
@@ -61,6 +60,10 @@
   "storesEmpty": "Nenhuma loja ligada ao seu acesso. Peça o link de acesso para a loja onde você compra.",
   "storesLogout": "Sair",
   "storesAddStore": "Colar link de outra loja",
+  "themeMenu": "Tema do app",
+  "themeSystem": "Igual ao celular",
+  "themeLight": "Claro",
+  "themeDark": "Escuro",
   "storeOwes": "Você deve",
   "storeNothingOwed": "Nada em aberto",
   "storeDueOn": "Vence em {date}",
@@ -86,6 +89,33 @@
   "@statementPaymentWith": {
     "placeholders": {
       "method": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseItemLine": "{quantity} {name}",
+  "@purchaseItemLine": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quantityUnits": "{quantity}×",
+  "@quantityUnits": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "quantityKg": "{quantity} kg",
+  "@quantityKg": {
+    "placeholders": {
+      "quantity": {
         "type": "String"
       }
     }

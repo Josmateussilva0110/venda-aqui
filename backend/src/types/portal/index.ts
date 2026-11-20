@@ -1,4 +1,5 @@
 import type { AuthTokens } from "../auth"
+import type { StatementEntry } from "../customers"
 import type { ServiceResult } from "../serviceResult"
 import type { PortalErrorCode } from "./errors"
 
@@ -54,4 +55,24 @@ export interface PortalStore {
   customerName: string
   balanceCents: number
   creditDueDate: string | null
+}
+
+export interface PortalPurchaseItem {
+  name: string
+  quantity: number
+  soldByWeight: boolean
+  // Valor do item na venda (preço da época), como ficou gravado
+  subtotalCents: number
+}
+
+// Lançamento do extrato do cliente: o mesmo do comerciante, com os itens das compras (vazio nos pagamentos)
+export interface PortalStatementEntry extends StatementEntry {
+  items: PortalPurchaseItem[]
+}
+
+export interface PortalStatement {
+  items: PortalStatementEntry[]
+  total: number
+  limit: number
+  offset: number
 }

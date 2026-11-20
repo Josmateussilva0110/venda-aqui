@@ -22,3 +22,16 @@ export interface PortalStoreRow {
   balance_cents: number
   credit_due_date: string | null
 }
+
+// Resultado da função customer_portal_statement; quantidade chega como texto ou número (numeric)
+export interface PortalStatementRow {
+  total: number
+  items: Array<{
+    kind: "sale" | "payment"
+    id: string
+    amount_cents: number
+    payment_method: string
+    created_at: string
+    items: Array<{ name: string; quantity: number | string; sold_by_weight: boolean; subtotal_cents: number }>
+  }>
+}

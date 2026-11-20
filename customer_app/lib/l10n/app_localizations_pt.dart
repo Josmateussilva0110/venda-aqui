@@ -143,9 +143,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pasteInviteFieldLabel => 'Link ou mensagem da loja';
 
   @override
-  String get pasteInvitePaste => 'Colar';
-
-  @override
   String get pasteInviteContinue => 'Continuar';
 
   @override
@@ -165,6 +162,18 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get storesAddStore => 'Colar link de outra loja';
+
+  @override
+  String get themeMenu => 'Tema do app';
+
+  @override
+  String get themeSystem => 'Igual ao celular';
+
+  @override
+  String get themeLight => 'Claro';
+
+  @override
+  String get themeDark => 'Escuro';
 
   @override
   String get storeOwes => 'Você deve';
@@ -194,6 +203,21 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String statementPaymentWith(String method) {
     return 'Pagamento em $method';
+  }
+
+  @override
+  String purchaseItemLine(String quantity, String name) {
+    return '$quantity $name';
+  }
+
+  @override
+  String quantityUnits(String quantity) {
+    return '$quantity×';
+  }
+
+  @override
+  String quantityKg(String quantity) {
+    return '$quantity kg';
   }
 
   @override

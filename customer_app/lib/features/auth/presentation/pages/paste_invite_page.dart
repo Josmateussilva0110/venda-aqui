@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/app_routes.dart';
@@ -26,14 +25,6 @@ class _PasteInvitePageState extends State<PasteInvitePage> {
   void dispose() {
     _textController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pasteFromClipboard() async {
-    final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
-    final text = clipboard?.text;
-    if (!mounted || text == null || text.isEmpty) return;
-    _textController.text = text;
-    _continue();
   }
 
   void _continue() {
@@ -65,6 +56,7 @@ class _PasteInvitePageState extends State<PasteInvitePage> {
               label: l10n.pasteInviteFieldLabel,
               child: TextField(
                 controller: _textController,
+                autofocus: true,
                 minLines: 2,
                 maxLines: 4,
                 keyboardType: TextInputType.multiline,
@@ -74,13 +66,6 @@ class _PasteInvitePageState extends State<PasteInvitePage> {
               ),
             ),
             SizedBox(height: spacing.md),
-            AppButton(
-              label: l10n.pasteInvitePaste,
-              icon: Icons.content_paste_rounded,
-              variant: AppButtonVariant.outlined,
-              onPressed: _pasteFromClipboard,
-            ),
-            SizedBox(height: spacing.sm),
             AppButton(label: l10n.pasteInviteContinue, onPressed: _continue),
           ],
         ),
