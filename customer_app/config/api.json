@@ -1,0 +1,4 @@
+{
+  "API_BASE_URL": "https://app-vendaqui-25aa.onbelmo.uk/api",
+  "HTTP_TIMEOUT_SECONDS": "15"
+}
