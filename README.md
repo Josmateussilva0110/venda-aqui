@@ -38,3 +38,4 @@ O APK sai em `frontend/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`.
   `http://192.168.1.15:8080/api`. O celular precisa estar no mesmo Wi-Fi.
 - Com a API hospedada, troque pela URL HTTPS (ex.: `https://api.seudominio.com.br/api`) e gere o APK de novo.
 - Guarde `frontend/build/symbols/` de cada versão: é o que permite ler os relatórios de erro do app ofuscado.
+
