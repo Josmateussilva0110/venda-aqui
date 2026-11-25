@@ -38,6 +38,9 @@ abstract interface class CustomersRepository {
   /// Clientes com lembrete pendente, do vencimento mais antigo para o mais novo.
   Future<CreditReminderPage> reminders({required int offset, required int limit});
 
+  /// Gera um link de acesso ao app do cliente; o anterior deixa de valer. Precisa de internet.
+  Future<PortalInvite> createPortalInvite(String customerId);
+
   /// Registra que o lembrete foi aberto no WhatsApp; ele sai da lista até a próxima data de lembrete.
   Future<void> markReminded(String customerId);
 

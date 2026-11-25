@@ -23,3 +23,9 @@ export const refreshRateLimiter = limiter(15, 60, true)
 // Cada pedido dispara uma mensagem paga no WhatsApp
 export const pinRecoveryRequestRateLimiter = limiter(60, 5, false)
 export const pinRecoveryConfirmRateLimiter = limiter(15, 10, true)
+
+// Portal do cliente: mesmas regras do login do comerciante
+export const portalLoginRateLimiter = limiter(15, 10, true)
+export const portalRefreshRateLimiter = limiter(15, 60, true)
+// Abrir e aceitar o link: o token tem entropia alta, o limite só corta varredura e abuso
+export const portalInviteRateLimiter = limiter(15, 30, false)

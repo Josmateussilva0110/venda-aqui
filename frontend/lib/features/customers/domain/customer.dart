@@ -280,3 +280,13 @@ class StatementPage {
   final List<StatementEntry> items;
   final int total;
 }
+
+/// Link de acesso ao app do cliente (Vendaqui Cliente). O cliente cola o link no app para ver as
+/// próprias compras desta loja; vale uma vez e até [expiresAt].
+@immutable
+class PortalInvite {
+  const PortalInvite({required this.url, required this.expiresAt});
+
+  final String url;
+  final DateTime expiresAt;
+}

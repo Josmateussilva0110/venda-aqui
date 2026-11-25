@@ -241,6 +241,21 @@ class CustomersRepositoryImpl implements CustomersRepository {
     response.ensureSuccess();
   }
 
+  @override
+  Future<PortalInvite> createPortalInvite(String customerId) async {
+    final response = await requestData<PortalInvite>(
+      endpoint: ApiPaths.customerPortalInvite(customerId),
+      method: 'POST',
+      parse: (json) {
+        final data = jsonMap(json);
+        final expiresAt = DateTime.tryParse(data.requireString('expiresAt'));
+        if (expiresAt == null) throw const FormatException('Campo "expiresAt" inválido.');
+        return PortalInvite(url: data.requireString('url'), expiresAt: expiresAt.toLocal());
+      },
+    );
+    return response.requireData();
+  }
+
   // O resumo vem junto da lista; uma linha só basta para lê-lo
   @override
   Future<CreditSummary> summary() async {

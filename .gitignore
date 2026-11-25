@@ -16,6 +16,8 @@
 # Endereço da API do app (copie de frontend/config/api.example.json)
 frontend/config/*.json
 !frontend/config/*.example.json
+customer_app/config/*.json
+!customer_app/config/*.example.json
 
 # Chaves de assinatura Android e credenciais
 *.keystore

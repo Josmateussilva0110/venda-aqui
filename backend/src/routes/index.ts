@@ -1,6 +1,7 @@
 import { Router } from "express"
 import authRoutes from "./auth"
 import customerRoutes from "./customers"
+import portalRoutes from "./portal"
 import productRoutes from "./products"
 import reportRoutes from "./reports"
 import saleRoutes from "./sales"
@@ -17,5 +18,6 @@ router.use("/customers", customerRoutes)
 router.use("/sales", saleRoutes)
 router.use("/reports", reportRoutes)
 router.use("/settings", settingsRoutes)
+router.use("/portal", portalRoutes)
 
 export default router

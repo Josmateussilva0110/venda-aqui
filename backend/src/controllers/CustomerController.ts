@@ -1,5 +1,6 @@
 import type { Request, Response } from "express"
 import { customerErrorHttpStatusMap } from "../errors/customers"
+import { portalErrorHttpStatusMap } from "../errors/portal"
 import type { CreateCustomerDTO, CustomerDTO } from "../schemas/customers/customer"
 import type { CustomerParamsDTO } from "../schemas/customers/customerParams"
 import type { DueDateDTO } from "../schemas/customers/dueDate"
@@ -8,6 +9,7 @@ import type { ListCustomersDTO } from "../schemas/customers/listCustomers"
 import type { PaymentDTO } from "../schemas/customers/payment"
 import type { StatementDTO } from "../schemas/customers/statement"
 import CustomerService from "../services/CustomerService"
+import PortalInviteService from "../services/PortalInviteService"
 import { requireAuthField } from "../utils/requireAuthField"
 import { sendFailure } from "../utils/sendFailure"
 import { sendSuccess } from "../utils/sendSuccess"
@@ -80,6 +82,13 @@ class CustomerController {
     const result = await CustomerService.markReminded(requireAuthField(request, "merchantId"), request.params.id)
     if (!result.status) return sendFailure(response, result.error, customerErrorHttpStatusMap)
     return sendSuccess(response, "Lembrete registrado.", result.data, 201)
+  }
+
+  // Link de acesso ao app do cliente; o envio é pelo WhatsApp do comerciante, como os lembretes
+  async createPortalInvite(request: Request<CustomerParamsDTO>, response: Response): Promise<Response> {
+    const result = await PortalInviteService.create(requireAuthField(request, "merchantId"), request.params.id)
+    if (!result.status) return sendFailure(response, result.error, portalErrorHttpStatusMap)
+    return sendSuccess(response, "Link de acesso gerado.", result.data, 201)
   }
 
 }

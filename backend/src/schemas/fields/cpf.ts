@@ -10,3 +10,9 @@ export const optionalCpfField = z
   .refine((digits) => digits === "" || isValidCpf(digits), { error: "CPF inválido. Confira os 11 números." })
   .transform((digits) => (digits === "" ? null : digits))
   .optional()
+
+// CPF obrigatório (entrada do cliente no portal), também aceito com pontos e traço
+export const cpfField = z
+  .string({ error: "Informe o CPF." })
+  .transform((value) => value.replace(/\D/g, ""))
+  .refine(isValidCpf, { error: "CPF inválido. Confira os 11 números." })

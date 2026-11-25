@@ -44,12 +44,10 @@ import type {
   OpenAccount,
   OpenAccountRow,
   PaymentSaved,
-  StatementEntry,
-  StatementEntryRow,
   StatementRow,
 } from "../types/customers"
-import type { PaymentMethod } from "../types/sales"
 import { escapeLikePattern, isForeignKeyViolation, isUniqueViolation, isUniqueViolationOf } from "../utils/database"
+import { toStatementEntry } from "../utils/statement"
 
 class CustomerService {
 
@@ -260,7 +258,7 @@ class CustomerService {
       return {
         status: true,
         data: {
-          items: page.data.items.map((row) => this.toStatementEntry(row)),
+          items: page.data.items.map(toStatementEntry),
           total: page.data.total,
           limit: filters.limit,
           offset: filters.offset,
@@ -452,16 +450,6 @@ class CustomerService {
       balanceCents: row.balance_cents,
       creditDueDate: row.credit_due_date,
       kind: row.reminder_kind,
-    }
-  }
-
-  private toStatementEntry(row: StatementEntryRow): StatementEntry {
-    return {
-      kind: row.kind,
-      id: row.id,
-      amountCents: row.amount_cents,
-      paymentMethod: row.payment_method as PaymentMethod,
-      createdAt: row.created_at,
     }
   }
 }
